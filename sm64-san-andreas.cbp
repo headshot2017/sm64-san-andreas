@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="sm64-san-andreas" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="GTASA Release">
+				<Option output="$(GTA_SA_DIR)/scripts/sm64_san_andreas.SA.asi" prefix_auto="0" extension_auto="0" />
+				<Option object_output=".obj/Release" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-O2" />
+					<Add option="-m32" />
+					<Add option="-fpermissive" />
+					<Add option="-std=gnu++17" />
+					<Add option="-DNDEBUG" />
+					<Add option="-DGTASA" />
+					<Add option='-DGTAGAME_NAME=&quot;\&quot;San Andreas&quot;\&quot;' />
+					<Add option='-DGTAGAME_ABBR=&quot;\&quot;SA&quot;\&quot;' />
+					<Add option='-DGTAGAME_ABBRLOW=&quot;\&quot;sa&quot;\&quot;' />
+					<Add option='-DGTAGAME_PROTAGONISTNAME=&quot;\&quot;CJ&quot;\&quot;' />
+					<Add option='-DGTAGAME_CITYNAME=&quot;\&quot;San Andreas&quot;\&quot;' />
+					<Add option="-D_DX9_SDK_INSTALLED" />
+					<Add option="-DPLUGIN_SGV_10US" />
+					<Add directory="$(PLUGIN_SDK_DIR)/plugin_sa/" />
+					<Add directory="$(PLUGIN_SDK_DIR)/plugin_sa/game_sa/" />
+					<Add directory="$(PLUGIN_SDK_DIR)/shared/" />
+					<Add directory="$(PLUGIN_SDK_DIR)/shared/game/" />
+					<Add directory="$(DIRECTX9_SDK_DIR)/Include/" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+					<Add option="-static-libstdc++" />
+					<Add option="-static-libgcc" />
+					<Add option="-m32" />
+					<Add library="plugin" />
+					<Add library="d3d9" />
+					<Add library="d3dx9" />
+					<Add directory="$(PLUGIN_SDK_DIR)/output/mingw/lib/" />
+					<Add directory="$(DIRECTX9_SDK_DIR)/Lib/x86/" />
+					<Add directory="libsm64/bin/Release" />
+				</Linker>
+				<ExtraCommands>
+					<Add after='cmd /c copy /Y libsm64\bin\Release\libsm64.dll &quot;$(GTA_SA_DIR)\scripts\&quot;' />
+				</ExtraCommands>
+			</Target>
+			<Target title="GTASA Debug">
+				<Option output="$(GTA_SA_DIR)/scripts/sm64_san_andreas.SA_d.asi" prefix_auto="0" extension_auto="0" />
+				<Option object_output=".obj/Debug" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Compiler>
+					<Add option="-m32" />
+					<Add option="-g" />
+					<Add option="-fpermissive" />
+					<Add option="-std=gnu++17" />
+					<Add option="-D_DEBUG" />
+					<Add option="-DGTASA" />
+					<Add option='-DGTAGAME_NAME=&quot;\&quot;San Andreas&quot;\&quot;' />
+					<Add option='-DGTAGAME_ABBR=&quot;\&quot;SA&quot;\&quot;' />
+					<Add option='-DGTAGAME_ABBRLOW=&quot;\&quot;sa&quot;\&quot;' />
+					<Add option='-DGTAGAME_PROTAGONISTNAME=&quot;\&quot;CJ&quot;\&quot;' />
+					<Add option='-DGTAGAME_CITYNAME=&quot;\&quot;San Andreas&quot;\&quot;' />
+					<Add option="-D_DX9_SDK_INSTALLED" />
+					<Add option="-DPLUGIN_SGV_10US" />
+					<Add directory="$(PLUGIN_SDK_DIR)/plugin_sa/" />
+					<Add directory="$(PLUGIN_SDK_DIR)/plugin_sa/game_sa/" />
+					<Add directory="$(PLUGIN_SDK_DIR)/shared/" />
+					<Add directory="$(PLUGIN_SDK_DIR)/shared/game/" />
+					<Add directory="$(DIRECTX9_SDK_DIR)/Include/" />
+				</Compiler>
+				<Linker>
+					<Add option="-static-libstdc++" />
+					<Add option="-static-libgcc" />
+					<Add option="-m32" />
+					<Add library="plugin_d" />
+					<Add library="d3d9" />
+					<Add library="d3dx9" />
+					<Add directory="$(PLUGIN_SDK_DIR)/output/mingw/lib/" />
+					<Add directory="$(DIRECTX9_SDK_DIR)/Lib/x86/" />
+					<Add directory="libsm64/bin/Debug" />
+				</Linker>
+				<ExtraCommands>
+					<Add after='cmd /c copy /Y libsm64\bin\Debug\libsm64.dll &quot;$(GTA_SA_DIR)\scripts\&quot;' />
+				</ExtraCommands>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add directory="libsm64/src" />
+			<Add directory="SDL2/include" />
+		</Compiler>
+		<Linker>
+			<Add library="SDL2" />
+			<Add library="sm64" />
+			<Add directory="SDL2/lib" />
+		</Linker>
+		<ExtraCommands>
+			<Add after='cmd /c copy /Y SDL2\bin\SDL2.dll &quot;$(GTA_SA_DIR)\scripts\&quot;' />
+			<Add after='cmd /c copy /Y &quot;$(TARGET_COMPILER_DIR)libwinpthread-1.dll&quot; &quot;$(GTA_SA_DIR)\scripts\&quot;' />
+			<Add after='cmd /c copy /Y &quot;$(TARGET_COMPILER_DIR)libgcc_s_dw2-1.dll&quot; &quot;$(GTA_SA_DIR)\scripts\&quot;' />
+		</ExtraCommands>
+		<Unit filename="audio.cpp" />
+		<Unit filename="audio.h" />
+		<Unit filename="main.cpp" />
+		<Extensions>
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

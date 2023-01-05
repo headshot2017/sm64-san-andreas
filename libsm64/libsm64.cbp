@@ -1,0 +1,314 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="libsm64" />
+		<Option pch_mode="2" />
+		<Option compiler="gcc" />
+		<Build>
+			<Target title="Debug">
+				<Option output="bin/Debug/libsm64" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Debug/" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-g" />
+				</Compiler>
+			</Target>
+			<Target title="Release">
+				<Option output="bin/Release/libsm64" prefix_auto="1" extension_auto="1" />
+				<Option object_output="obj/Release/" />
+				<Option type="3" />
+				<Option compiler="gcc" />
+				<Option createDefFile="1" />
+				<Option createStaticLib="1" />
+				<Compiler>
+					<Add option="-O2" />
+				</Compiler>
+				<Linker>
+					<Add option="-s" />
+				</Linker>
+			</Target>
+		</Build>
+		<Compiler>
+			<Add option="-Wall" />
+			<Add option="-shared" />
+			<Add option="-DSM64_LIB_EXPORT" />
+			<Add option="-DGBI_FLOATS" />
+			<Add option="-DVERSION_US" />
+			<Add option="-DNO_SEGMENTED_MEMORY" />
+			<Add directory="src/decomp/include" />
+		</Compiler>
+		<Unit filename="src/debug_print.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/debug_print.h" />
+		<Unit filename="src/decomp/audio/data.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/audio/data.h" />
+		<Unit filename="src/decomp/audio/effects.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/audio/effects.h" />
+		<Unit filename="src/decomp/audio/external.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/audio/external.h" />
+		<Unit filename="src/decomp/audio/globals_start.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/audio/heap.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/audio/heap.h" />
+		<Unit filename="src/decomp/audio/internal.h" />
+		<Unit filename="src/decomp/audio/load.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/audio/load.h" />
+		<Unit filename="src/decomp/audio/load_dat.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/audio/load_dat.h" />
+		<Unit filename="src/decomp/audio/load_sh.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/audio/playback.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/audio/playback.h" />
+		<Unit filename="src/decomp/audio/port_eu.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/audio/port_sh.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/audio/seqplayer.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/audio/seqplayer.h" />
+		<Unit filename="src/decomp/audio/shindou_debug_prints.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/audio/synthesis.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/audio/synthesis.h" />
+		<Unit filename="src/decomp/audio/synthesis_sh.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/engine/geo_layout.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/engine/geo_layout.h" />
+		<Unit filename="src/decomp/engine/graph_node.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/engine/graph_node.h" />
+		<Unit filename="src/decomp/engine/graph_node_manager.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/engine/guMtxF2L.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/engine/guMtxF2L.h" />
+		<Unit filename="src/decomp/engine/math_util.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/engine/math_util.h" />
+		<Unit filename="src/decomp/engine/surface_collision.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/engine/surface_collision.h" />
+		<Unit filename="src/decomp/game/area.h" />
+		<Unit filename="src/decomp/game/behavior_actions.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/game/behavior_actions.h" />
+		<Unit filename="src/decomp/game/camera.h" />
+		<Unit filename="src/decomp/game/interaction.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/game/interaction.h" />
+		<Unit filename="src/decomp/game/level_update.h" />
+		<Unit filename="src/decomp/game/mario.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/game/mario.h" />
+		<Unit filename="src/decomp/game/mario_actions_airborne.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/game/mario_actions_airborne.h" />
+		<Unit filename="src/decomp/game/mario_actions_automatic.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/game/mario_actions_automatic.h" />
+		<Unit filename="src/decomp/game/mario_actions_cutscene.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/game/mario_actions_cutscene.h" />
+		<Unit filename="src/decomp/game/mario_actions_moving.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/game/mario_actions_moving.h" />
+		<Unit filename="src/decomp/game/mario_actions_object.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/game/mario_actions_object.h" />
+		<Unit filename="src/decomp/game/mario_actions_stationary.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/game/mario_actions_stationary.h" />
+		<Unit filename="src/decomp/game/mario_actions_submerged.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/game/mario_actions_submerged.h" />
+		<Unit filename="src/decomp/game/mario_misc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/game/mario_misc.h" />
+		<Unit filename="src/decomp/game/mario_step.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/game/mario_step.h" />
+		<Unit filename="src/decomp/game/object_stuff.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/game/object_stuff.h" />
+		<Unit filename="src/decomp/game/platform_displacement.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/game/platform_displacement.h" />
+		<Unit filename="src/decomp/game/rendering_graph_node.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/game/rendering_graph_node.h" />
+		<Unit filename="src/decomp/game/save_file.h" />
+		<Unit filename="src/decomp/global_state.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/global_state.h" />
+		<Unit filename="src/decomp/include/PR/abi.h" />
+		<Unit filename="src/decomp/include/PR/gbi.h" />
+		<Unit filename="src/decomp/include/PR/libaudio.h" />
+		<Unit filename="src/decomp/include/PR/libultra.h" />
+		<Unit filename="src/decomp/include/PR/os.h" />
+		<Unit filename="src/decomp/include/PR/os_ai.h" />
+		<Unit filename="src/decomp/include/PR/os_cache.h" />
+		<Unit filename="src/decomp/include/PR/os_cont.h" />
+		<Unit filename="src/decomp/include/PR/os_eeprom.h" />
+		<Unit filename="src/decomp/include/PR/os_exception.h" />
+		<Unit filename="src/decomp/include/PR/os_internal.h" />
+		<Unit filename="src/decomp/include/PR/os_libc.h" />
+		<Unit filename="src/decomp/include/PR/os_message.h" />
+		<Unit filename="src/decomp/include/PR/os_misc.h" />
+		<Unit filename="src/decomp/include/PR/os_pi.h" />
+		<Unit filename="src/decomp/include/PR/os_rdp.h" />
+		<Unit filename="src/decomp/include/PR/os_thread.h" />
+		<Unit filename="src/decomp/include/PR/os_time.h" />
+		<Unit filename="src/decomp/include/PR/os_tlb.h" />
+		<Unit filename="src/decomp/include/PR/os_vi.h" />
+		<Unit filename="src/decomp/include/PR/sptask.h" />
+		<Unit filename="src/decomp/include/PR/ucode.h" />
+		<Unit filename="src/decomp/include/PR/ultratypes.h" />
+		<Unit filename="src/decomp/include/audio_defines.h" />
+		<Unit filename="src/decomp/include/command_macros_base.h" />
+		<Unit filename="src/decomp/include/geo_commands.h" />
+		<Unit filename="src/decomp/include/level_misc_macros.h" />
+		<Unit filename="src/decomp/include/macros.h" />
+		<Unit filename="src/decomp/include/mario_animation_ids.h" />
+		<Unit filename="src/decomp/include/mario_geo_switch_case_ids.h" />
+		<Unit filename="src/decomp/include/object_fields.h" />
+		<Unit filename="src/decomp/include/platform_info.h" />
+		<Unit filename="src/decomp/include/seq_ids.h" />
+		<Unit filename="src/decomp/include/sm64.h" />
+		<Unit filename="src/decomp/include/special_preset_names.h" />
+		<Unit filename="src/decomp/include/surface_terrains.h" />
+		<Unit filename="src/decomp/include/types.h" />
+		<Unit filename="src/decomp/include/ultra64.h" />
+		<Unit filename="src/decomp/mario/geo.inc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/mario/geo.inc.h" />
+		<Unit filename="src/decomp/mario/model.inc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/mario/model.inc.h" />
+		<Unit filename="src/decomp/memory.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/memory.h" />
+		<Unit filename="src/decomp/pc/alBnkfNew.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/pc/libaudio_internal.h" />
+		<Unit filename="src/decomp/pc/libultra_internal.h" />
+		<Unit filename="src/decomp/pc/mixer.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/pc/mixer.h" />
+		<Unit filename="src/decomp/pc/ultra_reimplementation.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/shim.h" />
+		<Unit filename="src/decomp/tools/convTypes.h" />
+		<Unit filename="src/decomp/tools/convUtils.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/tools/convUtils.h" />
+		<Unit filename="src/decomp/tools/libmio0.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/tools/libmio0.h" />
+		<Unit filename="src/decomp/tools/n64graphics.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/tools/n64graphics.h" />
+		<Unit filename="src/decomp/tools/stb/stb_image.h" />
+		<Unit filename="src/decomp/tools/stb/stb_image_write.h" />
+		<Unit filename="src/decomp/tools/utils.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/decomp/tools/utils.h" />
+		<Unit filename="src/gfx_adapter.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/gfx_adapter.h" />
+		<Unit filename="src/gfx_adapter_commands.h" />
+		<Unit filename="src/gfx_macros.h" />
+		<Unit filename="src/libsm64.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/libsm64.h" />
+		<Unit filename="src/load_anim_data.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/load_anim_data.h" />
+		<Unit filename="src/load_audio_data.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/load_audio_data.h" />
+		<Unit filename="src/load_surfaces.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/load_surfaces.h" />
+		<Unit filename="src/load_tex_data.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/load_tex_data.h" />
+		<Unit filename="src/obj_pool.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/obj_pool.h" />
+		<Unit filename="src/play_sound.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/play_sound.h" />
+		<Extensions>
+			<lib_finder disable_auto="1" />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>
