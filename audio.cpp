@@ -11,6 +11,7 @@ extern "C" {
 
 static SDL_AudioDeviceID dev;
 pthread_t gSoundThread;
+bool audio_started;
 
 long long timeInMilliseconds(void)
 {
@@ -22,9 +23,6 @@ long long timeInMilliseconds(void)
 
 void* audio_thread(void* keepAlive)
 {
-	// from https://github.com/ckosmic/libsm64/blob/audio/src/libsm64.c#L535-L555
-	// except keepAlive is a null pointer here, so don't use it
-
 	pthread_setcancelstate(PTHREAD_CANCEL_ENABLE,NULL);
 	pthread_setcanceltype(PTHREAD_CANCEL_DEFERRED,NULL);
 
@@ -32,7 +30,7 @@ void* audio_thread(void* keepAlive)
 	long long targetTime = 0;
 	while(1)
 	{
-		//if(!*((bool*)keepAlive)) return NULL;
+		if(!*((bool*)keepAlive)) return NULL;
 
 		int16_t audioBuffer[544 * 2 * 2];
 		uint32_t numSamples = sm64_audio_tick(SDL_GetQueuedAudioSize(dev)/4, 1100, audioBuffer);
@@ -43,7 +41,7 @@ void* audio_thread(void* keepAlive)
 		while (timeInMilliseconds() < targetTime)
 		{
 			usleep(100);
-			//if(!*((bool*)keepAlive)) return NULL;
+			if(!*((bool*)keepAlive)) return NULL;
 		}
 		currentTime = timeInMilliseconds();
 	}
@@ -51,6 +49,8 @@ void* audio_thread(void* keepAlive)
 
 void audio_thread_init()
 {
+    if (audio_started) return;
+
     if (SDL_Init(SDL_INIT_AUDIO) < 0)
     {
         fprintf(stderr, "SDL_INIT_AUDIO failure: %s\n", SDL_GetError());
@@ -71,5 +71,15 @@ void audio_thread_init()
     SDL_PauseAudioDevice(dev, 0);
 
     // it's best to run audio in a separate thread
-    pthread_create(&gSoundThread, NULL, audio_thread, NULL);
+    pthread_create(&gSoundThread, NULL, audio_thread, &audio_started);
+    audio_started = true;
+}
+
+void audio_thread_stop()
+{
+    if (!audio_started) return;
+
+    pthread_cancel(gSoundThread);
+    SDL_QuitSubSystem(SDL_INIT_AUDIO);
+    audio_started = false;
 }
