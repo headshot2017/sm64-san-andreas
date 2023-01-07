@@ -1,7 +1,5 @@
 #include "d3d9_funcs.h"
 
-#include "CSprite2d.h"
-
 extern "C" {
     #include <libsm64.h>
     #include <decomp/include/PR/ultratypes.h>
@@ -9,20 +7,9 @@ extern "C" {
 }
 
 #include "main.h"
+#include "mario.h"
 
 RwTexture* marioTextureRW = nullptr;
-RwIm2DVertex marioVertex[4];
-
-void setVertex(int i, float x, float y, float u, float v)
-{
-    marioVertex[i].x = x;
-    marioVertex[i].y = y;
-    marioVertex[i].u = u;
-    marioVertex[i].v = v;
-    marioVertex[i].z = CSprite2d::NearScreenZ + 0.0001f;
-    marioVertex[i].rhw = CSprite2d::RecipNearClip;
-    marioVertex[i].emissiveColor = RWRGBALONG(255, 255, 255, 255);
-}
 
 void initD3D()
 {
@@ -32,11 +19,6 @@ void initD3D()
     RwRasterUnlock(raster);
 
     marioTextureRW = RwTextureCreate(raster);
-
-    setVertex(0, 0, 0, 0, 0);
-    setVertex(1, 0, 64, 0, 1);
-    setVertex(2, 704, 0, 1, 0);
-    setVertex(3, 704, 64, 1, 1);
 }
 
 void destroyD3D()
@@ -50,6 +32,5 @@ void destroyD3D()
 
 void draw()
 {
-    RwD3D9SetTexture(marioTextureRW, 0);
-    RwIm2DRenderPrimitive(rwPRIMTYPETRISTRIP, marioVertex, 4);
+    marioRender();
 }

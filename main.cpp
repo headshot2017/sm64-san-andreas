@@ -1,20 +1,23 @@
 #include "plugin.h"
 #include "CHud.h"
+#include "CMenuSystem.h"
+#include "CTimer.h"
 
 extern "C" {
-    #include <libsm64.h>
     #include <decomp/include/PR/ultratypes.h>
     #include <decomp/include/audio_defines.h>
 }
 
 #include "audio.h"
 #include "d3d9_funcs.h"
+#include "mario.h"
 
 using namespace plugin;
 
 bool loaded;
 std::string message;
 uint8_t* marioTexture;
+RwImVertexIndex marioIndices[SM64_GEO_MAX_TRIANGLES * 3];
 
 class sm64_san_andreas {
 public:
@@ -47,7 +50,7 @@ public:
             sm64_global_init(romBuffer, marioTexture);
             sm64_audio_init(romBuffer);
 
-            //for(int i=0; i<3*SM64_GEO_MAX_TRIANGLES; i++) mario_indices[i] = i;
+            for(int i=0; i<3*SM64_GEO_MAX_TRIANGLES; i++) marioIndices[i] = i;
             delete[] romBuffer;
 
             for (int i=0; i<SM64_TEXTURE_WIDTH * SM64_TEXTURE_HEIGHT; i++)
@@ -72,6 +75,7 @@ public:
     {
         if (!loaded) return;
 
+        marioDestroy();
         audio_thread_stop();
         sm64_global_terminate();
         destroyD3D();
@@ -87,6 +91,20 @@ public:
             CHud::SetHelpMessage(message.c_str(), false, false, true);
             message.clear();
         }
+
+        if (CTimer::m_UserPause) return;
+
+        static int keyPressTime = 0;
+        if (KeyPressed('M') && CTimer::m_snTimeInMilliseconds - keyPressTime > 1000)
+        {
+            keyPressTime = CTimer::m_snTimeInMilliseconds;
+            if (marioSpawned())
+                marioDestroy();
+            else
+                marioSpawn();
+        }
+
+        marioTick((CTimer::m_snTimeInMilliseconds - CTimer::m_snPreviousTimeInMilliseconds) / 1000.f);
     }
 
     sm64_san_andreas() {

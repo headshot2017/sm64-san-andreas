@@ -108,6 +108,8 @@
 		<Unit filename="d3d9_funcs.h" />
 		<Unit filename="main.cpp" />
 		<Unit filename="main.h" />
+		<Unit filename="mario.cpp" />
+		<Unit filename="mario.h" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>
