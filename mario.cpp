@@ -40,11 +40,12 @@ void marioSpawn()
 
     // SM64 <--> GTA SA coordinates translation:
     // Y and Z coordinates must be swapped. SM64 up coord is Y+ and GTA SA is Z+
+    // Mario model must also be unmirrored by making SM64 Z coordinate / GTA-SA Y coordinate negative
     // GTA SA -> SM64: divide scale
     // SM64 -> GTA SA: multiply scale
     CVector pos = FindPlayerPed()->GetPosition();
     pos.z -= 1;
-    CVector sm64pos(pos.x / MARIO_SCALE, pos.z / MARIO_SCALE, pos.y / MARIO_SCALE);
+    CVector sm64pos(pos.x / MARIO_SCALE, pos.z / MARIO_SCALE, -pos.y / MARIO_SCALE);
 
     uint32_t surfaceCount = 2;
     SM64Surface surfaces[surfaceCount];
@@ -122,17 +123,17 @@ void marioTick(float dt)
         memcpy(&marioLastPos, &marioCurrPos, sizeof(marioCurrPos));
         memcpy(marioLastGeoPos, marioCurrGeoPos, sizeof(marioCurrGeoPos));
 
-        marioInput.stickX = pad->GetPedWalkLeftRight() / 128.f;
+        marioInput.stickX = pad->GetPedWalkLeftRight() / -128.f;
         marioInput.stickY = pad->GetPedWalkUpDown() / -128.f;
         marioInput.buttonA = pad->GetJump();
         marioInput.buttonB = pad->GetMeleeAttack();
         marioInput.buttonZ = pad->GetDuck();
         marioInput.camLookX = TheCamera.GetPosition().x/MARIO_SCALE - marioState.position[0];
-        marioInput.camLookZ = TheCamera.GetPosition().y/MARIO_SCALE - marioState.position[2];
+        marioInput.camLookZ = -TheCamera.GetPosition().y/MARIO_SCALE - marioState.position[2];
 
         sm64_mario_tick(marioId, &marioInput, &marioState, &marioGeometry);
 
-        marioCurrPos = CVector(marioState.position[0] * MARIO_SCALE, marioState.position[2] * MARIO_SCALE, marioState.position[1] * MARIO_SCALE);
+        marioCurrPos = CVector(marioState.position[0] * MARIO_SCALE, -marioState.position[2] * MARIO_SCALE, marioState.position[1] * MARIO_SCALE);
 
         for (int i=0; i<marioGeometry.numTrianglesUsed*3; i++)
         {
@@ -150,11 +151,11 @@ void marioTick(float dt)
             marioCurrGeoPos[i].v = marioGeometry.uv[i*2+1];
 
             marioCurrGeoPos[i].objNormal.x = marioGeometry.normal[i*3+0];
-            marioCurrGeoPos[i].objNormal.y = marioGeometry.normal[i*3+2];
+            marioCurrGeoPos[i].objNormal.y = -marioGeometry.normal[i*3+2];
             marioCurrGeoPos[i].objNormal.z = marioGeometry.normal[i*3+1];
 
             marioCurrGeoPos[i].objVertex.x = marioGeometry.position[i*3+0] * MARIO_SCALE;
-            marioCurrGeoPos[i].objVertex.y = marioGeometry.position[i*3+2] * MARIO_SCALE;
+            marioCurrGeoPos[i].objVertex.y = -marioGeometry.position[i*3+2] * MARIO_SCALE;
             marioCurrGeoPos[i].objVertex.z = marioGeometry.position[i*3+1] * MARIO_SCALE;
         }
 
