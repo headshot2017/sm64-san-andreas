@@ -6,6 +6,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <math.h>
 
 extern "C" {
     #include <decomp/include/surface_terrains.h>
@@ -123,8 +124,12 @@ void marioTick(float dt)
         memcpy(&marioLastPos, &marioCurrPos, sizeof(marioCurrPos));
         memcpy(marioLastGeoPos, marioCurrGeoPos, sizeof(marioCurrGeoPos));
 
-        marioInput.stickX = pad->GetPedWalkLeftRight() / -128.f;
-        marioInput.stickY = pad->GetPedWalkUpDown() / -128.f;
+        float angle = atan2(pad->GetPedWalkUpDown(), pad->GetPedWalkLeftRight());
+        float length = sqrtf(pad->GetPedWalkLeftRight() * pad->GetPedWalkLeftRight() + pad->GetPedWalkUpDown() * pad->GetPedWalkUpDown()) / 128.f;
+        if (length > 1) length = 1;
+
+        marioInput.stickX = -cosf(angle) * length;
+        marioInput.stickY = -sinf(angle) * length;
         marioInput.buttonA = pad->GetJump();
         marioInput.buttonB = pad->GetMeleeAttack();
         marioInput.buttonZ = pad->GetDuck();
@@ -166,7 +171,7 @@ void marioTick(float dt)
     marioInterpPos.x = lerp(marioLastPos.x, marioCurrPos.x, ticks / (1./30));
     marioInterpPos.y = lerp(marioLastPos.y, marioCurrPos.y, ticks / (1./30));
     marioInterpPos.z = lerp(marioLastPos.z, marioCurrPos.z, ticks / (1./30));
-    ped->SetPosn(marioInterpPos);
+    ped->SetPosn(marioInterpPos + CVector(0, 0, 0.5f));
     for (int i=0; i<marioGeometry.numTrianglesUsed*3; i++)
     {
         marioInterpGeo[i].objVertex.x = lerp(marioLastGeoPos[i].objVertex.x, marioCurrGeoPos[i].objVertex.x, ticks / (1./30));
