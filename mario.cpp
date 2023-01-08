@@ -13,6 +13,8 @@ extern "C" {
 #include "d3d9_funcs.h"
 #include "main.h"
 
+#define lerp(a, b, amnt) a + (b - a) * amnt
+
 SM64MarioState marioState;
 SM64MarioInputs marioInput;
 SM64MarioGeometryBuffers marioGeometry;
@@ -137,6 +139,15 @@ void marioTick(float dt)
             marioCurrGeoPos[i].objVertex.y = marioGeometry.position[i*3+2] * MARIO_SCALE;
             marioCurrGeoPos[i].objVertex.z = marioGeometry.position[i*3+1] * MARIO_SCALE;
         }
+
+        memcpy(marioInterpGeo, marioCurrGeoPos, sizeof(marioCurrGeoPos));
+    }
+
+    for (int i=0; i<marioGeometry.numTrianglesUsed*3; i++)
+    {
+        marioInterpGeo[i].objVertex.x = lerp(marioLastGeoPos[i].objVertex.x, marioCurrGeoPos[i].objVertex.x, ticks / (1./30));
+        marioInterpGeo[i].objVertex.y = lerp(marioLastGeoPos[i].objVertex.y, marioCurrGeoPos[i].objVertex.y, ticks / (1./30));
+        marioInterpGeo[i].objVertex.z = lerp(marioLastGeoPos[i].objVertex.z, marioCurrGeoPos[i].objVertex.z, ticks / (1./30));
     }
 }
 
@@ -147,13 +158,13 @@ void marioRender()
     RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)1);
     RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, (void*)1);
 
-    if (RwIm3DTransform(marioCurrGeoPos, SM64_GEO_MAX_TRIANGLES*3, 0, rwIM3D_VERTEXXYZ | rwIM3D_VERTEXRGBA | rwIM3D_VERTEXUV))
+    if (RwIm3DTransform(marioInterpGeo, SM64_GEO_MAX_TRIANGLES*3, 0, rwIM3D_VERTEXXYZ | rwIM3D_VERTEXRGBA | rwIM3D_VERTEXUV))
     {
-        for (int i=0; i<marioTexturedCount; i++) marioCurrGeoPos[marioTextureIndices[i]].color = marioOriginalColor[i];
+        for (int i=0; i<marioTexturedCount; i++) marioInterpGeo[marioTextureIndices[i]].color = marioOriginalColor[i];
         RwD3D9SetTexture(0, 0);
         RwIm3DRenderIndexedPrimitive(rwPRIMTYPETRILIST, marioIndices, marioGeometry.numTrianglesUsed*3);
 
-        for (int i=0; i<marioTexturedCount; i++) marioCurrGeoPos[marioTextureIndices[i]].color = RWRGBALONG(255, 255, 255, 255);
+        for (int i=0; i<marioTexturedCount; i++) marioInterpGeo[marioTextureIndices[i]].color = RWRGBALONG(255, 255, 255, 255);
         RwD3D9SetTexture(marioTextureRW, 0);
         RwRenderStateSet(rwRENDERSTATETEXTUREFILTER, (void*)rwFILTERLINEAR);
         RwRenderStateSet(rwRENDERSTATESRCBLEND, (void*)rwBLENDSRCALPHA);
