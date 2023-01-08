@@ -2,6 +2,7 @@
 #include "plugin.h"
 #include "CHud.h"
 #include "CCamera.h"
+#include "CPlayerPed.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -18,6 +19,7 @@ extern "C" {
 SM64MarioState marioState;
 SM64MarioInputs marioInput;
 SM64MarioGeometryBuffers marioGeometry;
+CVector marioLastPos, marioCurrPos, marioInterpPos;
 RwIm3DVertex marioInterpGeo[SM64_GEO_MAX_TRIANGLES * 3];
 RwIm3DVertex marioCurrGeoPos[SM64_GEO_MAX_TRIANGLES * 3];
 RwIm3DVertex marioLastGeoPos[SM64_GEO_MAX_TRIANGLES * 3];
@@ -54,7 +56,7 @@ void marioSpawn()
       surfaces[i].terrain = TERRAIN_STONE;
     }
 
-    int width = 1024;
+    int width = 16384;
 
     surfaces[surfaceCount-2].vertices[0][0] = sm64pos.x + width;	surfaces[surfaceCount-2].vertices[0][1] = sm64pos.y;	surfaces[surfaceCount-2].vertices[0][2] = sm64pos.z + width;
     surfaces[surfaceCount-2].vertices[1][0] = sm64pos.x - width;	surfaces[surfaceCount-2].vertices[1][1] = sm64pos.y;	surfaces[surfaceCount-2].vertices[1][2] = sm64pos.z - width;
@@ -86,6 +88,7 @@ void marioSpawn()
     memset(&marioOriginalColor, 0, sizeof(marioOriginalColor));
     marioTexturedCount = 0;
     CHud::SetHelpMessage("Mario spawned", false, false, true);
+    FindPlayerPed()->DeactivatePlayerPed(0);
 }
 
 void marioDestroy()
@@ -101,11 +104,14 @@ void marioDestroy()
     delete[] marioGeometry.uv;
     memset(&marioGeometry, 0, sizeof(marioGeometry));
     CHud::SetHelpMessage("Mario destroyed", false, false, true);
+    FindPlayerPed()->ReactivatePlayerPed(0);
 }
 
 void marioTick(float dt)
 {
-    if (!marioSpawned()) return;
+    if (!marioSpawned() || !FindPlayerPed()) return;
+    CPlayerPed* ped = FindPlayerPed();
+    CPad* pad = ped->GetPadFromPlayer();
 
     ticks += dt;
     while (ticks >= 1.f/30)
@@ -113,8 +119,20 @@ void marioTick(float dt)
         ticks -= 1.f/30;
 
         marioTexturedCount = 0;
+        memcpy(&marioLastPos, &marioCurrPos, sizeof(marioCurrPos));
         memcpy(marioLastGeoPos, marioCurrGeoPos, sizeof(marioCurrGeoPos));
+
+        marioInput.stickX = pad->GetPedWalkLeftRight() / 128.f;
+        marioInput.stickY = pad->GetPedWalkUpDown() / -128.f;
+        marioInput.buttonA = pad->GetJump();
+        marioInput.buttonB = pad->GetMeleeAttack();
+        marioInput.buttonZ = pad->GetDuck();
+        marioInput.camLookX = TheCamera.GetPosition().x/MARIO_SCALE - marioState.position[0];
+        marioInput.camLookZ = TheCamera.GetPosition().y/MARIO_SCALE - marioState.position[2];
+
         sm64_mario_tick(marioId, &marioInput, &marioState, &marioGeometry);
+
+        marioCurrPos = CVector(marioState.position[0] * MARIO_SCALE, marioState.position[2] * MARIO_SCALE, marioState.position[1] * MARIO_SCALE);
 
         for (int i=0; i<marioGeometry.numTrianglesUsed*3; i++)
         {
@@ -140,9 +158,14 @@ void marioTick(float dt)
             marioCurrGeoPos[i].objVertex.z = marioGeometry.position[i*3+1] * MARIO_SCALE;
         }
 
+        memcpy(&marioInterpPos, &marioCurrPos, sizeof(marioCurrPos));
         memcpy(marioInterpGeo, marioCurrGeoPos, sizeof(marioCurrGeoPos));
     }
 
+    marioInterpPos.x = lerp(marioLastPos.x, marioCurrPos.x, ticks / (1./30));
+    marioInterpPos.y = lerp(marioLastPos.y, marioCurrPos.y, ticks / (1./30));
+    marioInterpPos.z = lerp(marioLastPos.z, marioCurrPos.z, ticks / (1./30));
+    ped->SetPosn(marioInterpPos);
     for (int i=0; i<marioGeometry.numTrianglesUsed*3; i++)
     {
         marioInterpGeo[i].objVertex.x = lerp(marioLastGeoPos[i].objVertex.x, marioCurrGeoPos[i].objVertex.x, ticks / (1./30));
