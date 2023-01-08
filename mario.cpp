@@ -89,7 +89,6 @@ void marioSpawn()
     memset(&marioTextureIndices, 0, sizeof(marioTextureIndices));
     memset(&marioOriginalColor, 0, sizeof(marioOriginalColor));
     marioTexturedCount = 0;
-    CHud::SetHelpMessage("Mario spawned", false, false, true);
     FindPlayerPed()->DeactivatePlayerPed(0);
 }
 
@@ -105,7 +104,6 @@ void marioDestroy()
     delete[] marioGeometry.color;
     delete[] marioGeometry.uv;
     memset(&marioGeometry, 0, sizeof(marioGeometry));
-    CHud::SetHelpMessage("Mario destroyed", false, false, true);
     FindPlayerPed()->ReactivatePlayerPed(0);
 }
 
