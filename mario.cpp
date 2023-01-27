@@ -79,6 +79,10 @@ void marioSpawn()
         return;
     }
 
+    marioLastPos = pos;
+    marioCurrPos = pos;
+    marioInterpPos = pos;
+
     ticks = 0;
     marioGeometry.position = new float[9 * SM64_GEO_MAX_TRIANGLES];
     marioGeometry.normal   = new float[9 * SM64_GEO_MAX_TRIANGLES];
