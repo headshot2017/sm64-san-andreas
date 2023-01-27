@@ -5,6 +5,10 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#include "decomp/include/mario_animation_ids.h"
+#include "decomp/include/audio_defines.h"
+#include "decomp/include/seq_ids.h"
+
 #ifdef _WIN32
     #ifdef SM64_LIB_EXPORT
         #define SM64_LIB_FN __declspec(dllexport)
@@ -49,6 +53,10 @@ struct SM64MarioState
     float velocity[3];
     float faceAngle;
     int16_t health;
+    uint32_t action;
+    uint32_t flags;
+    uint32_t particleFlags;
+    int16_t invincTimer;
 };
 
 struct SM64MarioGeometryBuffers
@@ -110,7 +118,7 @@ struct SM64SurfaceCollisionData
         float z;
     } normal;
     float originOffset;
-    
+
     uint8_t isValid; // libsm64: added field
     struct SM64SurfaceObjectTransform *transform; // libsm64: added field
     uint16_t terrain; // libsm64: added field
@@ -142,6 +150,24 @@ extern SM64_LIB_FN int32_t sm64_mario_create( float x, float y, float z );
 extern SM64_LIB_FN void sm64_mario_tick( int32_t marioId, const struct SM64MarioInputs *inputs, struct SM64MarioState *outState, struct SM64MarioGeometryBuffers *outBuffers );
 extern SM64_LIB_FN void sm64_mario_delete( int32_t marioId );
 
+extern SM64_LIB_FN void sm64_set_mario_action(int32_t marioId, uint32_t action);
+extern SM64_LIB_FN void sm64_set_mario_action_arg(int32_t marioId, uint32_t action, uint32_t actionArg);
+extern SM64_LIB_FN void sm64_set_mario_animation(int32_t marioId, int32_t animID);
+extern SM64_LIB_FN void sm64_set_mario_anim_frame(int32_t marioId, int16_t animFrame);
+extern SM64_LIB_FN void sm64_set_mario_state(int32_t marioId, uint32_t flags);
+extern SM64_LIB_FN void sm64_set_mario_position(int32_t marioId, float x, float y, float z);
+extern SM64_LIB_FN void sm64_set_mario_angle(int32_t marioId, float x, float y, float z);
+extern SM64_LIB_FN void sm64_set_mario_faceangle(int32_t marioId, float y);
+extern SM64_LIB_FN void sm64_set_mario_velocity(int32_t marioId, float x, float y, float z);
+extern SM64_LIB_FN void sm64_set_mario_forward_velocity(int32_t marioId, float vel);
+extern SM64_LIB_FN void sm64_set_mario_water_level(int32_t marioId, signed int level);
+extern SM64_LIB_FN void sm64_set_mario_gas_level(int32_t marioId, signed int level);
+extern SM64_LIB_FN void sm64_mario_take_damage(int32_t marioId, uint32_t damage, uint32_t subtype, float x, float y, float z);
+extern SM64_LIB_FN void sm64_mario_heal(int32_t marioId, uint8_t healCounter);
+extern SM64_LIB_FN void sm64_mario_kill(int32_t marioId);
+extern SM64_LIB_FN void sm64_mario_interact_cap(int32_t marioId, uint32_t capFlag, uint16_t capTime, uint8_t playMusic);
+extern SM64_LIB_FN bool sm64_mario_attack(int32_t marioId, float x, float y, float z, float hitboxHeight);
+
 extern SM64_LIB_FN uint32_t sm64_surface_object_create( const struct SM64SurfaceObject *surfaceObject );
 extern SM64_LIB_FN void sm64_surface_object_move( uint32_t objectId, const struct SM64ObjectTransform *transform );
 extern SM64_LIB_FN void sm64_surface_object_delete( uint32_t objectId );
@@ -155,6 +181,12 @@ extern SM64_LIB_FN float sm64_surface_find_floor( float xPos, float yPos, float 
 extern SM64_LIB_FN float sm64_surface_find_water_level( float x, float z );
 extern SM64_LIB_FN float sm64_surface_find_poison_gas_level( float x, float z );
 
-extern SM64_LIB_FN void sm64_play_sound_global(uint32_t soundBits);
+extern SM64_LIB_FN void sm64_seq_player_play_sequence(uint8_t player, uint8_t seqId, uint16_t arg2);
+extern SM64_LIB_FN void sm64_play_music(uint8_t player, uint16_t seqArgs, uint16_t fadeTimer);
+extern SM64_LIB_FN void sm64_stop_background_music(uint16_t seqId);
+extern SM64_LIB_FN void sm64_fadeout_background_music(uint16_t arg0, uint16_t fadeOut);
+extern SM64_LIB_FN uint16_t sm64_get_current_background_music();
+extern SM64_LIB_FN void sm64_play_sound(int32_t soundBits, float *pos);
+extern SM64_LIB_FN void sm64_play_sound_global(int32_t soundBits);
 
 #endif//LIB_SM64_H

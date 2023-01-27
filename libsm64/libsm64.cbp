@@ -8,6 +8,7 @@
 		<Build>
 			<Target title="Debug">
 				<Option output="bin/Debug/libsm64" prefix_auto="1" extension_auto="1" />
+				<Option working_dir="bin/Debug" />
 				<Option object_output="obj/Debug/" />
 				<Option type="3" />
 				<Option compiler="gcc" />
@@ -34,13 +35,17 @@
 		</Build>
 		<Compiler>
 			<Add option="-Wall" />
-			<Add option="-shared" />
+			<Add option="-fPIC" />
 			<Add option="-DSM64_LIB_EXPORT" />
 			<Add option="-DGBI_FLOATS" />
 			<Add option="-DVERSION_US" />
 			<Add option="-DNO_SEGMENTED_MEMORY" />
 			<Add directory="src/decomp/include" />
 		</Compiler>
+		<Linker>
+			<Add option="-static-libstdc++" />
+			<Add option="-static-libgcc" />
+		</Linker>
 		<Unit filename="src/debug_print.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -273,6 +278,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/decomp/tools/utils.h" />
+		<Unit filename="src/fake_interaction.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/fake_interaction.h" />
 		<Unit filename="src/gfx_adapter.c">
 			<Option compilerVar="CC" />
 		</Unit>
