@@ -14,6 +14,7 @@
 #include "decomp/include/PR/os_cont.h"
 #include "decomp/engine/math_util.h"
 #include "decomp/include/sm64.h"
+#include "decomp/include/seq_ids.h"
 #include "decomp/shim.h"
 #include "decomp/memory.h"
 #include "decomp/global_state.h"
@@ -95,7 +96,7 @@ SM64_LIB_FN void sm64_register_play_sound_function( SM64PlaySoundFunctionPtr pla
 }
 
 
-SM64_LIB_FN void sm64_global_init( uint8_t *rom, uint8_t *outTexture )
+SM64_LIB_FN void sm64_global_init( const uint8_t *rom, uint8_t *outTexture )
 {
     if( s_init_global )
         sm64_global_terminate();
@@ -137,7 +138,7 @@ SM64_LIB_FN void sm64_global_terminate( void )
     memory_terminate();
 }
 
-SM64_LIB_FN void sm64_audio_init( uint8_t *rom ) {
+SM64_LIB_FN void sm64_audio_init( const uint8_t *rom ) {
     load_audio_banks( rom );
 }
 
@@ -145,13 +146,13 @@ SM64_LIB_FN void sm64_audio_init( uint8_t *rom ) {
 #define SAMPLES_LOW 528
 
 extern SM64_LIB_FN uint32_t sm64_audio_tick( uint32_t numQueuedSamples, uint32_t numDesiredSamples, int16_t *audio_buffer ) {
-    if ( !is_audio_initialized ) {
+    if ( !g_is_audio_initialized ) {
         DEBUG_PRINT("Attempted to tick audio, but sm64_audio_init() has not been called yet.");
         return 0;
     }
-    
+
     update_game_sound();
-	
+
     u32 num_audio_samples = numQueuedSamples < numDesiredSamples ? SAMPLES_HIGH : SAMPLES_LOW;
     for (int i = 0; i < 2; i++)
     {
@@ -270,7 +271,9 @@ SM64_LIB_FN void sm64_mario_delete( int32_t marioId )
     struct GlobalState *globalState = ((struct MarioInstance *)s_mario_instance_pool.objects[ marioId ])->globalState;
     global_state_bind( globalState );
 
-    stop_sound(SOUND_MARIO_SNORING3, gMarioState->marioObj->header.gfx.cameraToObject);
+    if ( g_is_audio_initialized ) {
+        stop_sound(SOUND_MARIO_SNORING3, gMarioState->marioObj->header.gfx.cameraToObject);
+    }
 
     free( gMarioObject );
     free_area( gCurrentArea );
@@ -591,7 +594,7 @@ SM64_LIB_FN void sm64_surface_object_delete( uint32_t objectId )
 }
 
 
-SM64_LIB_FN int32_t sm64_surface_find_wall_collision( float *xPtr, float *yPtr, float *zPtr, float offsetY, float radius ) 
+SM64_LIB_FN int32_t sm64_surface_find_wall_collision( float *xPtr, float *yPtr, float *zPtr, float offsetY, float radius )
 {
     return f32_find_wall_collision( xPtr, yPtr, zPtr, offsetY, radius );
 }
@@ -664,4 +667,9 @@ SM64_LIB_FN void sm64_play_sound(int32_t soundBits, float *pos)
 SM64_LIB_FN void sm64_play_sound_global(int32_t soundBits)
 {
     play_sound(soundBits,gGlobalSoundSource);
+}
+
+SM64_LIB_FN void sm64_set_sound_volume(float vol)
+{
+    gAudioVolume = vol;
 }

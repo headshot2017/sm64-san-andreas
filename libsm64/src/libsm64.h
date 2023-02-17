@@ -5,10 +5,6 @@
 #include <stdint.h>
 #include <stdbool.h>
 
-#include "decomp/include/mario_animation_ids.h"
-#include "decomp/include/audio_defines.h"
-#include "decomp/include/seq_ids.h"
-
 #ifdef _WIN32
     #ifdef SM64_LIB_EXPORT
         #define SM64_LIB_FN __declspec(dllexport)
@@ -17,6 +13,10 @@
     #endif
 #else
     #define SM64_LIB_FN
+#endif
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 struct SM64Surface
@@ -109,9 +109,9 @@ struct SM64SurfaceCollisionData
     int8_t room;
     int32_t lowerY; // libsm64: 32 bit
     int32_t upperY; // libsm64: 32 bit
-	int32_t vertex1[3]; // libsm64: 32 bit
-	int32_t vertex2[3]; // libsm64: 32 bit
-	int32_t vertex3[3]; // libsm64: 32 bit
+    int32_t vertex1[3]; // libsm64: 32 bit
+    int32_t vertex2[3]; // libsm64: 32 bit
+    int32_t vertex3[3]; // libsm64: 32 bit
     struct {
         float x;
         float y;
@@ -138,10 +138,10 @@ extern SM64_LIB_FN void sm64_register_debug_print_function( SM64DebugPrintFuncti
 typedef void (*SM64PlaySoundFunctionPtr)( uint32_t soundBits, float *pos );
 extern SM64_LIB_FN void sm64_register_play_sound_function( SM64PlaySoundFunctionPtr playSoundFunction );
 
-extern SM64_LIB_FN void sm64_global_init( uint8_t *rom, uint8_t *outTexture );
+extern SM64_LIB_FN void sm64_global_init( const uint8_t *rom, uint8_t *outTexture );
 extern SM64_LIB_FN void sm64_global_terminate( void );
 
-extern SM64_LIB_FN void sm64_audio_init( uint8_t *rom  );
+extern SM64_LIB_FN void sm64_audio_init( const uint8_t *rom );
 extern SM64_LIB_FN uint32_t sm64_audio_tick( uint32_t numQueuedSamples, uint32_t numDesiredSamples, int16_t *audio_buffer );
 
 extern SM64_LIB_FN void sm64_static_surfaces_load( const struct SM64Surface *surfaceArray, uint32_t numSurfaces );
@@ -188,5 +188,10 @@ extern SM64_LIB_FN void sm64_fadeout_background_music(uint16_t arg0, uint16_t fa
 extern SM64_LIB_FN uint16_t sm64_get_current_background_music();
 extern SM64_LIB_FN void sm64_play_sound(int32_t soundBits, float *pos);
 extern SM64_LIB_FN void sm64_play_sound_global(int32_t soundBits);
+extern SM64_LIB_FN void sm64_set_sound_volume(float vol);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif//LIB_SM64_H
