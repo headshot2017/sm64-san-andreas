@@ -5,9 +5,7 @@
 
 #include <RenderWare.h>
 
-extern "C" {
-    #include <libsm64.h>
-}
+#include <libsm64.h>
 
 extern SM64MarioState marioState;
 extern SM64MarioInputs marioInput;

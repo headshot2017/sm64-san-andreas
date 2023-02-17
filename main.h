@@ -3,9 +3,7 @@
 
 #include "RenderWare.h"
 
-extern "C" {
-    #include <libsm64.h>
-}
+#include <libsm64.h>
 
 extern uint8_t* marioTexture;
 extern RwImVertexIndex marioIndices[SM64_GEO_MAX_TRIANGLES * 3];

@@ -5,9 +5,7 @@
 #include <pthread.h>
 
 #include <SDL2/SDL.h>
-extern "C" {
-    #include <libsm64.h>
-}
+#include <libsm64.h>
 
 static SDL_AudioDeviceID dev;
 pthread_t gSoundThread;

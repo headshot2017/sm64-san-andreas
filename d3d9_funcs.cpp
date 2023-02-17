@@ -1,7 +1,7 @@
 #include "d3d9_funcs.h"
 
+#include <libsm64.h>
 extern "C" {
-    #include <libsm64.h>
     #include <decomp/include/PR/ultratypes.h>
     #include <decomp/include/audio_defines.h>
 }
