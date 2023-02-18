@@ -145,6 +145,7 @@ extern SM64_LIB_FN void sm64_audio_init( const uint8_t *rom );
 extern SM64_LIB_FN uint32_t sm64_audio_tick( uint32_t numQueuedSamples, uint32_t numDesiredSamples, int16_t *audio_buffer );
 
 extern SM64_LIB_FN void sm64_static_surfaces_load( const struct SM64Surface *surfaceArray, uint32_t numSurfaces );
+extern SM64_LIB_FN struct SM64SurfaceCollisionData* sm64_get_static_surface_data(uint32_t* count);
 
 extern SM64_LIB_FN int32_t sm64_mario_create( float x, float y, float z );
 extern SM64_LIB_FN void sm64_mario_tick( int32_t marioId, const struct SM64MarioInputs *inputs, struct SM64MarioState *outState, struct SM64MarioGeometryBuffers *outBuffers );

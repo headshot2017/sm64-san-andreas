@@ -167,6 +167,11 @@ SM64_LIB_FN void sm64_static_surfaces_load( const struct SM64Surface *surfaceArr
     surfaces_load_static( surfaceArray, numSurfaces );
 }
 
+SM64_LIB_FN struct SM64SurfaceCollisionData* sm64_get_static_surface_data(uint32_t* count)
+{
+    return get_static_surface_data(count);
+}
+
 SM64_LIB_FN int32_t sm64_mario_create( float x, float y, float z )
 {
     int32_t marioIndex = obj_pool_alloc_index( &s_mario_instance_pool, sizeof( struct MarioInstance ));
