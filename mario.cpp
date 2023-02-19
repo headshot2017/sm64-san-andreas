@@ -3,6 +3,7 @@
 #include "CHud.h"
 #include "CCamera.h"
 #include "CPlayerPed.h"
+#include "CWorld.h"
 
 #include <stdio.h>
 #include <string.h>
@@ -35,21 +36,55 @@ bool marioSpawned()
     return marioId != -1;
 }
 
-void marioSpawn()
+void loadCollisions(const CVector& pos)
 {
-    if (marioSpawned() || !FindPlayerPed()) return;
-
-    // SM64 <--> GTA SA coordinates translation:
-    // Y and Z coordinates must be swapped. SM64 up coord is Y+ and GTA SA is Z+
-    // Mario model must also be unmirrored by making SM64 Z coordinate / GTA-SA Y coordinate negative
-    // GTA SA -> SM64: divide scale
-    // SM64 -> GTA SA: multiply scale
-    CVector pos = FindPlayerPed()->GetPosition();
-    pos.z -= 1;
+    char buf[256];
     CVector sm64pos(pos.x / MARIO_SCALE, pos.z / MARIO_SCALE, -pos.y / MARIO_SCALE);
 
-    uint32_t surfaceCount = 2;
-    SM64Surface surfaces[surfaceCount];
+    uint32_t surfaceCount = 0;
+    SM64Surface* surfaces = 0;
+    //SM64Surface* surfaces = (SM64Surface*)malloc(sizeof(SM64Surface) * surfaceCount);
+
+    // spawn a dummy ground at Mario's position
+    /*int width = 16384;
+    surfaces[surfaceCount-2].vertices[0][0] = sm64pos.x + width;	surfaces[surfaceCount-2].vertices[0][1] = sm64pos.y;	surfaces[surfaceCount-2].vertices[0][2] = sm64pos.z + width;
+    surfaces[surfaceCount-2].vertices[1][0] = sm64pos.x - width;	surfaces[surfaceCount-2].vertices[1][1] = sm64pos.y;	surfaces[surfaceCount-2].vertices[1][2] = sm64pos.z - width;
+    surfaces[surfaceCount-2].vertices[2][0] = sm64pos.x - width;	surfaces[surfaceCount-2].vertices[2][1] = sm64pos.y;	surfaces[surfaceCount-2].vertices[2][2] = sm64pos.z + width;
+
+    surfaces[surfaceCount-1].vertices[0][0] = sm64pos.x - width;	surfaces[surfaceCount-1].vertices[0][1] = sm64pos.y;	surfaces[surfaceCount-1].vertices[0][2] = sm64pos.z - width;
+    surfaces[surfaceCount-1].vertices[1][0] = sm64pos.x + width;	surfaces[surfaceCount-1].vertices[1][1] = sm64pos.y;	surfaces[surfaceCount-1].vertices[1][2] = sm64pos.z + width;
+    surfaces[surfaceCount-1].vertices[2][0] = sm64pos.x + width;	surfaces[surfaceCount-1].vertices[2][1] = sm64pos.y;	surfaces[surfaceCount-1].vertices[2][2] = sm64pos.z - width;*/
+
+    // look for static GTA surfaces (buildings) nearby
+    short foundObjs = 0;
+    short maxObjs = 255;
+    CEntity* outEntities[maxObjs] = {0};
+    CWorld::FindObjectsIntersectingCube(pos-CVector(64,64,64), pos+CVector(64,64,64), &foundObjs, 255, outEntities, true, false, false, false, false);
+    //FindObjectsIntersectingCube(CVector const& cornerA, CVector const& cornerB, short* outCount, short maxCount, CEntity** outEntities, bool buildings, bool vehicles, bool peds, bool objects, bool dummies);
+    sprintf(buf, "%d foundObjs", foundObjs);
+    CHud::SetHelpMessage(buf, false, false, false);
+
+    for (short i=0; i<foundObjs; i++)
+    {
+        CCollisionData* colData = outEntities[i]->GetColModel()->m_pColData;
+        if (!colData) continue;
+
+        //CVector ePos = outEntities[i]->GetPosition();
+        CVector ePos = outEntities[i]->m_placement.m_vPosn;
+        for (uint16_t j=0; j<colData->m_nNumTriangles; j++)
+        {
+            CompressedVector vertA = colData->m_pVertices[colData->m_pTriangles[j].m_nVertA];
+            CompressedVector vertB = colData->m_pVertices[colData->m_pTriangles[j].m_nVertB];
+            CompressedVector vertC = colData->m_pVertices[colData->m_pTriangles[j].m_nVertC];
+
+            surfaceCount++;
+            surfaces = (SM64Surface*)realloc(surfaces, sizeof(SM64Surface) * surfaceCount);
+
+            surfaces[surfaceCount-1].vertices[0][0] = ePos.x/MARIO_SCALE + vertC.x; surfaces[surfaceCount-1].vertices[0][1] = ePos.z/MARIO_SCALE + vertC.z; surfaces[surfaceCount-1].vertices[0][2] = ePos.y/-MARIO_SCALE - vertC.y;
+            surfaces[surfaceCount-1].vertices[1][0] = ePos.x/MARIO_SCALE + vertB.x;	surfaces[surfaceCount-1].vertices[1][1] = ePos.z/MARIO_SCALE + vertB.z;	surfaces[surfaceCount-1].vertices[1][2] = ePos.y/-MARIO_SCALE - vertB.y;
+            surfaces[surfaceCount-1].vertices[2][0] = ePos.x/MARIO_SCALE + vertA.x;	surfaces[surfaceCount-1].vertices[2][1] = ePos.z/MARIO_SCALE + vertA.z;	surfaces[surfaceCount-1].vertices[2][2] = ePos.y/-MARIO_SCALE - vertA.y;
+        }
+    }
 
     for (uint32_t i=0; i<surfaceCount; i++)
     {
@@ -58,22 +93,29 @@ void marioSpawn()
       surfaces[i].terrain = TERRAIN_STONE;
     }
 
-    int width = 16384;
-
-    surfaces[surfaceCount-2].vertices[0][0] = sm64pos.x + width;	surfaces[surfaceCount-2].vertices[0][1] = sm64pos.y;	surfaces[surfaceCount-2].vertices[0][2] = sm64pos.z + width;
-    surfaces[surfaceCount-2].vertices[1][0] = sm64pos.x - width;	surfaces[surfaceCount-2].vertices[1][1] = sm64pos.y;	surfaces[surfaceCount-2].vertices[1][2] = sm64pos.z - width;
-    surfaces[surfaceCount-2].vertices[2][0] = sm64pos.x - width;	surfaces[surfaceCount-2].vertices[2][1] = sm64pos.y;	surfaces[surfaceCount-2].vertices[2][2] = sm64pos.z + width;
-
-    surfaces[surfaceCount-1].vertices[0][0] = sm64pos.x - width;	surfaces[surfaceCount-1].vertices[0][1] = sm64pos.y;	surfaces[surfaceCount-1].vertices[0][2] = sm64pos.z - width;
-    surfaces[surfaceCount-1].vertices[1][0] = sm64pos.x + width;	surfaces[surfaceCount-1].vertices[1][1] = sm64pos.y;	surfaces[surfaceCount-1].vertices[1][2] = sm64pos.z + width;
-    surfaces[surfaceCount-1].vertices[2][0] = sm64pos.x + width;	surfaces[surfaceCount-1].vertices[2][1] = sm64pos.y;	surfaces[surfaceCount-1].vertices[2][2] = sm64pos.z - width;
-
     sm64_static_surfaces_load(surfaces, surfaceCount);
+    free(surfaces);
+}
 
+void marioSpawn()
+{
+    if (marioSpawned() || !FindPlayerPed()) return;
+    char buf[256];
+
+    // SM64 <--> GTA SA coordinates translation:
+    // Y and Z coordinates must be swapped. SM64 up coord is Y+ and GTA SA is Z+
+    // Mario model must also be unmirrored by making SM64 Z coordinate / GTA-SA Y coordinate negative
+    // GTA SA -> SM64: divide scale
+    // SM64 -> GTA SA: multiply scale
+    CVector pos = FindPlayerPed()->GetPosition();
+    pos.z -= 1;
+
+    loadCollisions(pos);
+
+    CVector sm64pos(pos.x / MARIO_SCALE, pos.z / MARIO_SCALE, -pos.y / MARIO_SCALE);
     marioId = sm64_mario_create(sm64pos.x, sm64pos.y, sm64pos.z);
     if (!marioSpawned())
     {
-        char buf[256];
         sprintf(buf, "Failed to spawn Mario at %.2f %.2f %.2f", pos.x, pos.y, pos.z);
         CHud::SetHelpMessage(buf, false, false, true);
         return;
@@ -108,7 +150,7 @@ void marioDestroy()
     delete[] marioGeometry.color;
     delete[] marioGeometry.uv;
     memset(&marioGeometry, 0, sizeof(marioGeometry));
-    FindPlayerPed()->ReactivatePlayerPed(0);
+    if (FindPlayerPed()) FindPlayerPed()->ReactivatePlayerPed(0);
 }
 
 void marioTick(float dt)
@@ -212,18 +254,20 @@ void marioRender()
 
     for (uint32_t i=0; i<surfaceCount; i++)
     {
-        surfaceIndices[i*3+0] = i*3+0;
-        surfaceIndices[i*3+1] = i*3+1;
-        surfaceIndices[i*3+2] = i*3+2;
-
-        surfaceVertices[i*3+0].objNormal.x = surfaceVertices[i*3+1].objNormal.x = surfaceVertices[i*3+2].objNormal.x = surfaces[i].normal.x;
-        surfaceVertices[i*3+0].objNormal.y = surfaceVertices[i*3+1].objNormal.y = surfaceVertices[i*3+2].objNormal.y = surfaces[i].normal.y;
-        surfaceVertices[i*3+0].objNormal.z = surfaceVertices[i*3+1].objNormal.z = surfaceVertices[i*3+2].objNormal.z = surfaces[i].normal.z;
-
         uint8_t r = ((0.5 + 0.25 * 1) * (.5+.5*surfaces[i].normal.x)) * 255;
         uint8_t g = ((0.5 + 0.25 * 1) * (.5+.5*surfaces[i].normal.y)) * 255;
         uint8_t b = ((0.5 + 0.25 * 1) * (.5+.5*surfaces[i].normal.z)) * 255;
-        surfaceVertices[i*3+0].color = surfaceVertices[i*3+1].color = surfaceVertices[i*3+2].color = RWRGBALONG(r, g, b, 128);
+
+        for (int j=0; j<3; j++)
+        {
+            surfaceIndices[i*3+j] = i*3+j;
+
+            surfaceVertices[i*3+j].objNormal.x = surfaces[i].normal.x;
+            surfaceVertices[i*3+j].objNormal.y = surfaces[i].normal.y;
+            surfaceVertices[i*3+j].objNormal.z = surfaces[i].normal.z;
+
+            surfaceVertices[i*3+j].color = RWRGBALONG(r, g, b, 128);
+        }
 
         surfaceVertices[i*3+0].objVertex.x = surfaces[i].vertex1[0] * MARIO_SCALE;
         surfaceVertices[i*3+0].objVertex.y = -surfaces[i].vertex1[2] * MARIO_SCALE;
