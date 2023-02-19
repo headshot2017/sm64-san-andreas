@@ -49,6 +49,7 @@ public:
             // load libsm64
             sm64_global_init(romBuffer, marioTexture);
             sm64_audio_init(romBuffer);
+            sm64_set_sound_volume(0.5f);
 
             for(int i=0; i<3*SM64_GEO_MAX_TRIANGLES; i++) marioIndices[i] = i;
             delete[] romBuffer;
