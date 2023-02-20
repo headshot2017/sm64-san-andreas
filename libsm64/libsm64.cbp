@@ -230,6 +230,7 @@
 		<Unit filename="src/decomp/include/platform_info.h" />
 		<Unit filename="src/decomp/include/seq_ids.h" />
 		<Unit filename="src/decomp/include/sm64.h" />
+		<Unit filename="src/decomp/include/sm64shared.h" />
 		<Unit filename="src/decomp/include/special_preset_names.h" />
 		<Unit filename="src/decomp/include/surface_terrains.h" />
 		<Unit filename="src/decomp/include/types.h" />
