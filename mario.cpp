@@ -42,6 +42,13 @@ RwUInt32 marioOriginalColor[SM64_GEO_MAX_TRIANGLES * 3];
 int marioTexturedCount = 0;
 int marioId = -1;
 float ticks = 0;
+bool surfaceDebugger = false;
+
+
+void marioToggleDebug()
+{
+    surfaceDebugger = !surfaceDebugger;
+}
 
 bool marioSpawned()
 {
@@ -278,57 +285,60 @@ void marioRender()
     }
 
 #ifdef _DEBUG
-    uint32_t objectCount = 0, vertexCount = 0;
-    SM64LoadedSurfaceObject* objects = sm64_get_all_surface_objects(&objectCount);
-
-    for (uint32_t i=0; i<objectCount; i++)
-        vertexCount += objects[i].surfaceCount*3;
-
-    RwIm3DVertex surfaceVertices[vertexCount];
-    memset(surfaceVertices, 0, sizeof(RwIm3DVertex) * vertexCount);
-    uint16_t surfaceIndices[vertexCount];
-
-    uint32_t startInd = 0;
-
-    for (uint32_t i=0; i<objectCount; i++)
+    if (surfaceDebugger)
     {
-        for (uint32_t j=0; j<objects[i].surfaceCount; j++)
+        uint32_t objectCount = 0, vertexCount = 0;
+        SM64LoadedSurfaceObject* objects = sm64_get_all_surface_objects(&objectCount);
+
+        for (uint32_t i=0; i<objectCount; i++)
+            vertexCount += objects[i].surfaceCount*3;
+
+        RwIm3DVertex surfaceVertices[vertexCount];
+        memset(surfaceVertices, 0, sizeof(RwIm3DVertex) * vertexCount);
+        uint16_t surfaceIndices[vertexCount];
+
+        uint32_t startInd = 0;
+
+        for (uint32_t i=0; i<objectCount; i++)
         {
-            uint8_t r = ((0.5 + 0.25 * 1) * (.5+.5*objects[i].engineSurfaces[j].normal.x)) * 255;
-            uint8_t g = ((0.5 + 0.25 * 1) * (.5+.5*objects[i].engineSurfaces[j].normal.y)) * 255;
-            uint8_t b = ((0.5 + 0.25 * 1) * (.5+.5*objects[i].engineSurfaces[j].normal.z)) * 255;
-
-            for (int k=0; k<3; k++)
+            for (uint32_t j=0; j<objects[i].surfaceCount; j++)
             {
-                surfaceIndices[startInd + j*3+k] = startInd + j*3+k;
+                uint8_t r = ((0.5 + 0.25 * 1) * (.5+.5*objects[i].engineSurfaces[j].normal.x)) * 255;
+                uint8_t g = ((0.5 + 0.25 * 1) * (.5+.5*objects[i].engineSurfaces[j].normal.y)) * 255;
+                uint8_t b = ((0.5 + 0.25 * 1) * (.5+.5*objects[i].engineSurfaces[j].normal.z)) * 255;
 
-                surfaceVertices[startInd + j*3+k].objNormal.x = objects[i].engineSurfaces[j].normal.x;
-                surfaceVertices[startInd + j*3+k].objNormal.y = objects[i].engineSurfaces[j].normal.y;
-                surfaceVertices[startInd + j*3+k].objNormal.z = objects[i].engineSurfaces[j].normal.z;
+                for (int k=0; k<3; k++)
+                {
+                    surfaceIndices[startInd + j*3+k] = startInd + j*3+k;
 
-                surfaceVertices[startInd + j*3+k].color = RWRGBALONG(r, g, b, 128);
+                    surfaceVertices[startInd + j*3+k].objNormal.x = objects[i].engineSurfaces[j].normal.x;
+                    surfaceVertices[startInd + j*3+k].objNormal.y = objects[i].engineSurfaces[j].normal.y;
+                    surfaceVertices[startInd + j*3+k].objNormal.z = objects[i].engineSurfaces[j].normal.z;
+
+                    surfaceVertices[startInd + j*3+k].color = RWRGBALONG(r, g, b, 128);
+                }
+
+                surfaceVertices[startInd + j*3+0].objVertex.x = objects[i].engineSurfaces[j].vertex1[0] * MARIO_SCALE;
+                surfaceVertices[startInd + j*3+0].objVertex.y = -objects[i].engineSurfaces[j].vertex1[2] * MARIO_SCALE;
+                surfaceVertices[startInd + j*3+0].objVertex.z = objects[i].engineSurfaces[j].vertex1[1] * MARIO_SCALE;
+
+                surfaceVertices[startInd + j*3+1].objVertex.x = objects[i].engineSurfaces[j].vertex2[0] * MARIO_SCALE;
+                surfaceVertices[startInd + j*3+1].objVertex.y = -objects[i].engineSurfaces[j].vertex2[2] * MARIO_SCALE;
+                surfaceVertices[startInd + j*3+1].objVertex.z = objects[i].engineSurfaces[j].vertex2[1] * MARIO_SCALE;
+
+                surfaceVertices[startInd + j*3+2].objVertex.x = objects[i].engineSurfaces[j].vertex3[0] * MARIO_SCALE;
+                surfaceVertices[startInd + j*3+2].objVertex.y = -objects[i].engineSurfaces[j].vertex3[2] * MARIO_SCALE;
+                surfaceVertices[startInd + j*3+2].objVertex.z = objects[i].engineSurfaces[j].vertex3[1] * MARIO_SCALE;
             }
 
-            surfaceVertices[startInd + j*3+0].objVertex.x = objects[i].engineSurfaces[j].vertex1[0] * MARIO_SCALE;
-            surfaceVertices[startInd + j*3+0].objVertex.y = -objects[i].engineSurfaces[j].vertex1[2] * MARIO_SCALE;
-            surfaceVertices[startInd + j*3+0].objVertex.z = objects[i].engineSurfaces[j].vertex1[1] * MARIO_SCALE;
-
-            surfaceVertices[startInd + j*3+1].objVertex.x = objects[i].engineSurfaces[j].vertex2[0] * MARIO_SCALE;
-            surfaceVertices[startInd + j*3+1].objVertex.y = -objects[i].engineSurfaces[j].vertex2[2] * MARIO_SCALE;
-            surfaceVertices[startInd + j*3+1].objVertex.z = objects[i].engineSurfaces[j].vertex2[1] * MARIO_SCALE;
-
-            surfaceVertices[startInd + j*3+2].objVertex.x = objects[i].engineSurfaces[j].vertex3[0] * MARIO_SCALE;
-            surfaceVertices[startInd + j*3+2].objVertex.y = -objects[i].engineSurfaces[j].vertex3[2] * MARIO_SCALE;
-            surfaceVertices[startInd + j*3+2].objVertex.z = objects[i].engineSurfaces[j].vertex3[1] * MARIO_SCALE;
+            startInd += objects[i].surfaceCount*3;
         }
 
-        startInd += objects[i].surfaceCount*3;
-    }
-
-    if (RwIm3DTransform(surfaceVertices, vertexCount, 0, rwIM3D_VERTEXXYZ | rwIM3D_VERTEXRGBA))
-    {
-        RwD3D9SetTexture(0, 0);
-        RwIm3DRenderIndexedPrimitive(rwPRIMTYPETRILIST, surfaceIndices, vertexCount);
+        if (RwIm3DTransform(surfaceVertices, vertexCount, 0, rwIM3D_VERTEXXYZ | rwIM3D_VERTEXRGBA))
+        {
+            RwD3D9SetTexture(0, 0);
+            RwIm3DRenderIndexedPrimitive(rwPRIMTYPETRILIST, surfaceIndices, vertexCount);
+        }
     }
 #endif // _DEBUG
 

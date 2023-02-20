@@ -10,6 +10,8 @@
 extern SM64MarioState marioState;
 extern SM64MarioInputs marioInput;
 
+void marioToggleDebug();
+
 bool marioSpawned();
 void marioSpawn();
 void marioDestroy();

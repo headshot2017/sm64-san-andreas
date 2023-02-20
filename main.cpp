@@ -96,13 +96,21 @@ public:
         if (CTimer::m_UserPause) return;
 
         static int keyPressTime = 0;
-        if (KeyPressed('M') && CTimer::m_snTimeInMilliseconds - keyPressTime > 1000)
+        if (CTimer::m_snTimeInMilliseconds - keyPressTime > 1000)
         {
-            keyPressTime = CTimer::m_snTimeInMilliseconds;
-            if (marioSpawned())
-                marioDestroy();
-            else
-                marioSpawn();
+            if (KeyPressed('M'))
+            {
+                keyPressTime = CTimer::m_snTimeInMilliseconds;
+                if (marioSpawned())
+                    marioDestroy();
+                else
+                    marioSpawn();
+            }
+            else if (KeyPressed(VK_OEM_COMMA))
+            {
+                keyPressTime = CTimer::m_snTimeInMilliseconds;
+                marioToggleDebug();
+            }
         }
 
         marioTick((CTimer::m_snTimeInMilliseconds - CTimer::m_snPreviousTimeInMilliseconds) / 1000.f);
