@@ -5,6 +5,7 @@
 #include "CPlayerPed.h"
 #include "CWorld.h"
 
+#define _USE_MATH_DEFINES
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
@@ -17,11 +18,22 @@ extern "C" {
 #include "main.h"
 
 #define lerp(a, b, amnt) a + (b - a) * amnt
+#define MAX_OBJS 256
+
+struct LoadedSurface
+{
+    LoadedSurface() : ID(0), transform(), ent(nullptr) {}
+
+    uint32_t ID;
+    SM64ObjectTransform transform;
+    CEntity* ent;
+} loadedSurfaces[MAX_OBJS];
 
 SM64MarioState marioState;
 SM64MarioInputs marioInput;
 SM64MarioGeometryBuffers marioGeometry;
-CVector marioLastPos, marioCurrPos, marioInterpPos;
+
+CVector marioLastPos, marioCurrPos, marioInterpPos, marioBlocksPos;
 RwIm3DVertex marioInterpGeo[SM64_GEO_MAX_TRIANGLES * 3];
 RwIm3DVertex marioCurrGeoPos[SM64_GEO_MAX_TRIANGLES * 3];
 RwIm3DVertex marioLastGeoPos[SM64_GEO_MAX_TRIANGLES * 3];
@@ -36,65 +48,82 @@ bool marioSpawned()
     return marioId != -1;
 }
 
+void deleteCollisions()
+{
+    for (int i=0; i<MAX_OBJS; i++)
+    {
+        if (!loadedSurfaces[i].ent) continue;
+        sm64_surface_object_delete(loadedSurfaces[i].ID);
+        loadedSurfaces[i].ent = nullptr;
+        loadedSurfaces[i].ID = 0;
+    }
+}
+
 void loadCollisions(const CVector& pos)
 {
+    deleteCollisions();
+
     char buf[256];
+    marioBlocksPos = pos;
     CVector sm64pos(pos.x / MARIO_SCALE, pos.z / MARIO_SCALE, -pos.y / MARIO_SCALE);
-
-    uint32_t surfaceCount = 0;
-    SM64Surface* surfaces = 0;
-    //SM64Surface* surfaces = (SM64Surface*)malloc(sizeof(SM64Surface) * surfaceCount);
-
-    // spawn a dummy ground at Mario's position
-    /*int width = 16384;
-    surfaces[surfaceCount-2].vertices[0][0] = sm64pos.x + width;	surfaces[surfaceCount-2].vertices[0][1] = sm64pos.y;	surfaces[surfaceCount-2].vertices[0][2] = sm64pos.z + width;
-    surfaces[surfaceCount-2].vertices[1][0] = sm64pos.x - width;	surfaces[surfaceCount-2].vertices[1][1] = sm64pos.y;	surfaces[surfaceCount-2].vertices[1][2] = sm64pos.z - width;
-    surfaces[surfaceCount-2].vertices[2][0] = sm64pos.x - width;	surfaces[surfaceCount-2].vertices[2][1] = sm64pos.y;	surfaces[surfaceCount-2].vertices[2][2] = sm64pos.z + width;
-
-    surfaces[surfaceCount-1].vertices[0][0] = sm64pos.x - width;	surfaces[surfaceCount-1].vertices[0][1] = sm64pos.y;	surfaces[surfaceCount-1].vertices[0][2] = sm64pos.z - width;
-    surfaces[surfaceCount-1].vertices[1][0] = sm64pos.x + width;	surfaces[surfaceCount-1].vertices[1][1] = sm64pos.y;	surfaces[surfaceCount-1].vertices[1][2] = sm64pos.z + width;
-    surfaces[surfaceCount-1].vertices[2][0] = sm64pos.x + width;	surfaces[surfaceCount-1].vertices[2][1] = sm64pos.y;	surfaces[surfaceCount-1].vertices[2][2] = sm64pos.z - width;*/
 
     // look for static GTA surfaces (buildings) nearby
     short foundObjs = 0;
-    short maxObjs = 255;
-    CEntity* outEntities[maxObjs] = {0};
-    CWorld::FindObjectsIntersectingCube(pos-CVector(64,64,64), pos+CVector(64,64,64), &foundObjs, 255, outEntities, true, false, false, false, false);
+    CEntity* outEntities[MAX_OBJS] = {0};
+    CWorld::FindObjectsIntersectingCube(pos-CVector(64,64,64), pos+CVector(64,64,64), &foundObjs, MAX_OBJS, outEntities, true, false, false, true, true);
     //FindObjectsIntersectingCube(CVector const& cornerA, CVector const& cornerB, short* outCount, short maxCount, CEntity** outEntities, bool buildings, bool vehicles, bool peds, bool objects, bool dummies);
-    sprintf(buf, "%d foundObjs", foundObjs);
-    CHud::SetHelpMessage(buf, false, false, false);
+    printf("%d foundObjs\n", foundObjs);
+    fflush(stdout);
 
     for (short i=0; i<foundObjs; i++)
     {
         CCollisionData* colData = outEntities[i]->GetColModel()->m_pColData;
         if (!colData) continue;
 
-        //CVector ePos = outEntities[i]->GetPosition();
-        CVector ePos = outEntities[i]->m_placement.m_vPosn;
+        CVector ePos = outEntities[i]->GetPosition();
+        float orZ = outEntities[i]->GetHeading();
+
+        SM64SurfaceObject obj;
+        memset(&obj, 0, sizeof(SM64SurfaceObject));
+        obj.transform.position[0] = ePos.x/MARIO_SCALE;
+        obj.transform.position[1] = ePos.z/MARIO_SCALE;
+        obj.transform.position[2] = -ePos.y/MARIO_SCALE;
+        obj.transform.eulerRotation[1] = -orZ * 180.f / M_PI;
+
         for (uint16_t j=0; j<colData->m_nNumTriangles; j++)
         {
-            CompressedVector vertA = colData->m_pVertices[colData->m_pTriangles[j].m_nVertA];
-            CompressedVector vertB = colData->m_pVertices[colData->m_pTriangles[j].m_nVertB];
-            CompressedVector vertC = colData->m_pVertices[colData->m_pTriangles[j].m_nVertC];
+            CVector vertA, vertB, vertC;
+            colData->GetTrianglePoint(vertA, colData->m_pTriangles[j].m_nVertA);
+            colData->GetTrianglePoint(vertB, colData->m_pTriangles[j].m_nVertB);
+            colData->GetTrianglePoint(vertC, colData->m_pTriangles[j].m_nVertC);
+            vertA /= MARIO_SCALE; vertB /= MARIO_SCALE; vertC /= MARIO_SCALE;
 
-            surfaceCount++;
-            surfaces = (SM64Surface*)realloc(surfaces, sizeof(SM64Surface) * surfaceCount);
+            obj.surfaceCount++;
+            obj.surfaces = (SM64Surface*)realloc(obj.surfaces, sizeof(SM64Surface) * obj.surfaceCount);
 
-            surfaces[surfaceCount-1].vertices[0][0] = ePos.x/MARIO_SCALE + vertC.x; surfaces[surfaceCount-1].vertices[0][1] = ePos.z/MARIO_SCALE + vertC.z; surfaces[surfaceCount-1].vertices[0][2] = ePos.y/-MARIO_SCALE - vertC.y;
-            surfaces[surfaceCount-1].vertices[1][0] = ePos.x/MARIO_SCALE + vertB.x;	surfaces[surfaceCount-1].vertices[1][1] = ePos.z/MARIO_SCALE + vertB.z;	surfaces[surfaceCount-1].vertices[1][2] = ePos.y/-MARIO_SCALE - vertB.y;
-            surfaces[surfaceCount-1].vertices[2][0] = ePos.x/MARIO_SCALE + vertA.x;	surfaces[surfaceCount-1].vertices[2][1] = ePos.z/MARIO_SCALE + vertA.z;	surfaces[surfaceCount-1].vertices[2][2] = ePos.y/-MARIO_SCALE - vertA.y;
+            obj.surfaces[obj.surfaceCount-1].vertices[0][0] = vertC.x;  obj.surfaces[obj.surfaceCount-1].vertices[0][1] = vertC.z;  obj.surfaces[obj.surfaceCount-1].vertices[0][2] = -vertC.y;
+            obj.surfaces[obj.surfaceCount-1].vertices[1][0] = vertB.x;  obj.surfaces[obj.surfaceCount-1].vertices[1][1] = vertB.z;	obj.surfaces[obj.surfaceCount-1].vertices[1][2] = -vertB.y;
+            obj.surfaces[obj.surfaceCount-1].vertices[2][0] = vertA.x;  obj.surfaces[obj.surfaceCount-1].vertices[2][1] = vertA.z;	obj.surfaces[obj.surfaceCount-1].vertices[2][2] = -vertA.y;
         }
-    }
 
-    for (uint32_t i=0; i<surfaceCount; i++)
-    {
-      surfaces[i].type = SURFACE_DEFAULT;
-      surfaces[i].force = 0;
-      surfaces[i].terrain = TERRAIN_STONE;
-    }
+        for (uint32_t j=0; j<obj.surfaceCount; j++)
+        {
+            obj.surfaces[j].type = SURFACE_DEFAULT;
+            obj.surfaces[j].force = 0;
+            obj.surfaces[j].terrain = TERRAIN_STONE;
+        }
 
-    sm64_static_surfaces_load(surfaces, surfaceCount);
-    free(surfaces);
+        for (int j=0; j<MAX_OBJS; j++)
+        {
+            if (loadedSurfaces[j].ent) continue;
+            loadedSurfaces[j].ent = outEntities[i];
+            loadedSurfaces[j].transform = obj.transform;
+            loadedSurfaces[j].ID = sm64_surface_object_create(&obj);
+            break;
+        }
+
+        if (obj.surfaces) free(obj.surfaces);
+    }
 }
 
 void marioSpawn()
@@ -210,6 +239,9 @@ void marioTick(float dt)
 
         memcpy(&marioInterpPos, &marioCurrPos, sizeof(marioCurrPos));
         memcpy(marioInterpGeo, marioCurrGeoPos, sizeof(marioCurrGeoPos));
+
+        if (fabsf(marioBlocksPos.x - marioCurrPos.x) > 64 || fabsf(marioBlocksPos.y - marioCurrPos.y) > 64 || fabsf(marioBlocksPos.z - marioCurrPos.z) > 64)
+            loadCollisions(marioCurrPos);
     }
 
     marioInterpPos.x = lerp(marioLastPos.x, marioCurrPos.x, ticks / (1./30));
@@ -246,46 +278,57 @@ void marioRender()
     }
 
 #ifdef _DEBUG
-    uint32_t surfaceCount = 0;
-    SM64SurfaceCollisionData* surfaces = sm64_get_static_surface_data(&surfaceCount);
-    RwIm3DVertex surfaceVertices[surfaceCount*3];
-    memset(surfaceVertices, 0, sizeof(RwIm3DVertex) * surfaceCount*3);
-    uint16_t surfaceIndices[surfaceCount*3];
+    uint32_t objectCount = 0, vertexCount = 0;
+    SM64LoadedSurfaceObject* objects = sm64_get_all_surface_objects(&objectCount);
 
-    for (uint32_t i=0; i<surfaceCount; i++)
+    for (uint32_t i=0; i<objectCount; i++)
+        vertexCount += objects[i].surfaceCount*3;
+
+    RwIm3DVertex surfaceVertices[vertexCount];
+    memset(surfaceVertices, 0, sizeof(RwIm3DVertex) * vertexCount);
+    uint16_t surfaceIndices[vertexCount];
+
+    uint32_t startInd = 0;
+
+    for (uint32_t i=0; i<objectCount; i++)
     {
-        uint8_t r = ((0.5 + 0.25 * 1) * (.5+.5*surfaces[i].normal.x)) * 255;
-        uint8_t g = ((0.5 + 0.25 * 1) * (.5+.5*surfaces[i].normal.y)) * 255;
-        uint8_t b = ((0.5 + 0.25 * 1) * (.5+.5*surfaces[i].normal.z)) * 255;
-
-        for (int j=0; j<3; j++)
+        for (uint32_t j=0; j<objects[i].surfaceCount; j++)
         {
-            surfaceIndices[i*3+j] = i*3+j;
+            uint8_t r = ((0.5 + 0.25 * 1) * (.5+.5*objects[i].engineSurfaces[j].normal.x)) * 255;
+            uint8_t g = ((0.5 + 0.25 * 1) * (.5+.5*objects[i].engineSurfaces[j].normal.y)) * 255;
+            uint8_t b = ((0.5 + 0.25 * 1) * (.5+.5*objects[i].engineSurfaces[j].normal.z)) * 255;
 
-            surfaceVertices[i*3+j].objNormal.x = surfaces[i].normal.x;
-            surfaceVertices[i*3+j].objNormal.y = surfaces[i].normal.y;
-            surfaceVertices[i*3+j].objNormal.z = surfaces[i].normal.z;
+            for (int k=0; k<3; k++)
+            {
+                surfaceIndices[startInd + j*3+k] = startInd + j*3+k;
 
-            surfaceVertices[i*3+j].color = RWRGBALONG(r, g, b, 128);
+                surfaceVertices[startInd + j*3+k].objNormal.x = objects[i].engineSurfaces[j].normal.x;
+                surfaceVertices[startInd + j*3+k].objNormal.y = objects[i].engineSurfaces[j].normal.y;
+                surfaceVertices[startInd + j*3+k].objNormal.z = objects[i].engineSurfaces[j].normal.z;
+
+                surfaceVertices[startInd + j*3+k].color = RWRGBALONG(r, g, b, 128);
+            }
+
+            surfaceVertices[startInd + j*3+0].objVertex.x = objects[i].engineSurfaces[j].vertex1[0] * MARIO_SCALE;
+            surfaceVertices[startInd + j*3+0].objVertex.y = -objects[i].engineSurfaces[j].vertex1[2] * MARIO_SCALE;
+            surfaceVertices[startInd + j*3+0].objVertex.z = objects[i].engineSurfaces[j].vertex1[1] * MARIO_SCALE;
+
+            surfaceVertices[startInd + j*3+1].objVertex.x = objects[i].engineSurfaces[j].vertex2[0] * MARIO_SCALE;
+            surfaceVertices[startInd + j*3+1].objVertex.y = -objects[i].engineSurfaces[j].vertex2[2] * MARIO_SCALE;
+            surfaceVertices[startInd + j*3+1].objVertex.z = objects[i].engineSurfaces[j].vertex2[1] * MARIO_SCALE;
+
+            surfaceVertices[startInd + j*3+2].objVertex.x = objects[i].engineSurfaces[j].vertex3[0] * MARIO_SCALE;
+            surfaceVertices[startInd + j*3+2].objVertex.y = -objects[i].engineSurfaces[j].vertex3[2] * MARIO_SCALE;
+            surfaceVertices[startInd + j*3+2].objVertex.z = objects[i].engineSurfaces[j].vertex3[1] * MARIO_SCALE;
         }
 
-        surfaceVertices[i*3+0].objVertex.x = surfaces[i].vertex1[0] * MARIO_SCALE;
-        surfaceVertices[i*3+0].objVertex.y = -surfaces[i].vertex1[2] * MARIO_SCALE;
-        surfaceVertices[i*3+0].objVertex.z = surfaces[i].vertex1[1] * MARIO_SCALE;
-
-        surfaceVertices[i*3+1].objVertex.x = surfaces[i].vertex2[0] * MARIO_SCALE;
-        surfaceVertices[i*3+1].objVertex.y = -surfaces[i].vertex2[2] * MARIO_SCALE;
-        surfaceVertices[i*3+1].objVertex.z = surfaces[i].vertex2[1] * MARIO_SCALE;
-
-        surfaceVertices[i*3+2].objVertex.x = surfaces[i].vertex3[0] * MARIO_SCALE;
-        surfaceVertices[i*3+2].objVertex.y = -surfaces[i].vertex3[2] * MARIO_SCALE;
-        surfaceVertices[i*3+2].objVertex.z = surfaces[i].vertex3[1] * MARIO_SCALE;
+        startInd += objects[i].surfaceCount*3;
     }
 
-    if (RwIm3DTransform(surfaceVertices, surfaceCount*3, 0, rwIM3D_VERTEXXYZ | rwIM3D_VERTEXRGBA))
+    if (RwIm3DTransform(surfaceVertices, vertexCount, 0, rwIM3D_VERTEXXYZ | rwIM3D_VERTEXRGBA))
     {
         RwD3D9SetTexture(0, 0);
-        RwIm3DRenderIndexedPrimitive(rwPRIMTYPETRILIST, surfaceIndices, surfaceCount*3);
+        RwIm3DRenderIndexedPrimitive(rwPRIMTYPETRILIST, surfaceIndices, vertexCount);
     }
 #endif // _DEBUG
 
