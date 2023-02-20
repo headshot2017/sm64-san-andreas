@@ -4,14 +4,17 @@
 #include "CCamera.h"
 #include "CPlayerPed.h"
 #include "CWorld.h"
+#include "CGame.h"
 
 #define _USE_MATH_DEFINES
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <limits.h>
 
 extern "C" {
     #include <decomp/include/surface_terrains.h>
+    #include <decomp/include/sm64shared.h>
 }
 
 #include "d3d9_funcs.h"
@@ -204,9 +207,18 @@ void marioTick(float dt)
         memcpy(&marioLastPos, &marioCurrPos, sizeof(marioCurrPos));
         memcpy(marioLastGeoPos, marioCurrGeoPos, sizeof(marioCurrGeoPos));
 
-        float angle = atan2(pad->GetPedWalkUpDown(), pad->GetPedWalkLeftRight());
+        // water level
+        sm64_set_mario_water_level(marioId, (CGame::CanSeeWaterFromCurrArea() ? 0 : INT16_MIN));
+
+        // handle input
         float length = sqrtf(pad->GetPedWalkLeftRight() * pad->GetPedWalkLeftRight() + pad->GetPedWalkUpDown() * pad->GetPedWalkUpDown()) / 128.f;
         if (length > 1) length = 1;
+
+        float angle;
+        if ((marioState.action & ACT_GROUP_MASK) == ACT_GROUP_SUBMERGED)
+            angle = atan2(-pad->GetPedWalkUpDown(), -pad->GetPedWalkLeftRight());
+        else
+            angle = atan2(pad->GetPedWalkUpDown(), pad->GetPedWalkLeftRight());
 
         marioInput.stickX = -cosf(angle) * length;
         marioInput.stickY = -sinf(angle) * length;
