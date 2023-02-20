@@ -15,7 +15,7 @@ static uint32_t s_static_surface_count = 0;
 static struct SM64SurfaceCollisionData *s_static_surface_list = NULL;
 
 static uint32_t s_surface_object_count = 0;
-static struct LoadedSurfaceObject *s_surface_object_list = NULL;
+static struct SM64LoadedSurfaceObject *s_surface_object_list = NULL;
 
 #define CONVERT_ANGLE( x ) ((s16)( -(x) / 180.0f * 32768.0f ))
 
@@ -252,10 +252,10 @@ uint32_t surfaces_load_object( const struct SM64SurfaceObject *surfaceObject )
     {
         idx = s_surface_object_count;
         s_surface_object_count++;
-        s_surface_object_list = realloc( s_surface_object_list, s_surface_object_count * sizeof( struct LoadedSurfaceObject ));
+        s_surface_object_list = realloc( s_surface_object_list, s_surface_object_count * sizeof( struct SM64LoadedSurfaceObject ));
     }
 
-    struct LoadedSurfaceObject *obj = &s_surface_object_list[idx];
+    struct SM64LoadedSurfaceObject *obj = &s_surface_object_list[idx];
 
     obj->surfaceCount = surfaceObject->surfaceCount;
 
@@ -301,7 +301,7 @@ void surface_object_update_transform( uint32_t objId, const struct SM64ObjectTra
     update_transform( s_surface_object_list[objId].transform, newTransform );
     for( int i = 0; i < s_surface_object_list[objId].surfaceCount; ++i )
     {
-        struct LoadedSurfaceObject *obj = &s_surface_object_list[objId];
+        struct SM64LoadedSurfaceObject *obj = &s_surface_object_list[objId];
         engine_surface_from_lib_surface( &obj->engineSurfaces[i], &obj->libSurfaces[i], obj->transform );
     }
 }
@@ -333,3 +333,9 @@ struct SM64SurfaceCollisionData* get_static_surface_data(uint32_t* count)
     *count = s_static_surface_count;
     return s_static_surface_list;
 };
+
+struct SM64LoadedSurfaceObject* get_all_surface_objects(uint32_t* count)
+{
+	*count = s_surface_object_count;
+	return s_surface_object_list;
+}

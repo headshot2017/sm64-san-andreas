@@ -124,6 +124,14 @@ struct SM64SurfaceCollisionData
     uint16_t terrain; // libsm64: added field
 };
 
+struct SM64LoadedSurfaceObject
+{
+    struct SM64SurfaceObjectTransform *transform;
+    uint32_t surfaceCount;
+    struct SM64Surface *libSurfaces;
+    struct SM64SurfaceCollisionData *engineSurfaces;
+};
+
 enum
 {
     SM64_TEXTURE_WIDTH = 64 * 11,
@@ -172,6 +180,7 @@ extern SM64_LIB_FN bool sm64_mario_attack(int32_t marioId, float x, float y, flo
 extern SM64_LIB_FN uint32_t sm64_surface_object_create( const struct SM64SurfaceObject *surfaceObject );
 extern SM64_LIB_FN void sm64_surface_object_move( uint32_t objectId, const struct SM64ObjectTransform *transform );
 extern SM64_LIB_FN void sm64_surface_object_delete( uint32_t objectId );
+extern SM64_LIB_FN struct SM64LoadedSurfaceObject* sm64_get_all_surface_objects(uint32_t* count);
 
 extern SM64_LIB_FN int32_t sm64_surface_find_wall_collision( float *xPtr, float *yPtr, float *zPtr, float offsetY, float radius );
 extern SM64_LIB_FN int32_t sm64_surface_find_wall_collisions( struct SM64WallCollisionData *colData );

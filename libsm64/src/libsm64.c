@@ -598,6 +598,11 @@ SM64_LIB_FN void sm64_surface_object_delete( uint32_t objectId )
     surfaces_unload_object( objectId );
 }
 
+SM64_LIB_FN struct SM64LoadedSurfaceObject* sm64_get_all_surface_objects(uint32_t* count)
+{
+	return get_all_surface_objects(count);
+}
+
 
 SM64_LIB_FN int32_t sm64_surface_find_wall_collision( float *xPtr, float *yPtr, float *zPtr, float offsetY, float radius )
 {

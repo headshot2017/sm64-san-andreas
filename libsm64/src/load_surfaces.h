@@ -3,14 +3,6 @@
 #include "decomp/include/types.h"
 #include "libsm64.h"
 
-struct LoadedSurfaceObject
-{
-    struct SM64SurfaceObjectTransform *transform;
-    uint32_t surfaceCount;
-    struct SM64Surface *libSurfaces;
-    struct SM64SurfaceCollisionData *engineSurfaces;
-};
-
 extern uint32_t loaded_surface_iter_group_count( void );
 extern uint32_t loaded_surface_iter_group_size( uint32_t groupIndex );
 extern struct SM64SurfaceCollisionData *loaded_surface_iter_get_at_index( uint32_t groupIndex, uint32_t surfaceIndex );
@@ -23,3 +15,4 @@ extern void surfaces_unload_object( uint32_t objId );
 extern void surfaces_unload_all( void );
 
 extern struct SM64SurfaceCollisionData* get_static_surface_data(uint32_t* count);
+extern struct SM64LoadedSurfaceObject* get_all_surface_objects(uint32_t* count);
