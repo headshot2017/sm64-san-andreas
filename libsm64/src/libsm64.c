@@ -230,7 +230,6 @@ SM64_LIB_FN void sm64_mario_tick( int32_t marioId, const struct SM64MarioInputs 
     }
 
     global_state_bind( ((struct MarioInstance *)s_mario_instance_pool.objects[ marioId ])->globalState );
-    int16_t oldHealth = (gMarioState->health >> 8);
 
     update_button( inputs->buttonA, A_BUTTON );
     update_button( inputs->buttonB, B_BUTTON );
@@ -255,10 +254,6 @@ SM64_LIB_FN void sm64_mario_tick( int32_t marioId, const struct SM64MarioInputs 
     geo_process_root_hack_single_node( s_mario_graph_node );
 
     gAreaUpdateCounter++;
-
-    int16_t newHealth = (gMarioState->health >> 8);
-    if (newHealth > oldHealth)
-        play_sound(SOUND_MENU_POWER_METER, gMarioState->marioObj->header.gfx.cameraToObject);
 
     outState->health = gMarioState->health;
     vec3f_copy( outState->position, gMarioState->pos );
