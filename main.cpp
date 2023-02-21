@@ -72,6 +72,12 @@ public:
         }
     }
 
+    static void loadGame()
+    {
+        if (!loaded) return;
+        if (marioSpawned()) marioDestroy();
+    }
+
     static void destroy()
     {
         if (!loaded) return;
@@ -121,6 +127,7 @@ public:
         marioTexture = nullptr;
 
         Events::initRwEvent.Add(init);
+        Events::reInitGameEvent.Add(loadGame);
         Events::shutdownRwEvent.Add(destroy);
         Events::d3dLostEvent.Add(destroyD3D);
         Events::d3dResetEvent.Add(initD3D);
