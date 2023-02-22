@@ -5,6 +5,7 @@
 #include "CPlayerPed.h"
 #include "CWorld.h"
 #include "CGame.h"
+#include "CEntryExitManager.h"
 
 #define _USE_MATH_DEFINES
 #include <stdio.h>
@@ -204,6 +205,15 @@ void loadCollisions(const CVector& pos)
     }
 }
 
+void marioSetPos(const CVector& pos)
+{
+    if (!marioSpawned()) return;
+    loadCollisions(pos);
+
+    CVector sm64pos(pos.x / MARIO_SCALE, pos.z / MARIO_SCALE, -pos.y / MARIO_SCALE);
+    sm64_set_mario_position(marioId, sm64pos.x, sm64pos.y, sm64pos.z);
+}
+
 void marioSpawn()
 {
     if (marioSpawned() || !FindPlayerPed()) return;
@@ -265,6 +275,21 @@ void marioTick(float dt)
     if (!marioSpawned() || !FindPlayerPed()) return;
     CPlayerPed* ped = FindPlayerPed();
     CPad* pad = ped->GetPadFromPlayer();
+
+    // handle entering/exiting buildings
+    static CEntryExit* entryexit = nullptr;
+    if (CEntryExitManager::mp_Active && !entryexit)
+    {
+        // entering/exiting a building
+        entryexit = CEntryExitManager::mp_Active;
+    }
+    else if (!CEntryExitManager::mp_Active && entryexit)
+    {
+        // entered/exited the building, teleport Mario to the destination
+        ped->DeactivatePlayerPed(0);
+        marioSetPos(entryexit->m_pLink->m_vecExitPos - CVector(0,0,1));
+        entryexit = nullptr;
+    }
 
     ticks += dt;
     while (ticks >= 1.f/30)
