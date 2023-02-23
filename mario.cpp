@@ -22,16 +22,21 @@ extern "C" {
 #include "main.h"
 
 #define lerp(a, b, amnt) a + (b - a) * amnt
-#define MAX_OBJS 256
+#define MAX_OBJS 512
 
 struct LoadedSurface
 {
-    LoadedSurface() : ID(0), transform(), ent(nullptr) {}
+    LoadedSurface() : ID(0), transform(), ent(nullptr), cachedPos(), cachedRotations{0,0,0} {}
 
     uint32_t ID;
     SM64ObjectTransform transform;
     CEntity* ent;
-} loadedSurfaces[MAX_OBJS];
+    CVector cachedPos;
+    float cachedRotations[3];
+};
+
+LoadedSurface loadedBuildings[MAX_OBJS];
+LoadedSurface loadedObjects[MAX_OBJS];
 
 SM64MarioState marioState;
 SM64MarioInputs marioInput;
@@ -43,6 +48,7 @@ RwIm3DVertex marioCurrGeoPos[SM64_GEO_MAX_TRIANGLES * 3];
 RwIm3DVertex marioLastGeoPos[SM64_GEO_MAX_TRIANGLES * 3];
 RwImVertexIndex marioTextureIndices[SM64_GEO_MAX_TRIANGLES * 3];
 RwUInt32 marioOriginalColor[SM64_GEO_MAX_TRIANGLES * 3];
+uint32_t elapsedTicks = 0;
 int marioTexturedCount = 0;
 int marioId = -1;
 float ticks = 0;
@@ -59,29 +65,30 @@ bool marioSpawned()
     return marioId != -1;
 }
 
-void deleteCollisions()
+void deleteBuildings()
 {
     for (int i=0; i<MAX_OBJS; i++)
     {
-        if (!loadedSurfaces[i].ent) continue;
-        sm64_surface_object_delete(loadedSurfaces[i].ID);
-        loadedSurfaces[i].ent = nullptr;
-        loadedSurfaces[i].ID = 0;
+        if (loadedBuildings[i].ent)
+        {
+            sm64_surface_object_delete(loadedBuildings[i].ID);
+            loadedBuildings[i].ent = nullptr;
+            loadedBuildings[i].ID = 0;
+        }
     }
 }
 
-void loadCollisions(const CVector& pos)
+void loadBuildings(const CVector& pos)
 {
-    deleteCollisions();
+    deleteBuildings();
 
     char buf[256];
     marioBlocksPos = pos;
-    CVector sm64pos(pos.x / MARIO_SCALE, pos.z / MARIO_SCALE, -pos.y / MARIO_SCALE);
 
     // look for static GTA surfaces (buildings) nearby
     short foundObjs = 0;
     CEntity* outEntities[MAX_OBJS] = {0};
-    CWorld::FindObjectsIntersectingCube(pos-CVector(64,64,64), pos+CVector(64,64,64), &foundObjs, MAX_OBJS, outEntities, true, false, false, true, true);
+    CWorld::FindObjectsIntersectingCube(pos-CVector(64,64,64), pos+CVector(64,64,64), &foundObjs, MAX_OBJS, outEntities, true, false, false, false, true);
     //FindObjectsIntersectingCube(CVector const& cornerA, CVector const& cornerB, short* outCount, short maxCount, CEntity** outEntities, bool buildings, bool vehicles, bool peds, bool objects, bool dummies);
     printf("%d foundObjs\n", foundObjs);
     fflush(stdout);
@@ -194,15 +201,176 @@ void loadCollisions(const CVector& pos)
 
         for (int j=0; j<MAX_OBJS; j++)
         {
-            if (loadedSurfaces[j].ent) continue;
-            loadedSurfaces[j].ent = outEntities[i];
-            loadedSurfaces[j].transform = obj.transform;
-            loadedSurfaces[j].ID = sm64_surface_object_create(&obj);
+            if (loadedBuildings[j].ent) continue;
+            loadedBuildings[j].ent = outEntities[i];
+            loadedBuildings[j].cachedPos = ePos;
+            loadedBuildings[j].cachedRotations[0] = orX;
+            loadedBuildings[j].cachedRotations[1] = heading;
+            loadedBuildings[j].cachedRotations[2] = orY;
+            loadedBuildings[j].transform = obj.transform;
+            loadedBuildings[j].ID = sm64_surface_object_create(&obj);
             break;
         }
 
         if (obj.surfaces) free(obj.surfaces);
     }
+}
+
+void deleteNonBuildings()
+{
+    for (int i=0; i<MAX_OBJS; i++)
+    {
+        if (loadedObjects[i].ent)
+        {
+            sm64_surface_object_delete(loadedObjects[i].ID);
+            loadedObjects[i].ent = nullptr;
+            loadedObjects[i].ID = 0;
+        }
+    }
+}
+
+void loadNonBuildings(const CVector& pos)
+{
+    deleteNonBuildings();
+
+    // look for static GTA surfaces (buildings) nearby
+    short foundObjs = 0;
+    CEntity* outEntities[MAX_OBJS] = {0};
+    CWorld::FindObjectsIntersectingCube(pos-CVector(16,16,16), pos+CVector(16,16,16), &foundObjs, MAX_OBJS, outEntities, false, true, false, true, false);
+    //FindObjectsIntersectingCube(CVector const& cornerA, CVector const& cornerB, short* outCount, short maxCount, CEntity** outEntities, bool buildings, bool vehicles, bool peds, bool objects, bool dummies);
+    printf("%d foundObjs (nonBuildings)\n", foundObjs);
+    fflush(stdout);
+
+    for (short i=0; i<foundObjs; i++)
+    {
+        if (outEntities[i]->m_nModelIndex == MODEL_PICKUPSAVE || outEntities[i]->m_bRemoveFromWorld || !outEntities[i]->m_bIsVisible)
+            continue;
+
+        CCollisionData* colData = outEntities[i]->GetColModel()->m_pColData;
+        if (!colData) continue;
+
+        CVector ePos = outEntities[i]->GetPosition();
+        float heading = outEntities[i]->GetHeading();
+        float orX, orY, orZ;
+        outEntities[i]->GetOrientation(orX, orY, orZ);
+
+        SM64SurfaceObject obj;
+        memset(&obj, 0, sizeof(SM64SurfaceObject));
+        obj.transform.position[0] = ePos.x/MARIO_SCALE;
+        obj.transform.position[1] = ePos.z/MARIO_SCALE;
+        obj.transform.position[2] = -ePos.y/MARIO_SCALE;
+        obj.transform.eulerRotation[0] = -orX * 180.f / M_PI;
+        obj.transform.eulerRotation[1] = -heading * 180.f / M_PI;
+        obj.transform.eulerRotation[2] = -orY * 180.f / M_PI;
+
+        for (uint16_t j=0; j<colData->m_nNumTriangles; j++)
+        {
+            CVector vertA, vertB, vertC;
+            colData->GetTrianglePoint(vertA, colData->m_pTriangles[j].m_nVertA);
+            colData->GetTrianglePoint(vertB, colData->m_pTriangles[j].m_nVertB);
+            colData->GetTrianglePoint(vertC, colData->m_pTriangles[j].m_nVertC);
+            vertA /= MARIO_SCALE; vertB /= MARIO_SCALE; vertC /= MARIO_SCALE;
+
+            obj.surfaceCount++;
+            obj.surfaces = (SM64Surface*)realloc(obj.surfaces, sizeof(SM64Surface) * obj.surfaceCount);
+
+            obj.surfaces[obj.surfaceCount-1].vertices[0][0] = vertC.x;  obj.surfaces[obj.surfaceCount-1].vertices[0][1] = vertC.z;  obj.surfaces[obj.surfaceCount-1].vertices[0][2] = -vertC.y;
+            obj.surfaces[obj.surfaceCount-1].vertices[1][0] = vertB.x;  obj.surfaces[obj.surfaceCount-1].vertices[1][1] = vertB.z;	obj.surfaces[obj.surfaceCount-1].vertices[1][2] = -vertB.y;
+            obj.surfaces[obj.surfaceCount-1].vertices[2][0] = vertA.x;  obj.surfaces[obj.surfaceCount-1].vertices[2][1] = vertA.z;	obj.surfaces[obj.surfaceCount-1].vertices[2][2] = -vertA.y;
+        }
+
+        for (uint16_t j=0; j<colData->m_nNumBoxes; j++)
+        {
+            obj.surfaceCount += 12;
+            obj.surfaces = (SM64Surface*)realloc(obj.surfaces, sizeof(SM64Surface) * obj.surfaceCount);
+
+            CVector Min = colData->m_pBoxes[j].m_vecMin;
+            CVector Max = colData->m_pBoxes[j].m_vecMax;
+            Min /= MARIO_SCALE; Max /= MARIO_SCALE;
+
+            // block ground face
+            obj.surfaces[obj.surfaceCount-12].vertices[0][0] = Max.x;	obj.surfaces[obj.surfaceCount-12].vertices[0][1] = Max.z;	obj.surfaces[obj.surfaceCount-12].vertices[0][2] = -Min.y;
+            obj.surfaces[obj.surfaceCount-12].vertices[1][0] = Min.x;	obj.surfaces[obj.surfaceCount-12].vertices[1][1] = Max.z;	obj.surfaces[obj.surfaceCount-12].vertices[1][2] = -Max.y;
+            obj.surfaces[obj.surfaceCount-12].vertices[2][0] = Min.x;	obj.surfaces[obj.surfaceCount-12].vertices[2][1] = Max.z;	obj.surfaces[obj.surfaceCount-12].vertices[2][2] = -Min.y;
+
+            obj.surfaces[obj.surfaceCount-11].vertices[0][0] = Min.x; 	obj.surfaces[obj.surfaceCount-11].vertices[0][1] = Max.z;	obj.surfaces[obj.surfaceCount-11].vertices[0][2] = -Max.y;
+            obj.surfaces[obj.surfaceCount-11].vertices[1][0] = Max.x;	obj.surfaces[obj.surfaceCount-11].vertices[1][1] = Max.z;	obj.surfaces[obj.surfaceCount-11].vertices[1][2] = -Min.y;
+            obj.surfaces[obj.surfaceCount-11].vertices[2][0] = Max.x;	obj.surfaces[obj.surfaceCount-11].vertices[2][1] = Max.z;	obj.surfaces[obj.surfaceCount-11].vertices[2][2] = -Max.y;
+
+            // left (Y+)
+            obj.surfaces[obj.surfaceCount-10].vertices[0][0] = Min.x;	obj.surfaces[obj.surfaceCount-10].vertices[0][1] = Max.z;	obj.surfaces[obj.surfaceCount-10].vertices[0][2] = -Max.y;
+            obj.surfaces[obj.surfaceCount-10].vertices[1][0] = Max.x;	obj.surfaces[obj.surfaceCount-10].vertices[1][1] = Min.z;	obj.surfaces[obj.surfaceCount-10].vertices[1][2] = -Max.y;
+            obj.surfaces[obj.surfaceCount-10].vertices[2][0] = Min.x;	obj.surfaces[obj.surfaceCount-10].vertices[2][1] = Min.z;	obj.surfaces[obj.surfaceCount-10].vertices[2][2] = -Max.y;
+
+            obj.surfaces[obj.surfaceCount-9].vertices[0][0] = Max.x; 	obj.surfaces[obj.surfaceCount-9].vertices[0][1] = Min.z;	obj.surfaces[obj.surfaceCount-9].vertices[0][2] = -Max.y;
+            obj.surfaces[obj.surfaceCount-9].vertices[1][0] = Min.x;	obj.surfaces[obj.surfaceCount-9].vertices[1][1] = Max.z;	obj.surfaces[obj.surfaceCount-9].vertices[1][2] = -Max.y;
+            obj.surfaces[obj.surfaceCount-9].vertices[2][0] = Max.x;	obj.surfaces[obj.surfaceCount-9].vertices[2][1] = Max.z;	obj.surfaces[obj.surfaceCount-9].vertices[2][2] = -Max.y;
+
+            // right (Y-)
+            obj.surfaces[obj.surfaceCount-8].vertices[0][0] = Max.x;	obj.surfaces[obj.surfaceCount-8].vertices[0][1] = Max.z;	obj.surfaces[obj.surfaceCount-8].vertices[0][2] = -Min.y;
+            obj.surfaces[obj.surfaceCount-8].vertices[1][0] = Min.x;	obj.surfaces[obj.surfaceCount-8].vertices[1][1] = Min.z;	obj.surfaces[obj.surfaceCount-8].vertices[1][2] = -Min.y;
+            obj.surfaces[obj.surfaceCount-8].vertices[2][0] = Max.x;	obj.surfaces[obj.surfaceCount-8].vertices[2][1] = Min.z;	obj.surfaces[obj.surfaceCount-8].vertices[2][2] = -Min.y;
+
+            obj.surfaces[obj.surfaceCount-7].vertices[0][0] = Min.x; 	obj.surfaces[obj.surfaceCount-7].vertices[0][1] = Min.z;	obj.surfaces[obj.surfaceCount-7].vertices[0][2] = -Min.y;
+            obj.surfaces[obj.surfaceCount-7].vertices[1][0] = Max.x;	obj.surfaces[obj.surfaceCount-7].vertices[1][1] = Max.z;	obj.surfaces[obj.surfaceCount-7].vertices[1][2] = -Min.y;
+            obj.surfaces[obj.surfaceCount-7].vertices[2][0] = Min.x;	obj.surfaces[obj.surfaceCount-7].vertices[2][1] = Max.z;	obj.surfaces[obj.surfaceCount-7].vertices[2][2] = -Min.y;
+
+            // back (X+)
+            obj.surfaces[obj.surfaceCount-6].vertices[0][0] = Max.x;	obj.surfaces[obj.surfaceCount-6].vertices[0][1] = Max.z;	obj.surfaces[obj.surfaceCount-6].vertices[0][2] = -Min.y;
+            obj.surfaces[obj.surfaceCount-6].vertices[1][0] = Max.x;	obj.surfaces[obj.surfaceCount-6].vertices[1][1] = Min.z;	obj.surfaces[obj.surfaceCount-6].vertices[1][2] = -Min.y;
+            obj.surfaces[obj.surfaceCount-6].vertices[2][0] = Max.x;	obj.surfaces[obj.surfaceCount-6].vertices[2][1] = Min.z;	obj.surfaces[obj.surfaceCount-6].vertices[2][2] = -Max.y;
+
+            obj.surfaces[obj.surfaceCount-5].vertices[0][0] = Max.x; 	obj.surfaces[obj.surfaceCount-5].vertices[0][1] = Min.z;	obj.surfaces[obj.surfaceCount-5].vertices[0][2] = -Max.y;
+            obj.surfaces[obj.surfaceCount-5].vertices[1][0] = Max.x;	obj.surfaces[obj.surfaceCount-5].vertices[1][1] = Max.z;	obj.surfaces[obj.surfaceCount-5].vertices[1][2] = -Max.y;
+            obj.surfaces[obj.surfaceCount-5].vertices[2][0] = Max.x;	obj.surfaces[obj.surfaceCount-5].vertices[2][1] = Max.z;	obj.surfaces[obj.surfaceCount-5].vertices[2][2] = -Min.y;
+
+            // front (X-)
+            obj.surfaces[obj.surfaceCount-4].vertices[0][0] = Min.x;	obj.surfaces[obj.surfaceCount-4].vertices[0][1] = Max.z;	obj.surfaces[obj.surfaceCount-4].vertices[0][2] = -Max.y;
+            obj.surfaces[obj.surfaceCount-4].vertices[1][0] = Min.x;	obj.surfaces[obj.surfaceCount-4].vertices[1][1] = Min.z;	obj.surfaces[obj.surfaceCount-4].vertices[1][2] = -Max.y;
+            obj.surfaces[obj.surfaceCount-4].vertices[2][0] = Min.x;	obj.surfaces[obj.surfaceCount-4].vertices[2][1] = Min.z;	obj.surfaces[obj.surfaceCount-4].vertices[2][2] = -Min.y;
+
+            obj.surfaces[obj.surfaceCount-3].vertices[0][0] = Min.x; 	obj.surfaces[obj.surfaceCount-3].vertices[0][1] = Min.z;	obj.surfaces[obj.surfaceCount-3].vertices[0][2] = -Min.y;
+            obj.surfaces[obj.surfaceCount-3].vertices[1][0] = Min.x;	obj.surfaces[obj.surfaceCount-3].vertices[1][1] = Max.z;	obj.surfaces[obj.surfaceCount-3].vertices[1][2] = -Min.y;
+            obj.surfaces[obj.surfaceCount-3].vertices[2][0] = Min.x;	obj.surfaces[obj.surfaceCount-3].vertices[2][1] = Max.z;	obj.surfaces[obj.surfaceCount-3].vertices[2][2] = -Max.y;
+
+            // block bottom face
+            obj.surfaces[obj.surfaceCount-2].vertices[0][0] = Min.x;	obj.surfaces[obj.surfaceCount-2].vertices[0][1] = Min.z;	obj.surfaces[obj.surfaceCount-2].vertices[0][2] = -Min.y;
+            obj.surfaces[obj.surfaceCount-2].vertices[1][0] = Max.x;	obj.surfaces[obj.surfaceCount-2].vertices[1][1] = Min.z;	obj.surfaces[obj.surfaceCount-2].vertices[1][2] = -Max.y;
+            obj.surfaces[obj.surfaceCount-2].vertices[2][0] = Max.x;	obj.surfaces[obj.surfaceCount-2].vertices[2][1] = Min.z;	obj.surfaces[obj.surfaceCount-2].vertices[2][2] = -Min.y;
+
+            obj.surfaces[obj.surfaceCount-1].vertices[0][0] = Max.x; 	obj.surfaces[obj.surfaceCount-1].vertices[0][1] = Min.z;	obj.surfaces[obj.surfaceCount-1].vertices[0][2] = -Max.y;
+            obj.surfaces[obj.surfaceCount-1].vertices[1][0] = Min.x;	obj.surfaces[obj.surfaceCount-1].vertices[1][1] = Min.z;	obj.surfaces[obj.surfaceCount-1].vertices[1][2] = -Min.y;
+            obj.surfaces[obj.surfaceCount-1].vertices[2][0] = Min.x;	obj.surfaces[obj.surfaceCount-1].vertices[2][1] = Min.z;	obj.surfaces[obj.surfaceCount-1].vertices[2][2] = -Max.y;
+        }
+
+        for (uint32_t j=0; j<obj.surfaceCount; j++)
+        {
+            obj.surfaces[j].type = SURFACE_DEFAULT;
+            obj.surfaces[j].force = 0;
+            obj.surfaces[j].terrain = TERRAIN_STONE;
+        }
+
+        for (int j=0; j<MAX_OBJS; j++)
+        {
+            if (loadedObjects[j].ent) continue;
+            loadedObjects[j].ent = outEntities[i];
+            loadedObjects[j].cachedPos = ePos;
+            loadedObjects[j].cachedRotations[0] = orX;
+            loadedObjects[j].cachedRotations[1] = heading;
+            loadedObjects[j].cachedRotations[2] = orY;
+            loadedObjects[j].transform = obj.transform;
+            loadedObjects[j].ID = sm64_surface_object_create(&obj);
+            break;
+        }
+
+        if (obj.surfaces) free(obj.surfaces);
+    }
+}
+
+void loadCollisions(const CVector& pos)
+{
+    loadBuildings(pos);
+    loadNonBuildings(pos);
 }
 
 void marioSetPos(const CVector& pos)
@@ -212,6 +380,21 @@ void marioSetPos(const CVector& pos)
 
     CVector sm64pos(pos.x / MARIO_SCALE, pos.z / MARIO_SCALE, -pos.y / MARIO_SCALE);
     sm64_set_mario_position(marioId, sm64pos.x, sm64pos.y, sm64pos.z);
+}
+
+void onWallAttack(uint32_t surfaceObjectID)
+{
+    for (int i=0; i<MAX_OBJS; i++)
+    {
+        if (!loadedObjects[i].ent || loadedObjects[i].ID != surfaceObjectID)
+            continue;
+        CPlayerPed* player = FindPlayerPed();
+        CVector direction(0,0,0);
+
+        if (loadedObjects[i].ent->m_nType == ENTITY_TYPE_OBJECT)
+            ((CObject*)loadedObjects[i].ent)->ObjectDamage(250.f, &marioInterpPos, &direction, player, WEAPON_UNARMED);
+        break;
+    }
 }
 
 void marioSpawn()
@@ -243,6 +426,7 @@ void marioSpawn()
     marioInterpPos = pos;
 
     ticks = 0;
+    elapsedTicks = 0;
     marioGeometry.position = new float[9 * SM64_GEO_MAX_TRIANGLES];
     marioGeometry.normal   = new float[9 * SM64_GEO_MAX_TRIANGLES];
     marioGeometry.color    = new float[9 * SM64_GEO_MAX_TRIANGLES];
@@ -295,13 +479,11 @@ void marioTick(float dt)
     while (ticks >= 1.f/30)
     {
         ticks -= 1.f/30;
+        elapsedTicks++;
 
         marioTexturedCount = 0;
         memcpy(&marioLastPos, &marioCurrPos, sizeof(marioCurrPos));
         memcpy(marioLastGeoPos, marioCurrGeoPos, sizeof(marioCurrGeoPos));
-
-        // water level
-        sm64_set_mario_water_level(marioId, (CGame::CanSeeWaterFromCurrArea() ? 0 : INT16_MIN));
 
         // handle input
         float length = sqrtf(pad->GetPedWalkLeftRight() * pad->GetPedWalkLeftRight() + pad->GetPedWalkUpDown() * pad->GetPedWalkUpDown()) / 128.f;
@@ -320,6 +502,48 @@ void marioTick(float dt)
         marioInput.buttonZ = pad->GetDuck();
         marioInput.camLookX = TheCamera.GetPosition().x/MARIO_SCALE - marioState.position[0];
         marioInput.camLookZ = -TheCamera.GetPosition().y/MARIO_SCALE - marioState.position[2];
+
+        // water level
+        sm64_set_mario_water_level(marioId, (CGame::CanSeeWaterFromCurrArea() ? 0 : INT16_MIN));
+
+        // handles loaded objects, vehicles and peds
+        for (int i=0; i<MAX_OBJS; i++)
+        {
+            LoadedSurface& obj = loadedObjects[i];
+
+            if (!obj.ent) continue;
+            if (obj.ent->m_bRemoveFromWorld || !obj.ent->m_bIsVisible)
+            {
+                sm64_surface_object_delete(obj.ID);
+                obj.ent = nullptr;
+                obj.ID = 0;
+                continue;
+            }
+
+            CVector ePos = obj.ent->GetPosition();
+            float heading = obj.ent->GetHeading();
+            float orX = 0, orY = 0, orZ = 0;
+            obj.ent->GetOrientation(orX, orY, orZ);
+
+            if (obj.cachedPos.x != ePos.x || obj.cachedPos.y != ePos.y || obj.cachedPos.z != ePos.z)
+            {
+                obj.cachedPos = ePos;
+                obj.transform.position[0] = ePos.x/MARIO_SCALE;
+                obj.transform.position[1] = ePos.z/MARIO_SCALE;
+                obj.transform.position[2] = -ePos.y/MARIO_SCALE;
+                sm64_surface_object_move(obj.ID, &obj.transform);
+            }
+            if (obj.cachedRotations[0] != orX || obj.cachedRotations[1] != heading || obj.cachedRotations[2] != orY)
+            {
+                obj.cachedRotations[0] = orX;
+                obj.cachedRotations[1] = heading;
+                obj.cachedRotations[2] = orY;
+                obj.transform.eulerRotation[0] = -orX * 180.f / M_PI;
+                obj.transform.eulerRotation[1] = -heading * 180.f / M_PI;
+                obj.transform.eulerRotation[2] = -orY * 180.f / M_PI;
+                sm64_surface_object_move(obj.ID, &obj.transform);
+            }
+        }
 
         sm64_mario_tick(marioId, &marioInput, &marioState, &marioGeometry);
 
@@ -354,6 +578,8 @@ void marioTick(float dt)
 
         if (fabsf(marioBlocksPos.x - marioCurrPos.x) > 64 || fabsf(marioBlocksPos.y - marioCurrPos.y) > 64 || fabsf(marioBlocksPos.z - marioCurrPos.z) > 64)
             loadCollisions(marioCurrPos);
+        if (elapsedTicks % 30 == 0)
+            loadNonBuildings(marioCurrPos);
     }
 
     marioInterpPos.x = lerp(marioLastPos.x, marioCurrPos.x, ticks / (1./30));

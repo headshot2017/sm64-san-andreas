@@ -62,6 +62,8 @@ public:
                 marioTexture[i*4+2] = r;
             }
 
+            sm64_register_wall_attack_function(onWallAttack);
+
             audio_thread_init();
             sm64_play_sound_global(SOUND_MENU_STAR_SOUND);
 
@@ -129,8 +131,10 @@ public:
         Events::initRwEvent.Add(init);
         Events::reInitGameEvent.Add(loadGame);
         Events::shutdownRwEvent.Add(destroy);
+
         Events::d3dLostEvent.Add(destroyD3D);
         Events::d3dResetEvent.Add(initD3D);
+
         Events::gameProcessEvent.Add(tick);
         Events::drawingEvent.Add(draw);
     }
