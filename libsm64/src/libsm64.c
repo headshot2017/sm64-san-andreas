@@ -95,6 +95,12 @@ SM64_LIB_FN void sm64_register_play_sound_function( SM64PlaySoundFunctionPtr pla
     g_play_sound_func = playSoundFunction;
 }
 
+SM64WallAttackFunctionPtr g_wall_attack_func = NULL;
+SM64_LIB_FN void sm64_register_wall_attack_function( SM64WallAttackFunctionPtr wallAttackFunction )
+{
+    g_wall_attack_func = wallAttackFunction;
+}
+
 
 SM64_LIB_FN void sm64_global_init( const uint8_t *rom, uint8_t *outTexture )
 {

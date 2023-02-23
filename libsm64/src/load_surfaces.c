@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <limits.h>
 
 #include "decomp/include/types.h"
 #include "decomp/include/surface_terrains.h"
@@ -230,7 +231,10 @@ void surfaces_load_static( const struct SM64Surface *surfaceArray, uint32_t numS
     s_static_surface_list = malloc( sizeof( struct SM64SurfaceCollisionData ) * numSurfaces );
 
     for( int i = 0; i < numSurfaces; ++i )
+    {
         engine_surface_from_lib_surface( &s_static_surface_list[i], &surfaceArray[i], NULL );
+        s_static_surface_list[i].surfaceObjID = UINT_MAX;
+    }
 }
 
 uint32_t surfaces_load_object( const struct SM64SurfaceObject *surfaceObject )
@@ -267,7 +271,10 @@ uint32_t surfaces_load_object( const struct SM64SurfaceObject *surfaceObject )
 
     obj->engineSurfaces = malloc( obj->surfaceCount * sizeof( struct SM64SurfaceCollisionData ));
     for( int i = 0; i < obj->surfaceCount; ++i )
+    {
         engine_surface_from_lib_surface( &obj->engineSurfaces[i], &obj->libSurfaces[i], obj->transform );
+        obj->engineSurfaces[i].surfaceObjID = idx;
+    }
 
     return idx;
 }

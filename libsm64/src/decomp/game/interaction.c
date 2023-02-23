@@ -31,6 +31,7 @@
 #include "../include/mario_animation_ids.h"
 #include "../include/object_fields.h"
 #include "../include/mario_geo_switch_case_ids.h"
+#include "../../libsm64.h"
 
 #define INT_GROUND_POUND_OR_TWIRL (1 << 0) // 0x01
 #define INT_PUNCH                 (1 << 1) // 0x02
@@ -518,13 +519,13 @@ void hit_object_from_below(struct MarioState *m, UNUSED struct Object *o) {
 //     u32 bonkAction;
 //     s16 angleToObject = mario_obj_angle_to_object(m, m->interactObj);
 //     s16 facingDYaw = angleToObject - m->faceAngle[1];
-// 
+//
 //     if (m->forwardVel < 16.0f) {
 //         m->forwardVel = 16.0f;
 //     }
-// 
+//
 //     m->faceAngle[1] = angleToObject;
-// 
+//
 //     if (facingDYaw >= -0x4000 && facingDYaw <= 0x4000) {
 //         m->forwardVel *= -1.0f;
 //         if (m->action & (ACT_FLAG_AIR | ACT_FLAG_ON_POLE | ACT_FLAG_HANGING)) {
@@ -540,7 +541,7 @@ void hit_object_from_below(struct MarioState *m, UNUSED struct Object *o) {
 //             bonkAction = ACT_SOFT_FORWARD_GROUND_KB;
 //         }
 //     }
-// 
+//
 //     return bonkAction;
 // }
 
@@ -833,7 +834,8 @@ void check_kick_or_punch_wall(struct MarioState *m) {
         detector[2] = m->pos[2] + 50.0f * coss(m->faceAngle[1]);
         detector[1] = m->pos[1];
 
-        if (resolve_and_return_wall_collisions(detector, 80.0f, 5.0f) != NULL) {
+        struct SM64SurfaceCollisionData* wall = resolve_and_return_wall_collisions(detector, 80.0f, 5.0f);
+        if (wall != NULL) {
             if (m->action != ACT_MOVE_PUNCHING || m->forwardVel >= 0.0f) {
                 if (m->action == ACT_PUNCHING) {
                     m->action = ACT_MOVE_PUNCHING;
@@ -842,10 +844,12 @@ void check_kick_or_punch_wall(struct MarioState *m) {
                 mario_set_forward_vel(m, -48.0f);
                 play_sound(SOUND_ACTION_HIT_2, m->marioObj->header.gfx.cameraToObject);
                 m->particleFlags |= PARTICLE_TRIANGLE;
+                if (g_wall_attack_func) g_wall_attack_func(wall->surfaceObjID);
             } else if (m->action & ACT_FLAG_AIR) {
                 mario_set_forward_vel(m, -16.0f);
                 play_sound(SOUND_ACTION_HIT_2, m->marioObj->header.gfx.cameraToObject);
                 m->particleFlags |= PARTICLE_TRIANGLE;
+                if (g_wall_attack_func) g_wall_attack_func(wall->surfaceObjID);
             }
         }
     }

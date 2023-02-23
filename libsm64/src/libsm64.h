@@ -122,6 +122,7 @@ struct SM64SurfaceCollisionData
     uint8_t isValid; // libsm64: added field
     struct SM64SurfaceObjectTransform *transform; // libsm64: added field
     uint16_t terrain; // libsm64: added field
+    uint32_t surfaceObjID; // libsm64: added field
 };
 
 struct SM64LoadedSurfaceObject
@@ -145,6 +146,10 @@ extern SM64_LIB_FN void sm64_register_debug_print_function( SM64DebugPrintFuncti
 
 typedef void (*SM64PlaySoundFunctionPtr)( uint32_t soundBits, float *pos );
 extern SM64_LIB_FN void sm64_register_play_sound_function( SM64PlaySoundFunctionPtr playSoundFunction );
+
+typedef void (*SM64WallAttackFunctionPtr)( uint32_t surfaceObjectID );
+extern SM64WallAttackFunctionPtr g_wall_attack_func;
+extern SM64_LIB_FN void sm64_register_wall_attack_function( SM64WallAttackFunctionPtr wallAttackFunction );
 
 extern SM64_LIB_FN void sm64_global_init( const uint8_t *rom, uint8_t *outTexture );
 extern SM64_LIB_FN void sm64_global_terminate( void );
