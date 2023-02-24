@@ -235,7 +235,7 @@ void loadNonBuildings(const CVector& pos)
 {
     deleteNonBuildings();
 
-    // look for static GTA surfaces (buildings) nearby
+    // look for non-static GTA surfaces (vehicles, objects, etc) nearby
     short foundObjs = 0;
     CEntity* outEntities[MAX_OBJS] = {0};
     CWorld::FindObjectsIntersectingCube(pos-CVector(16,16,16), pos+CVector(16,16,16), &foundObjs, MAX_OBJS, outEntities, false, true, false, true, false);
@@ -245,7 +245,26 @@ void loadNonBuildings(const CVector& pos)
 
     for (short i=0; i<foundObjs; i++)
     {
-        if (outEntities[i]->m_nModelIndex == MODEL_PICKUPSAVE || outEntities[i]->m_bRemoveFromWorld || !outEntities[i]->m_bIsVisible)
+        // do not add these models to collisions
+        eModelID ignoreList[] = {
+            MODEL_BLACKBAG1,
+            MODEL_BLACKBAG2,
+            MODEL_FIRE_HYDRANT,
+            MODEL_PICKUPSAVE
+        };
+
+        bool ignore = false;
+        for (int j=0; j<sizeof(ignoreList) / sizeof(eModelID); j++)
+        {
+            if (outEntities[i]->m_nModelIndex == ignoreList[j])
+            {
+                ignore = true;
+                break;
+            }
+        }
+        if (ignore) continue;
+
+        if (outEntities[i]->m_bRemoveFromWorld || !outEntities[i]->m_bIsVisible)
             continue;
 
         CCollisionData* colData = outEntities[i]->GetColModel()->m_pColData;
@@ -403,6 +422,9 @@ void onWallAttack(uint32_t surfaceObjectID)
             {
                 obj->ObjectDamage(1000.f, &marioInterpPos, &direction, player, WEAPON_UNARMED); // directly using this without "health -= 500" instantly destroys object
                 sm64_play_sound_global(SOUND_GENERAL_BREAK_BOX);
+                //char buf[256];
+                //sprintf(buf, "%d: %d", i, obj->m_nModelIndex);
+                //CHud::SetHelpMessage(buf, false,false,false);
             }
         }
         break;
