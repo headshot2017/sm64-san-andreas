@@ -14,6 +14,8 @@
 #include <limits.h>
 
 extern "C" {
+    #include <decomp/include/PR/ultratypes.h>
+    #include <decomp/include/audio_defines.h>
     #include <decomp/include/surface_terrains.h>
     #include <decomp/include/sm64shared.h>
 }
@@ -100,8 +102,8 @@ void loadBuildings(const CVector& pos)
 
         CVector ePos = outEntities[i]->GetPosition();
         float heading = outEntities[i]->GetHeading();
-        float orX, orY, orZ;
-        outEntities[i]->GetOrientation(orX, orY, orZ);
+        float orX = outEntities[i]->GetMatrix()->up.z;
+        float orY = outEntities[i]->GetMatrix()->right.z;
 
         SM64SurfaceObject obj;
         memset(&obj, 0, sizeof(SM64SurfaceObject));
@@ -251,8 +253,8 @@ void loadNonBuildings(const CVector& pos)
 
         CVector ePos = outEntities[i]->GetPosition();
         float heading = outEntities[i]->GetHeading();
-        float orX, orY, orZ;
-        outEntities[i]->GetOrientation(orX, orY, orZ);
+        float orX = outEntities[i]->GetMatrix()->up.z;
+        float orY = outEntities[i]->GetMatrix()->right.z;
 
         SM64SurfaceObject obj;
         memset(&obj, 0, sizeof(SM64SurfaceObject));
@@ -384,6 +386,8 @@ void marioSetPos(const CVector& pos)
 
 void onWallAttack(uint32_t surfaceObjectID)
 {
+    if (surfaceObjectID == UINT_MAX) return;
+
     for (int i=0; i<MAX_OBJS; i++)
     {
         if (!loadedObjects[i].ent || loadedObjects[i].ID != surfaceObjectID)
@@ -392,7 +396,15 @@ void onWallAttack(uint32_t surfaceObjectID)
         CVector direction(0,0,0);
 
         if (loadedObjects[i].ent->m_nType == ENTITY_TYPE_OBJECT)
-            ((CObject*)loadedObjects[i].ent)->ObjectDamage(250.f, &marioInterpPos, &direction, player, WEAPON_UNARMED);
+        {
+            CObject* obj = (CObject*)loadedObjects[i].ent;
+            obj->m_fHealth -= 500;
+            if (obj->m_fHealth <= 0)
+            {
+                obj->ObjectDamage(1000.f, &marioInterpPos, &direction, player, WEAPON_UNARMED); // directly using this without "health -= 500" instantly destroys object
+                sm64_play_sound_global(SOUND_GENERAL_BREAK_BOX);
+            }
+        }
         break;
     }
 }
@@ -522,8 +534,8 @@ void marioTick(float dt)
 
             CVector ePos = obj.ent->GetPosition();
             float heading = obj.ent->GetHeading();
-            float orX = 0, orY = 0, orZ = 0;
-            obj.ent->GetOrientation(orX, orY, orZ);
+            float orX = obj.ent->GetMatrix()->up.z;
+            float orY = obj.ent->GetMatrix()->right.z;
 
             if (obj.cachedPos.x != ePos.x || obj.cachedPos.y != ePos.y || obj.cachedPos.z != ePos.z)
             {
