@@ -25,10 +25,11 @@ extern "C" {
 
 #define lerp(a, b, amnt) a + (b - a) * amnt
 #define MAX_OBJS 512
+#define PED_HEIGHT 10.f
 
 struct LoadedSurface
 {
-    LoadedSurface() : ID(0), transform(), ent(nullptr), cachedPos(), cachedRotations{0,0,0} {}
+    LoadedSurface() : ID(UINT_MAX), transform(), ent(nullptr), cachedPos(), cachedRotations{0,0,0} {}
 
     uint32_t ID;
     SM64ObjectTransform transform;
@@ -37,8 +38,18 @@ struct LoadedSurface
     float cachedRotations[3];
 };
 
+struct LoadedPed
+{
+    LoadedPed() : ID(UINT_MAX), ent(nullptr), cachedPos() {}
+
+    uint32_t ID;
+    CEntity* ent;
+    CVector cachedPos;
+};
+
 LoadedSurface loadedBuildings[MAX_OBJS];
 LoadedSurface loadedObjects[MAX_OBJS];
+LoadedPed loadedPeds[MAX_OBJS];
 
 SM64MarioState marioState;
 SM64MarioInputs marioInput;
@@ -75,7 +86,7 @@ void deleteBuildings()
         {
             sm64_surface_object_delete(loadedBuildings[i].ID);
             loadedBuildings[i].ent = nullptr;
-            loadedBuildings[i].ID = 0;
+            loadedBuildings[i].ID = UINT_MAX;
         }
     }
 }
@@ -226,7 +237,13 @@ void deleteNonBuildings()
         {
             sm64_surface_object_delete(loadedObjects[i].ID);
             loadedObjects[i].ent = nullptr;
-            loadedObjects[i].ID = 0;
+            loadedObjects[i].ID = UINT_MAX;
+        }
+        if (loadedPeds[i].ID != UINT_MAX)
+        {
+            sm64_object_delete(loadedPeds[i].ID);
+            loadedPeds[i].ID = UINT_MAX;
+            loadedPeds[i].ent = nullptr;
         }
     }
 }
@@ -238,7 +255,7 @@ void loadNonBuildings(const CVector& pos)
     // look for non-static GTA surfaces (vehicles, objects, etc) nearby
     short foundObjs = 0;
     CEntity* outEntities[MAX_OBJS] = {0};
-    CWorld::FindObjectsIntersectingCube(pos-CVector(16,16,16), pos+CVector(16,16,16), &foundObjs, MAX_OBJS, outEntities, false, true, false, true, false);
+    CWorld::FindObjectsIntersectingCube(pos-CVector(16,16,16), pos+CVector(16,16,16), &foundObjs, MAX_OBJS, outEntities, false, true, true, true, false);
     //FindObjectsIntersectingCube(CVector const& cornerA, CVector const& cornerB, short* outCount, short maxCount, CEntity** outEntities, bool buildings, bool vehicles, bool peds, bool objects, bool dummies);
     printf("%d foundObjs (nonBuildings)\n", foundObjs);
     fflush(stdout);
@@ -267,10 +284,37 @@ void loadNonBuildings(const CVector& pos)
         if (outEntities[i]->m_bRemoveFromWorld || !outEntities[i]->m_bIsVisible)
             continue;
 
+        CVector ePos = outEntities[i]->GetPosition();
+
+        if (outEntities[i]->m_nType == ENTITY_TYPE_PED)
+        {
+            // add peds as object collider instead of static surface
+            CPed* entPed = (CPed*)outEntities[i];
+            if (!entPed->IsPlayer() && entPed->IsAlive())
+            {
+                for (int32_t j=0; j<MAX_OBJS; j++)
+                {
+                    if (loadedPeds[j].ID != UINT_MAX) continue;
+
+                    SM64ObjectCollider objCol;
+                    objCol.position[0] = ePos.x/MARIO_SCALE;
+                    objCol.position[1] = ePos.z/MARIO_SCALE;
+                    objCol.position[2] = -ePos.y/MARIO_SCALE;
+                    objCol.height = PED_HEIGHT;
+                    objCol.radius = 30.f;
+
+                    loadedPeds[j].ID = sm64_object_create(&objCol);
+                    loadedPeds[j].ent = outEntities[i];
+                    loadedPeds[j].cachedPos = ePos;
+                    break;
+                }
+            }
+            continue;
+        }
+
         CCollisionData* colData = outEntities[i]->GetColModel()->m_pColData;
         if (!colData) continue;
 
-        CVector ePos = outEntities[i]->GetPosition();
         float heading = outEntities[i]->GetHeading();
         float orX = outEntities[i]->GetMatrix()->up.z;
         float orY = outEntities[i]->GetMatrix()->right.z;
@@ -543,6 +587,35 @@ void marioTick(float dt)
         // handles loaded objects, vehicles and peds
         for (int i=0; i<MAX_OBJS; i++)
         {
+            LoadedPed& objPed = loadedPeds[i];
+            if (objPed.ID != UINT_MAX)
+            {
+                CPed* entPed = (CPed*)objPed.ent;
+                CVector pedPos = entPed->GetPosition();
+
+                if (entPed->m_bRemoveFromWorld || !entPed->m_bIsVisible || !entPed->IsAlive())
+                {
+                    sm64_object_delete(objPed.ID);
+                    objPed.ent = nullptr;
+                    objPed.ID = UINT_MAX;
+                }
+                else
+                {
+                    float dist = DistanceBetweenPoints(CVector2D(pedPos.x, pedPos.y), CVector2D(marioInterpPos.x, marioInterpPos.y));
+                    float dist3D = DistanceBetweenPoints(pedPos, marioInterpPos);
+                    if (objPed.cachedPos.x != pedPos.x || objPed.cachedPos.y != pedPos.y || objPed.cachedPos.z != pedPos.z)
+                    {
+                        sm64_object_move(objPed.ID, pedPos.x/MARIO_SCALE, pedPos.z/MARIO_SCALE, -pedPos.y/MARIO_SCALE);
+                        objPed.cachedPos = pedPos;
+                    }
+                    if ( ((!(marioState.action & ACT_FLAG_AIR) && dist <= 1.25f) || (marioState.action & ACT_FLAG_AIR && dist3D <= 1.f)) && sm64_mario_attack(marioId, pedPos.x/MARIO_SCALE, pedPos.z/MARIO_SCALE, -pedPos.y/MARIO_SCALE, 0))
+                    {
+                        CWeapon::GenerateDamageEvent(entPed, ped, WEAPON_UNARMED, 10, (ePedPieceTypes)0, 0);
+                    }
+                }
+            }
+
+
             LoadedSurface& obj = loadedObjects[i];
 
             if (!obj.ent) continue;
@@ -550,7 +623,7 @@ void marioTick(float dt)
             {
                 sm64_surface_object_delete(obj.ID);
                 obj.ent = nullptr;
-                obj.ID = 0;
+                obj.ID = UINT_MAX;
                 continue;
             }
 
