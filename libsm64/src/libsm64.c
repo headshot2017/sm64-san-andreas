@@ -471,6 +471,22 @@ SM64_LIB_FN void sm64_set_mario_gas_level(int32_t marioId, signed int level)
     gMarioState->gasLevel = level;
 }
 
+SM64_LIB_FN void sm64_set_mario_health(int32_t marioId, uint16_t health)
+{
+    if( marioId >= s_mario_instance_pool.size || s_mario_instance_pool.objects[marioId] == NULL )
+    {
+        DEBUG_PRINT("Tried to use non-existant Mario with ID: %d", marioId);
+        return;
+    }
+
+    struct GlobalState *globalState = ((struct MarioInstance *)s_mario_instance_pool.objects[ marioId ])->globalState;
+    global_state_bind( globalState );
+
+    gMarioState->health = health;
+    gMarioState->hurtCounter = 0;
+    gMarioState->healCounter = 0;
+}
+
 SM64_LIB_FN void sm64_mario_take_damage(int32_t marioId, uint32_t damage, uint32_t subtype, float x, float y, float z)
 {
     if( marioId >= s_mario_instance_pool.size || s_mario_instance_pool.objects[marioId] == NULL )
