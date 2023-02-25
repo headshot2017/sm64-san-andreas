@@ -262,25 +262,6 @@ void loadNonBuildings(const CVector& pos)
 
     for (short i=0; i<foundObjs; i++)
     {
-        // do not add these models to collisions
-        eModelID ignoreList[] = {
-            MODEL_BLACKBAG1,
-            MODEL_BLACKBAG2,
-            MODEL_FIRE_HYDRANT,
-            MODEL_PICKUPSAVE
-        };
-
-        bool ignore = false;
-        for (int j=0; j<sizeof(ignoreList) / sizeof(eModelID); j++)
-        {
-            if (outEntities[i]->m_nModelIndex == ignoreList[j])
-            {
-                ignore = true;
-                break;
-            }
-        }
-        if (ignore) continue;
-
         if (outEntities[i]->m_bRemoveFromWorld || !outEntities[i]->m_bIsVisible)
             continue;
 
@@ -415,17 +396,20 @@ void loadNonBuildings(const CVector& pos)
             obj.surfaces[j].terrain = TERRAIN_STONE;
         }
 
-        for (int j=0; j<MAX_OBJS; j++)
+        if (obj.surfaceCount)
         {
-            if (loadedObjects[j].ent) continue;
-            loadedObjects[j].ent = outEntities[i];
-            loadedObjects[j].cachedPos = ePos;
-            loadedObjects[j].cachedRotations[0] = orX;
-            loadedObjects[j].cachedRotations[1] = heading;
-            loadedObjects[j].cachedRotations[2] = orY;
-            loadedObjects[j].transform = obj.transform;
-            loadedObjects[j].ID = sm64_surface_object_create(&obj);
-            break;
+            for (int j=0; j<MAX_OBJS; j++)
+            {
+                if (loadedObjects[j].ent) continue;
+                loadedObjects[j].ent = outEntities[i];
+                loadedObjects[j].cachedPos = ePos;
+                loadedObjects[j].cachedRotations[0] = orX;
+                loadedObjects[j].cachedRotations[1] = heading;
+                loadedObjects[j].cachedRotations[2] = orY;
+                loadedObjects[j].transform = obj.transform;
+                loadedObjects[j].ID = sm64_surface_object_create(&obj);
+                break;
+            }
         }
 
         if (obj.surfaces) free(obj.surfaces);
