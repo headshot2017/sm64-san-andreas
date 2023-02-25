@@ -6,6 +6,9 @@
 #include "../shim.h"
 #include "../engine/math_util.h"
 #include "../include/object_fields.h"
+#include "object_stuff.h"
+#include "../../debug_print.h"
+#include "../../obj_pool.h"
 
 /* activeFlags */
 #define ACTIVE_FLAG_DEACTIVATED            0         // 0x0000
@@ -57,6 +60,8 @@
 #define GRAPH_RENDER_INVISIBLE      (1 << 4)
 #define GRAPH_RENDER_HAS_ANIMATION  (1 << 5)
 
+struct ObjPool s_object_collider_pool = { 0, 0 };
+
 static Vec3f gVec3fZero = { 0.0f, 0.0f, 0.0f };
 static Vec3s gVec3sZero = { 0, 0, 0 };
 
@@ -94,7 +99,7 @@ static struct Object *allocate_object(void) {
     obj->bhvDelayTimer = 0;
 
     obj->hitboxRadius = 37.0f;    // Override directly for Mario
-    obj->hitboxHeight = 160.0f;   // 
+    obj->hitboxHeight = 160.0f;   //
     obj->hurtboxRadius = 0.0f;
     obj->hurtboxHeight = 0.0f;
     obj->hitboxDownOffset = 0.0f;
@@ -270,4 +275,84 @@ void obj_set_gfx_pos_from_pos(struct Object *obj) {
     obj->header.gfx.pos[0] = obj->oPosX;
     obj->header.gfx.pos[1] = obj->oPosY;
     obj->header.gfx.pos[2] = obj->oPosZ;
+}
+
+int detect_object_hitbox_overlap(struct Object *a, struct SM64ObjectCollider *collider) {
+    f32 sp3C = a->oPosY - a->hitboxDownOffset;  // Object hitbox bottom
+    f32 sp38 = collider->position[1] - 0;       // Collider bottom
+    f32 dx = a->oPosX - collider->position[0];
+    f32 dz = a->oPosZ - collider->position[2];
+    f32 collisionRadius = a->hitboxRadius + collider->radius;
+    f32 distance = sqrtf(dx * dx + dz * dz);
+
+    if (distance < collisionRadius) {
+        f32 sp20 = a->hitboxHeight + sp3C;      // Object hitbox height
+        f32 sp1C = collider->height + sp38;     // Collider height
+
+        if (sp3C > sp1C) {
+            return 0;
+        }
+        if (sp20 < sp38) {
+            return 0;
+        }
+
+        dx = collider->position[0] - a->oPosX;
+        dz = collider->position[2] - a->oPosZ;
+        s16 angle = atan2s(dx, dz);
+
+        f32 radius = a->hitboxRadius;
+        f32 otherRadius = collider->radius;
+        f32 relativeRadius = radius / (radius + otherRadius);
+
+        f32 newCenterX = a->oPosX + dx * relativeRadius;
+        f32 newCenterZ = a->oPosZ + dz * relativeRadius;
+
+        a->oPosX = newCenterX - radius * coss(angle);
+        a->oPosZ = newCenterZ - radius * sins(angle);
+
+        //collider->position[0] = newCenterX + otherRadius * coss(angle);
+        //collider->position[2] = newCenterZ + otherRadius * sins(angle);
+
+        return 1;
+    }
+
+    return 0;
+}
+void resolve_object_collisions() {
+    for(int i = 0; i < s_object_collider_pool.size; i++) {
+        if(s_object_collider_pool.objects[i] != NULL) {
+            detect_object_hitbox_overlap(gMarioObject, s_object_collider_pool.objects[i]);
+            gMarioState->pos[0] = gMarioObject->oPosX;
+            gMarioState->pos[2] = gMarioObject->oPosZ;
+            vec3f_copy(gMarioState->marioObj->header.gfx.pos, gMarioState->pos);
+        }
+    }
+}
+uint32_t add_object_collider(struct SM64ObjectCollider *collider) {
+    int32_t objId = obj_pool_alloc_index(&s_object_collider_pool, sizeof(struct SM64ObjectCollider));
+    struct SM64ObjectCollider *colInstance = s_object_collider_pool.objects[objId];
+    vec3f_copy(colInstance->position, collider->position);
+    colInstance->height = collider->height;
+    colInstance->radius = collider->radius;
+    return objId;
+}
+void move_object_collider(uint32_t objId, float x, float y, float z) {
+    if(objId >= s_object_collider_pool.size || s_object_collider_pool.objects[objId] == NULL) {
+        DEBUG_PRINT("Tried to move non-existent object collider with ID: %d!", objId);
+        return;
+    }
+    struct SM64ObjectCollider *collider = s_object_collider_pool.objects[objId];
+    collider->position[0] = x;
+    collider->position[1] = y;
+    collider->position[2] = z;
+}
+void delete_object_collider(uint32_t objId) {
+    if(objId >= s_object_collider_pool.size || s_object_collider_pool.objects[objId] == NULL) {
+        DEBUG_PRINT("Tried to delete non-existent object collider with ID: %d!", objId);
+        return;
+    }
+    obj_pool_free_index(&s_object_collider_pool, objId);
+}
+void free_obj_pool() {
+    obj_pool_free_all(&s_object_collider_pool);
 }
