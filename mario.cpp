@@ -641,7 +641,7 @@ void marioTick(float dt)
                         eWeaponType weapon = WEAPON_UNARMED;
                         ePedPieceTypes piece = (ePedPieceTypes)0; // default
 
-                        if (marioState.action == ACT_JUMP_KICK)
+                        if (marioState.action == ACT_JUMP_KICK || marioState.action & ACT_FLAG_BUTT_OR_STOMACH_SLIDE)
                         {
                             // knock ped over to the ground
                             damage += 10;
