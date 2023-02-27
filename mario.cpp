@@ -498,7 +498,9 @@ void marioSpawn()
     memset(&marioTextureIndices, 0, sizeof(marioTextureIndices));
     memset(&marioOriginalColor, 0, sizeof(marioOriginalColor));
     marioTexturedCount = 0;
-    FindPlayerPed()->DeactivatePlayerPed(0);
+
+    CPlayerPed* ped = FindPlayerPed();
+    sm64_set_mario_faceangle(marioId, ped->GetHeading() + M_PI);
 }
 
 void marioDestroy()
@@ -513,13 +515,44 @@ void marioDestroy()
     delete[] marioGeometry.color;
     delete[] marioGeometry.uv;
     memset(&marioGeometry, 0, sizeof(marioGeometry));
-    if (FindPlayerPed()) FindPlayerPed()->ReactivatePlayerPed(0);
+    if (FindPlayerPed())
+    {
+        CPlayerPed* ped = FindPlayerPed();
+        ped->ReactivatePlayerPed(0);
+        ped->SetPosn(marioInterpPos + CVector(0, 0, 0.5f));
+        ped->m_nPedFlags.bNotAllowedToDuck = 0;
+        ped->m_nPhysicalFlags.bApplyGravity = 1;
+        ped->m_nPhysicalFlags.bCanBeCollidedWith = 1;
+        ped->m_nPhysicalFlags.bCollidable = 1;
+        ped->m_nPhysicalFlags.bCollisionProof = 0;
+        ped->m_nPhysicalFlags.bDisableCollisionForce = 0;
+        ped->m_nPhysicalFlags.bOnSolidSurface = 1;
+        ped->m_nPhysicalFlags.bDisableMoveForce = 0;
+        ped->m_nPhysicalFlags.bDisableTurnForce = 0;
+        ped->m_nPhysicalFlags.bDontApplySpeed = 0;
+        ped->m_bIsVisible = 0;
+        ped->m_nAllowedAttackMoves = 0;
+    }
 }
 
 void marioTick(float dt)
 {
     if (!marioSpawned() || !FindPlayerPed()) return;
     CPlayerPed* ped = FindPlayerPed();
+    ped->ReactivatePlayerPed(0);
+    ped->m_nPedFlags.bNotAllowedToDuck = 0;
+    ped->m_nPhysicalFlags.bApplyGravity = 0;
+    ped->m_nPhysicalFlags.bCanBeCollidedWith = 0;
+    ped->m_nPhysicalFlags.bCollidable = 0;
+    ped->m_nPhysicalFlags.bCollisionProof = 0;
+    ped->m_nPhysicalFlags.bDisableCollisionForce = 1;
+    ped->m_nPhysicalFlags.bOnSolidSurface = 0;
+    ped->m_nPhysicalFlags.bDisableMoveForce = 1;
+    ped->m_nPhysicalFlags.bDisableTurnForce = 1;
+    ped->m_nPhysicalFlags.bDontApplySpeed = 1;
+    ped->m_bIsVisible = 0;
+    ped->m_nAllowedAttackMoves = 0;
+
     CPad* pad = ped->GetPadFromPlayer();
 
     // handle entering/exiting buildings
@@ -532,7 +565,6 @@ void marioTick(float dt)
     else if (!CEntryExitManager::mp_Active && entryexit)
     {
         // entered/exited the building, teleport Mario to the destination
-        ped->DeactivatePlayerPed(0);
         marioSetPos(entryexit->m_pLink->m_vecExitPos - CVector(0,0,1));
         entryexit = nullptr;
     }
@@ -557,6 +589,7 @@ void marioTick(float dt)
         else
             angle = atan2(pad->GetPedWalkUpDown(), pad->GetPedWalkLeftRight());
 
+        pad->bDisablePlayerDuck = 0;
         marioInput.stickX = -cosf(angle) * length;
         marioInput.stickY = -sinf(angle) * length;
         marioInput.buttonA = pad->GetJump();
@@ -564,6 +597,7 @@ void marioTick(float dt)
         marioInput.buttonZ = pad->GetDuck();
         marioInput.camLookX = TheCamera.GetPosition().x/MARIO_SCALE - marioState.position[0];
         marioInput.camLookZ = -TheCamera.GetPosition().y/MARIO_SCALE - marioState.position[2];
+        pad->bDisablePlayerDuck = 1;
 
         // water level
         sm64_set_mario_water_level(marioId, (CGame::CanSeeWaterFromCurrArea() ? 0 : INT16_MIN));
@@ -594,7 +628,38 @@ void marioTick(float dt)
                     }
                     if ( ((!(marioState.action & ACT_FLAG_AIR) && dist <= 1.25f) || (marioState.action & ACT_FLAG_AIR && dist3D <= 1.f)) && sm64_mario_attack(marioId, pedPos.x/MARIO_SCALE, pedPos.z/MARIO_SCALE, -pedPos.y/MARIO_SCALE, 0))
                     {
-                        CWeapon::GenerateDamageEvent(entPed, ped, WEAPON_UNARMED, 10, (ePedPieceTypes)0, 0);
+                        /**
+                            dirs:
+                            0 - backward
+                            1 - forward right
+                            2 - forward left
+                            3 - backward left
+                            8 - forward
+                        */
+                        int damage = 20;
+                        int dir = 0;
+                        eWeaponType weapon = WEAPON_UNARMED;
+                        ePedPieceTypes piece = (ePedPieceTypes)0; // default
+
+                        if (marioState.action == ACT_JUMP_KICK)
+                        {
+                            // knock ped over to the ground
+                            damage += 10;
+                            weapon = WEAPON_SHOTGUN;
+                            piece = (ePedPieceTypes)3; // torso piece
+                        }
+                        else if (marioState.action == ACT_GROUND_POUND)
+                        {
+                            // crack everything in this poor ped's body
+                            damage += 50;
+                            weapon = (eWeaponType)54; // WEAPON_FALL
+                        }
+                        if (marioState.flags & MARIO_METAL_CAP)
+                        {
+                            damage += 200;
+                            weapon = (eWeaponType)51; // WEAPON_EXPLOSION
+                        }
+                        CWeapon::GenerateDamageEvent(entPed, ped, weapon, damage, (ePedPieceTypes)3, dir);
                     }
                 }
             }
@@ -666,6 +731,8 @@ void marioTick(float dt)
 
         memcpy(&marioInterpPos, &marioCurrPos, sizeof(marioCurrPos));
         memcpy(marioInterpGeo, marioCurrGeoPos, sizeof(marioCurrGeoPos));
+
+        ped->SetHeading(marioState.faceAngle + M_PI);
 
         if (fabsf(marioBlocksPos.x - marioCurrPos.x) > 64 || fabsf(marioBlocksPos.y - marioCurrPos.y) > 64 || fabsf(marioBlocksPos.z - marioCurrPos.z) > 64)
             loadCollisions(marioCurrPos);
