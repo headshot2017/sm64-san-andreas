@@ -445,6 +445,12 @@ s32 act_releasing_bowser(struct MarioState *m) {
     return FALSE;
 }
 
+s32 act_driving_vehicle(struct MarioState *m) {
+    set_mario_animation(m, MARIO_ANIM_HOLDING_BOWSER);
+
+    return FALSE;
+}
+
 s32 check_common_object_cancels(struct MarioState *m) {
     f32 waterSurface = m->waterLevel - 100;
     if (m->pos[1] < waterSurface) {
@@ -485,6 +491,7 @@ s32 mario_execute_object_action(struct MarioState *m) {
         case ACT_PICKING_UP_BOWSER:  cancel = act_picking_up_bowser(m);  break;
         case ACT_HOLDING_BOWSER:     cancel = act_holding_bowser(m);     break;
         case ACT_RELEASING_BOWSER:   cancel = act_releasing_bowser(m);   break;
+        case ACT_DRIVING_VEHICLE:    cancel = act_driving_vehicle(m);    break;
     }
     /* clang-format on */
 

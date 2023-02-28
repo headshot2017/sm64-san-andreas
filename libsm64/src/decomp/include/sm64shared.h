@@ -403,6 +403,7 @@
 #define ACT_PICKING_UP_BOWSER          0x00000390 // (0x190 | ACT_FLAG_STATIONARY)
 #define ACT_HOLDING_BOWSER             0x00000391 // (0x191 | ACT_FLAG_STATIONARY)
 #define ACT_RELEASING_BOWSER           0x00000392 // (0x192 | ACT_FLAG_STATIONARY)
+#define ACT_DRIVING_VEHICLE            0x00000393 // (0x193 | ACT_FLAG_STATIONARY) (custom libsm64 GTA SA action)
 
 /*
  this input mask is unused by the controller,
