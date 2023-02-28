@@ -532,6 +532,9 @@ void marioDestroy()
         ped->m_nPhysicalFlags.bDontApplySpeed = 0;
         ped->m_bIsVisible = 0;
         ped->m_nAllowedAttackMoves = 0;
+
+        CPad* pad = ped->GetPadFromPlayer();
+        pad->bDisablePlayerDuck = 0;
     }
 }
 
@@ -589,15 +592,36 @@ void marioTick(float dt)
         else
             angle = atan2(pad->GetPedWalkUpDown(), pad->GetPedWalkLeftRight());
 
-        pad->bDisablePlayerDuck = 0;
-        marioInput.stickX = -cosf(angle) * length;
-        marioInput.stickY = -sinf(angle) * length;
-        marioInput.buttonA = pad->GetJump();
-        marioInput.buttonB = pad->GetMeleeAttack();
-        marioInput.buttonZ = pad->GetDuck();
-        marioInput.camLookX = TheCamera.GetPosition().x/MARIO_SCALE - marioState.position[0];
-        marioInput.camLookZ = -TheCamera.GetPosition().y/MARIO_SCALE - marioState.position[2];
-        pad->bDisablePlayerDuck = 1;
+        if (!ped->m_nPedFlags.bInVehicle)
+        {
+            pad->bDisablePlayerDuck = 0;
+            marioInput.stickX = -cosf(angle) * length;
+            marioInput.stickY = -sinf(angle) * length;
+            marioInput.buttonA = pad->GetJump();
+            marioInput.buttonB = pad->GetMeleeAttack();
+            marioInput.buttonZ = pad->GetDuck();
+            marioInput.camLookX = TheCamera.GetPosition().x/MARIO_SCALE - marioState.position[0];
+            marioInput.camLookZ = -TheCamera.GetPosition().y/MARIO_SCALE - marioState.position[2];
+            pad->bDisablePlayerDuck = 1;
+
+            if (marioState.action == ACT_DRIVING_VEHICLE) sm64_set_mario_action(marioId, ACT_FREEFALL);
+        }
+        else
+        {
+            memset(&marioInput, 0, sizeof(marioInput));
+
+            float orX = 0, orY = 0, orZ = 0;
+            ped->GetOrientation(orX, orY, orZ);
+            float faceangle = ped->GetHeading() + M_PI;
+            if (faceangle > M_PI) faceangle -= M_PI*2;
+            orY = ped->GetMatrix()->right.z;
+
+            CVector pos = ped->GetPosition();
+            CVector sm64pos(pos.x / MARIO_SCALE, pos.z / MARIO_SCALE, -pos.y / MARIO_SCALE);
+            if (marioState.action != ACT_DRIVING_VEHICLE) sm64_set_mario_action(marioId, ACT_DRIVING_VEHICLE);
+            sm64_set_mario_position(marioId, sm64pos.x, sm64pos.y, sm64pos.z);
+            sm64_set_mario_angle(marioId, -orX, faceangle, -orY);
+        }
 
         // water level
         sm64_set_mario_water_level(marioId, (CGame::CanSeeWaterFromCurrArea() ? 0 : INT16_MIN));
@@ -732,7 +756,8 @@ void marioTick(float dt)
         memcpy(&marioInterpPos, &marioCurrPos, sizeof(marioCurrPos));
         memcpy(marioInterpGeo, marioCurrGeoPos, sizeof(marioCurrGeoPos));
 
-        ped->SetHeading(marioState.faceAngle + M_PI);
+        if (!ped->m_nPedFlags.bInVehicle)
+            ped->SetHeading(marioState.angle[1] + M_PI);
 
         if (fabsf(marioBlocksPos.x - marioCurrPos.x) > 64 || fabsf(marioBlocksPos.y - marioCurrPos.y) > 64 || fabsf(marioBlocksPos.z - marioCurrPos.z) > 64)
             loadCollisions(marioCurrPos);
@@ -743,12 +768,28 @@ void marioTick(float dt)
     marioInterpPos.x = lerp(marioLastPos.x, marioCurrPos.x, ticks / (1./30));
     marioInterpPos.y = lerp(marioLastPos.y, marioCurrPos.y, ticks / (1./30));
     marioInterpPos.z = lerp(marioLastPos.z, marioCurrPos.z, ticks / (1./30));
-    ped->SetPosn(marioInterpPos + CVector(0, 0, 0.5f));
+
+    CVector pos = ped->GetPosition();
+    if (!ped->m_nPedFlags.bInVehicle)
+        ped->SetPosn(marioInterpPos + CVector(0, 0, 0.5f));
+    else
+    {
+        pos.z -= (ped->m_pVehicle->m_pHandlingData->m_bIsBike) ? 0.3f : 0.35f;
+        pos.x += cos(ped->GetHeading() + M_PI_2) * 0.3f;
+        pos.y += sin(ped->GetHeading() + M_PI_2) * 0.3f;
+    }
+
     for (int i=0; i<marioGeometry.numTrianglesUsed*3; i++)
     {
         marioInterpGeo[i].objVertex.x = lerp(marioLastGeoPos[i].objVertex.x, marioCurrGeoPos[i].objVertex.x, ticks / (1./30));
         marioInterpGeo[i].objVertex.y = lerp(marioLastGeoPos[i].objVertex.y, marioCurrGeoPos[i].objVertex.y, ticks / (1./30));
         marioInterpGeo[i].objVertex.z = lerp(marioLastGeoPos[i].objVertex.z, marioCurrGeoPos[i].objVertex.z, ticks / (1./30));
+        if (ped->m_nPedFlags.bInVehicle)
+        {
+            marioInterpGeo[i].objVertex.x = marioInterpGeo[i].objVertex.x - marioInterpPos.x + pos.x;
+            marioInterpGeo[i].objVertex.y = marioInterpGeo[i].objVertex.y - marioInterpPos.y + pos.y;
+            marioInterpGeo[i].objVertex.z = marioInterpGeo[i].objVertex.z - marioInterpPos.z + pos.z;
+        }
     }
 }
 
