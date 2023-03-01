@@ -610,11 +610,10 @@ void marioTick(float dt)
         {
             memset(&marioInput, 0, sizeof(marioInput));
 
-            float orX = 0, orY = 0, orZ = 0;
-            ped->GetOrientation(orX, orY, orZ);
             float faceangle = ped->GetHeading() + M_PI;
             if (faceangle > M_PI) faceangle -= M_PI*2;
-            orY = ped->GetMatrix()->right.z;
+            float orX = ped->GetMatrix()->up.z;
+            float orY = ped->GetMatrix()->right.z;
 
             CVector pos = ped->GetPosition();
             CVector sm64pos(pos.x / MARIO_SCALE, pos.z / MARIO_SCALE, -pos.y / MARIO_SCALE);
