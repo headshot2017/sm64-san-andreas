@@ -623,7 +623,10 @@ void marioTick(float dt)
         }
 
         // water level
-        sm64_set_mario_water_level(marioId, (CGame::CanSeeWaterFromCurrArea() ? 0 : INT16_MIN));
+        if (CGame::CanSeeWaterFromCurrArea())
+            sm64_set_mario_water_level(marioId, (ped->m_nPhysicalFlags.bTouchingWater) ? ped->m_pPlayerData->m_fWaterHeight/MARIO_SCALE : INT16_MIN);
+        else
+            sm64_set_mario_water_level(marioId, INT16_MIN);
 
         // handles loaded objects, vehicles and peds
         for (int i=0; i<MAX_OBJS; i++)
