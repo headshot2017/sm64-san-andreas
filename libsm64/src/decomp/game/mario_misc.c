@@ -93,7 +93,7 @@ static s8 gMarioAttackScaleAnimation[3 * 6] = {
 //     s16 sfx = 0;
 //     struct GraphNodeGenerated *asGenerated = (struct GraphNodeGenerated *) node;
 //     UNUSED Mat4 *transform = c;
-// 
+//
 //     if (callContext == GEO_CONTEXT_RENDER) {
 //         if (gPlayerController->controllerData != NULL && !gWarpTransition.isActive) {
 //             gd_copy_p1_contpad(gPlayer1Controller->controllerData);
@@ -418,12 +418,12 @@ Gfx *geo_mario_head_rotation(s32 callContext, struct GraphNode *node, UNUSED Mat
     //      rotNode->rotation[0] = 0; // gPlayerCameraState->headRotation[1]; // PATCH
     //      rotNode->rotation[2] = 0; // gPlayerCameraState->headRotation[0];
     //  } else if (action & ACT_FLAG_WATER_OR_TEXT) {
-    //      rotNode->rotation[0] = bodyState->headAngle[1];
-    //      rotNode->rotation[1] = bodyState->headAngle[2];
-    //      rotNode->rotation[2] = bodyState->headAngle[0];
+            rotNode->rotation[0] = bodyState->headAngle[1];
+            rotNode->rotation[1] = bodyState->headAngle[2];
+            rotNode->rotation[2] = bodyState->headAngle[0];
     //  } else {
-            vec3s_set(bodyState->headAngle, 0, 0, 0);
-            vec3s_set(rotNode->rotation, 0, 0, 0);
+    //      vec3s_set(bodyState->headAngle, 0, 0, 0);
+    //      vec3s_set(rotNode->rotation, 0, 0, 0);
     //  }
     }
     return NULL;

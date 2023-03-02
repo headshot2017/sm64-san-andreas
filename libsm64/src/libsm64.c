@@ -415,6 +415,22 @@ SM64_LIB_FN void sm64_set_mario_faceangle(int32_t marioId, float y)
     vec3s_set(gMarioState->marioObj->header.gfx.angle, 0, gMarioState->faceAngle[1], 0);
 }
 
+SM64_LIB_FN void sm64_set_mario_headangle(int32_t marioId, float x, float y, float z)
+{
+    if( marioId >= s_mario_instance_pool.size || s_mario_instance_pool.objects[marioId] == NULL )
+    {
+        DEBUG_PRINT("Tried to use non-existant Mario with ID: %d", marioId);
+        return;
+    }
+
+    struct GlobalState *globalState = ((struct MarioInstance *)s_mario_instance_pool.objects[ marioId ])->globalState;
+    global_state_bind( globalState );
+
+    gMarioState->marioBodyState->headAngle[0] = (int16_t)(x / 3.14159f * 32768.f);
+    gMarioState->marioBodyState->headAngle[1] = (int16_t)(y / 3.14159f * 32768.f);
+    gMarioState->marioBodyState->headAngle[2] = (int16_t)(z / 3.14159f * 32768.f);
+}
+
 SM64_LIB_FN void sm64_set_mario_velocity(int32_t marioId, float x, float y, float z)
 {
     if( marioId >= s_mario_instance_pool.size || s_mario_instance_pool.objects[marioId] == NULL )
