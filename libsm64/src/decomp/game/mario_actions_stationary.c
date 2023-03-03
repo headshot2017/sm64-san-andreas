@@ -1060,6 +1060,7 @@ s32 act_ground_pound_land(struct MarioState *m) {
 }
 
 s32 act_first_person(struct MarioState *m) {
+/*
     s32 sp1C = (m->input & (INPUT_OFF_FLOOR | INPUT_ABOVE_SLIDE | INPUT_UNKNOWN_10)) != 0;
 
     if (m->actionState == 0) {
@@ -1072,6 +1073,7 @@ s32 act_first_person(struct MarioState *m) {
         set_camera_mode(m->area->camera, -1, 1);
         return set_mario_action(m, ACT_IDLE, 0);
     }
+*/
 
 //  if (m->floor->type == SURFACE_LOOK_UP_WARP
 //      && save_file_get_total_star_count(gCurrSaveFileNum - 1, COURSE_MIN - 1, COURSE_MAX - 1) >= 10) {
