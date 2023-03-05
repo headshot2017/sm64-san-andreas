@@ -1075,6 +1075,10 @@ s32 act_first_person(struct MarioState *m) {
     }
 */
 
+    if (check_common_idle_cancels(m)) {
+        return TRUE;
+    }
+
 //  if (m->floor->type == SURFACE_LOOK_UP_WARP
 //      && save_file_get_total_star_count(gCurrSaveFileNum - 1, COURSE_MIN - 1, COURSE_MAX - 1) >= 10) {
 //      s16 sp1A = m->statusForCamera->headRotation[0];
