@@ -6,6 +6,9 @@
 #include "CWorld.h"
 #include "CGame.h"
 #include "CEntryExitManager.h"
+#include "ePedBones.h"
+#include "CTaskSimpleIKLookAt.h"
+#include "CTaskSimpleTriggerLookAt.h"
 
 #define _USE_MATH_DEFINES
 #include <stdio.h>
@@ -501,6 +504,21 @@ void marioSpawn()
 
     CPlayerPed* ped = FindPlayerPed();
     sm64_set_mario_faceangle(marioId, ped->GetHeading() + M_PI);
+
+    CPad* pad = ped->GetPadFromPlayer();
+    bool cjHasControl = (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle);
+    if (!cjHasControl)
+    {
+        ped->m_nPhysicalFlags.bApplyGravity = 0;
+        ped->m_nPhysicalFlags.bCanBeCollidedWith = 0;
+        ped->m_nPhysicalFlags.bCollidable = 0;
+        ped->m_nPhysicalFlags.bDisableCollisionForce = 1;
+        ped->m_nPhysicalFlags.bOnSolidSurface = 0;
+        ped->m_nPhysicalFlags.bDisableMoveForce = 1;
+        ped->m_nPhysicalFlags.bDisableTurnForce = 1;
+        ped->m_nPhysicalFlags.bDontApplySpeed = 1;
+        ped->m_nAllowedAttackMoves = 0;
+    }
 }
 
 void marioDestroy()
@@ -518,45 +536,120 @@ void marioDestroy()
     if (FindPlayerPed())
     {
         CPlayerPed* ped = FindPlayerPed();
-        ped->ReactivatePlayerPed(0);
         ped->SetPosn(marioInterpPos + CVector(0, 0, 0.5f));
-        ped->m_nPedFlags.bNotAllowedToDuck = 0;
         ped->m_nPhysicalFlags.bApplyGravity = 1;
         ped->m_nPhysicalFlags.bCanBeCollidedWith = 1;
         ped->m_nPhysicalFlags.bCollidable = 1;
-        ped->m_nPhysicalFlags.bCollisionProof = 0;
         ped->m_nPhysicalFlags.bDisableCollisionForce = 0;
         ped->m_nPhysicalFlags.bOnSolidSurface = 1;
         ped->m_nPhysicalFlags.bDisableMoveForce = 0;
         ped->m_nPhysicalFlags.bDisableTurnForce = 0;
         ped->m_nPhysicalFlags.bDontApplySpeed = 0;
-        ped->m_bIsVisible = 0;
-        ped->m_nAllowedAttackMoves = 0;
-
-        CPad* pad = ped->GetPadFromPlayer();
-        pad->bDisablePlayerDuck = 0;
+        ped->m_nAllowedAttackMoves = 5;
     }
 }
 
 void marioTick(float dt)
 {
+    /**
+        temporary code until i can find where CJ's head rotation is stored
+        when he looks at another entity, or a specific coordinate.
+
+        attempt 1: get CJ's head rotation from his head bone.
+        headOrientationZ should change when he turns his head towards a ped when he/she talks to him,
+        however it does not.
+
+        attempt 2: attempt to get m_fLookDirection or m_pLookEntity.
+        these fields are described in gta-reversed-modern.
+        however they don't change at all.
+
+        attempt 3: search for a secondary IK task.
+        when using ped->m_pIntelligence->m_TaskMgr.GetSecondaryTask(TASK_SECONDARY_IK),
+        it will be a CTask pointer when CJ rotates his head at someone.
+        however the pointer itself seems to be messy or corrupted? it's the only lead, though...
+    */
+
+    /*
+    CPlayerPed* ped = FindPlayerPed();
+    if (!ped) return;
+    ped->SetLook(M_PI_2);
+    ped->SetLookTimer(1000);
+    char buf[256];
+
+    // attempt 1
+    RpHAnimHierarchy* hierarchy = GetAnimHierarchyFromClump(ped->m_pRwClump);
+    RwMatrix headBone = RpHAnimHierarchyGetMatrixArray(hierarchy)[RpHAnimIDGetIndex(hierarchy, BONE_HEAD)];
+
+    float headOrientationX = asinf(headBone.at.z);
+    float cosX = cosf(headOrientationX);
+    float cosY = headBone.up.z / cosX;
+    float cosZ = headBone.at.y / cosX;
+    float headOrientationY = acosf(cosY);
+    float headOrientationZ = acosf(cosZ);
+
+    // attempt 2
+    CEntity* lookEnt; // thanks, gta-reversed-modern
+    float lookDirection = ped->field_73C;
+    memcpy(&lookEnt, &ped->field_738, 4);
+
+    // attempt 3
+    if (ped->m_pIntelligence->FindTaskByType(TASK_SIMPLE_IK_LOOK_AT))
+        sprintf(buf, "TASK_SIMPLE_IK_LOOK_AT");
+    else if (ped->m_pIntelligence->FindTaskByType(TASK_SIMPLE_TRIGGER_LOOK_AT))
+        sprintf(buf, "TASK_SIMPLE_TRIGGER_LOOK_AT");
+    else if (ped->m_pIntelligence->FindTaskByType(TASK_SIMPLE_CLEAR_LOOK_AT))
+        sprintf(buf, "TASK_SIMPLE_CLEAR_LOOK_AT");
+    else if (ped->m_pIntelligence->FindTaskByType(TASK_SIMPLE_LOOK_AT_ENTITY_OR_COORD))
+        sprintf(buf, "TASK_SIMPLE_LOOK_AT_ENTITY_OR_COORD");
+    else if (ped->m_pIntelligence->FindTaskByType(TASK_SIMPLE_IK_CHAIN))
+        sprintf(buf, "TASK_SIMPLE_IK_CHAIN");
+    else if (ped->m_pIntelligence->FindTaskByType(TASK_SECONDARY_IK))
+        sprintf(buf, "TASK_SECONDARY_IK");
+    else
+        sprintf(buf, "no task %d %d %u", ped->field_738, ped->field_73C, ped->field_748);
+
+    float pedHeading = ped->GetHeading();
+    //sprintf(buf, "%.2f %.2f %.2f - %.2f", headOrientationX, headOrientationY, headOrientationZ, pedHeading);
+    //sprintf(buf, "%s %s %s %.2f %.2f %.2f %.2f %.2f", lookEnt?"true":"false", ped->m_nPedFlags.bIsLooking?"true":"false", (ped->m_nPedState == PEDSTATE_LOOK_HEADING || ped->m_nPedState == PEDSTATE_LOOK_ENTITY)?"true":"false", ped->m_fCurrentRotation, lookDirection, ped->m_pedIK.m_TorsoOrien.m_fYaw, ped->m_fAimingRotation, pedHeading);
+    //sprintf(buf, "%.2f %.2f %.2f - %.2f", head.x, head.y, head.z, pedHeading);
+    CHud::SetMessage(buf);
+    */
+
     if (!marioSpawned() || !FindPlayerPed()) return;
     CPlayerPed* ped = FindPlayerPed();
-    ped->ReactivatePlayerPed(0);
-    ped->m_nPedFlags.bNotAllowedToDuck = 0;
-    ped->m_nPhysicalFlags.bApplyGravity = 0;
-    ped->m_nPhysicalFlags.bCanBeCollidedWith = 0;
-    ped->m_nPhysicalFlags.bCollidable = 0;
-    ped->m_nPhysicalFlags.bCollisionProof = 0;
-    ped->m_nPhysicalFlags.bDisableCollisionForce = 1;
-    ped->m_nPhysicalFlags.bOnSolidSurface = 0;
-    ped->m_nPhysicalFlags.bDisableMoveForce = 1;
-    ped->m_nPhysicalFlags.bDisableTurnForce = 1;
-    ped->m_nPhysicalFlags.bDontApplySpeed = 1;
-    ped->m_bIsVisible = 0;
-    ped->m_nAllowedAttackMoves = 0;
+    bool carDoor = ped->m_pIntelligence->IsPedGoingForCarDoor();
 
     CPad* pad = ped->GetPadFromPlayer();
+    static bool cjLastControl = true;
+    bool cjHasControl = (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle);
+    if (cjHasControl && !cjLastControl)
+    {
+        ped->SetPosn(marioInterpPos + CVector(0, 0, 0.5f));
+        ped->m_nPhysicalFlags.bApplyGravity = 1;
+        ped->m_nPhysicalFlags.bCanBeCollidedWith = 1;
+        ped->m_nPhysicalFlags.bCollidable = 1;
+        ped->m_nPhysicalFlags.bDisableCollisionForce = 0;
+        ped->m_nPhysicalFlags.bOnSolidSurface = 1;
+        ped->m_nPhysicalFlags.bDisableMoveForce = 0;
+        ped->m_nPhysicalFlags.bDisableTurnForce = 0;
+        ped->m_nPhysicalFlags.bDontApplySpeed = 0;
+        ped->m_nAllowedAttackMoves = 5;
+    }
+    else if (!cjHasControl)
+    {
+        ped->m_nPhysicalFlags.bApplyGravity = 0;
+        ped->m_nPhysicalFlags.bCanBeCollidedWith = 0;
+        ped->m_nPhysicalFlags.bCollidable = 0;
+        ped->m_nPhysicalFlags.bDisableCollisionForce = !carDoor;
+        ped->m_nPhysicalFlags.bOnSolidSurface = 0;
+        ped->m_nPhysicalFlags.bDisableMoveForce = 1;
+        ped->m_nPhysicalFlags.bDisableTurnForce = !carDoor;
+        ped->m_nPhysicalFlags.bDontApplySpeed = 1;
+        ped->m_nAllowedAttackMoves = 0;
+    }
+    cjLastControl = cjHasControl;
+
+    ped->m_bIsVisible = 0;
 
     // handle entering/exiting buildings
     static CEntryExit* entryexit = nullptr;
@@ -572,9 +665,11 @@ void marioTick(float dt)
         entryexit = nullptr;
     }
 
+
     ticks += dt;
     while (ticks >= 1.f/30)
     {
+        char buf[256];
         ticks -= 1.f/30;
         elapsedTicks++;
 
@@ -592,7 +687,7 @@ void marioTick(float dt)
         else
             angle = atan2(pad->GetPedWalkUpDown(), pad->GetPedWalkLeftRight());
 
-        if (!ped->m_nPedFlags.bInVehicle)
+        if (!cjHasControl && !carDoor)
         {
             pad->bDisablePlayerDuck = 0;
             marioInput.stickX = -cosf(angle) * length;
@@ -605,6 +700,11 @@ void marioTick(float dt)
             pad->bDisablePlayerDuck = 1;
 
             if (marioState.action == ACT_DRIVING_VEHICLE) sm64_set_mario_action(marioId, ACT_FREEFALL);
+            else if (marioState.action == ACT_FIRST_PERSON)
+            {
+                sm64_set_mario_headangle(marioId, 0,0,0);
+                sm64_set_mario_action(marioId, ACT_IDLE);
+            }
         }
         else
         {
@@ -612,14 +712,39 @@ void marioTick(float dt)
 
             float faceangle = ped->GetHeading() + M_PI;
             if (faceangle > M_PI) faceangle -= M_PI*2;
-            float orX = ped->GetMatrix()->up.z;
-            float orY = ped->GetMatrix()->right.z;
 
             CVector pos = ped->GetPosition();
+            if (!ped->m_nPedFlags.bInVehicle) pos.z -= 1.5f;
             CVector sm64pos(pos.x / MARIO_SCALE, pos.z / MARIO_SCALE, -pos.y / MARIO_SCALE);
-            if (marioState.action != ACT_DRIVING_VEHICLE) sm64_set_mario_action(marioId, ACT_DRIVING_VEHICLE);
-            sm64_set_mario_position(marioId, sm64pos.x, sm64pos.y, sm64pos.z);
-            sm64_set_mario_angle(marioId, -orX, faceangle, -orY);
+
+            if (ped->m_nPedFlags.bInVehicle)
+            {
+                float orX = ped->GetMatrix()->up.z;
+                float orY = ped->GetMatrix()->right.z;
+                sm64_set_mario_angle(marioId, -orX, faceangle, -orY);
+                sm64_set_mario_position(marioId, sm64pos.x, sm64pos.y, sm64pos.z);
+                if (marioState.action != ACT_DRIVING_VEHICLE) sm64_set_mario_action(marioId, ACT_DRIVING_VEHICLE);
+            }
+            else
+            {
+                // in a cutscene, or CJ walking towards a car
+                CVector2D spd(ped->m_vecMoveSpeed);
+                float spdMag = (!carDoor) ? spd.Magnitude()*17.5f : 0.9f;
+                if (spdMag >= 1) spdMag = 0.9f;
+
+                marioInput.camLookX = sinf(faceangle);
+                marioInput.camLookZ = cosf(faceangle);
+                marioInput.stickX = 0;
+                marioInput.stickY = -spdMag;
+                sm64_set_mario_faceangle(marioId, faceangle);
+
+                if (!carDoor)
+                {
+                    sm64_set_mario_position(marioId, sm64pos.x, sm64pos.y, sm64pos.z);
+                    if (marioState.action == ACT_DRIVING_VEHICLE) sm64_set_mario_action(marioId, ACT_FREEFALL);
+                    else if (marioState.action == ACT_IDLE) sm64_set_mario_action(marioId, ACT_FIRST_PERSON);
+                }
+            }
         }
 
         // water level
@@ -758,7 +883,7 @@ void marioTick(float dt)
         memcpy(&marioInterpPos, &marioCurrPos, sizeof(marioCurrPos));
         memcpy(marioInterpGeo, marioCurrGeoPos, sizeof(marioCurrGeoPos));
 
-        if (!ped->m_nPedFlags.bInVehicle)
+        if (!cjHasControl)
             ped->SetHeading(marioState.angle[1] + M_PI);
 
         if (fabsf(marioBlocksPos.x - marioCurrPos.x) > 64 || fabsf(marioBlocksPos.y - marioCurrPos.y) > 64 || fabsf(marioBlocksPos.z - marioCurrPos.z) > 64)
@@ -772,11 +897,15 @@ void marioTick(float dt)
     marioInterpPos.z = lerp(marioLastPos.z, marioCurrPos.z, ticks / (1./30));
 
     CVector pos = ped->GetPosition();
-    if (!ped->m_nPedFlags.bInVehicle)
+    if (!cjHasControl)
         ped->SetPosn(marioInterpPos + CVector(0, 0, 0.5f));
     else
     {
-        pos.z -= (ped->m_pVehicle->m_pHandlingData->m_bIsBike) ? 0.3f : 0.35f;
+        if (ped->m_nPedFlags.bInVehicle)
+            pos.z -= (ped->m_pVehicle->m_pHandlingData->m_bIsBike) ? 0.3f : 0.35f;
+        else
+            pos.z -= 1;
+
         pos.x += cos(ped->GetHeading() + M_PI_2) * 0.3f;
         pos.y += sin(ped->GetHeading() + M_PI_2) * 0.3f;
     }
