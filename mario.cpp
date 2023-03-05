@@ -669,7 +669,6 @@ void marioTick(float dt)
     ticks += dt;
     while (ticks >= 1.f/30)
     {
-        char buf[256];
         ticks -= 1.f/30;
         elapsedTicks++;
 
@@ -729,7 +728,7 @@ void marioTick(float dt)
             {
                 // in a cutscene, or CJ walking towards a car
                 CVector2D spd(ped->m_vecMoveSpeed);
-                float spdMag = (!carDoor) ? spd.Magnitude()*17.5f : 0.9f;
+                float spdMag = (!carDoor || cjHasControl) ? spd.Magnitude()*17.5f : 0.9f;
                 if (spdMag >= 1) spdMag = 0.9f;
 
                 marioInput.camLookX = sinf(faceangle);
@@ -738,7 +737,7 @@ void marioTick(float dt)
                 marioInput.stickY = -spdMag;
                 sm64_set_mario_faceangle(marioId, faceangle);
 
-                if (!carDoor)
+                if (!carDoor || cjHasControl)
                 {
                     sm64_set_mario_position(marioId, sm64pos.x, sm64pos.y, sm64pos.z);
                     if (marioState.action == ACT_DRIVING_VEHICLE) sm64_set_mario_action(marioId, ACT_FREEFALL);
