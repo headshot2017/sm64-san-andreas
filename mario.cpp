@@ -885,7 +885,7 @@ void marioTick(float dt)
         if (!cjHasControl)
             ped->SetHeading(marioState.angle[1] + M_PI);
 
-        if (fabsf(marioBlocksPos.x - marioCurrPos.x) > 64 || fabsf(marioBlocksPos.y - marioCurrPos.y) > 64 || fabsf(marioBlocksPos.z - marioCurrPos.z) > 64)
+        if (DistanceBetweenPoints(marioBlocksPos, marioCurrPos) > 64 || sm64_surface_find_floor_height(marioState.position[0], marioState.position[1], marioState.position[2]) == FLOOR_LOWER_LIMIT)
             loadCollisions(marioCurrPos);
         if (elapsedTicks % 30 == 0)
             loadNonBuildings(marioCurrPos);
