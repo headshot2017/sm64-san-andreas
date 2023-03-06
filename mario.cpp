@@ -747,6 +747,15 @@ void marioTick(float dt)
             }
         }
 
+        // health
+        float hp = ped->m_fHealth / ped->m_fMaxHealth;
+        if (hp <= 0)
+            sm64_mario_kill(marioId);
+        else if ((marioState.action & ACT_GROUP_MASK) == ACT_GROUP_SUBMERGED)
+            sm64_set_mario_health(marioId, 0x880);
+        else
+            sm64_set_mario_health(marioId, (hp <= 0.1f) ? 0x200 : 0x880);
+
         // water level
         if (CGame::CanSeeWaterFromCurrArea())
             sm64_set_mario_water_level(marioId, (ped->m_nPhysicalFlags.bTouchingWater) ? ped->m_pPlayerData->m_fWaterHeight/MARIO_SCALE : INT16_MIN);
