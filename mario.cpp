@@ -713,7 +713,7 @@ void marioTick(float dt)
             if (faceangle > M_PI) faceangle -= M_PI*2;
 
             CVector pos = ped->GetPosition();
-            if (!ped->m_nPedFlags.bInVehicle) pos.z -= 1.5f;
+            if (!ped->m_nPedFlags.bInVehicle) pos.z -= 1.f;
             CVector sm64pos(pos.x / MARIO_SCALE, pos.z / MARIO_SCALE, -pos.y / MARIO_SCALE);
 
             if (ped->m_nPedFlags.bInVehicle)
