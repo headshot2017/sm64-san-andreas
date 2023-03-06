@@ -15,6 +15,9 @@
     #define SM64_LIB_FN
 #endif
 
+#define CELL_HEIGHT_LIMIT   500000.f
+#define FLOOR_LOWER_LIMIT  -500000.f
+
 #ifdef __cplusplus
 extern "C" {
 #endif
