@@ -9,6 +9,7 @@
 #include "ePedBones.h"
 #include "CTaskSimpleIKLookAt.h"
 #include "CTaskSimpleTriggerLookAt.h"
+#include "CCutsceneMgr.h"
 
 #define _USE_MATH_DEFINES
 #include <stdio.h>
@@ -925,7 +926,7 @@ void marioTick(float dt)
 
 void marioRender()
 {
-    if (!marioSpawned()) return;
+    if (!marioSpawned() || CCutsceneMgr::ms_running) return;
 
     RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)1);
     RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, (void*)1);
