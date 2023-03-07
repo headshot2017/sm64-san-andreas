@@ -63,6 +63,7 @@ public:
             }
 
             sm64_register_wall_attack_function(onWallAttack);
+            sm64_register_debug_print_function( [](const char* msg){printf("%s\n", msg);} );
 
             audio_thread_init();
             sm64_play_sound_global(SOUND_MENU_STAR_SOUND);
