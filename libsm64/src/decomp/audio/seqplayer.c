@@ -6,7 +6,6 @@
 #include "heap.h"
 #include "load.h"
 #include "seqplayer.h"
-#include "../../debug_print.h"
 
 #define PORTAMENTO_IS_SPECIAL(x) ((x).mode & 0x80)
 #define PORTAMENTO_MODE(x) ((x).mode & ~0x80)
@@ -399,10 +398,7 @@ void init_layer_freelist(void) {
 }
 
 u8 m64_read_u8(struct M64ScriptState *state) {
-	DEBUG_PRINT("m64_read_u8()");
-	DEBUG_PRINT("- state at %x", state);
     u8 *midiArg = state->pc++;
-	DEBUG_PRINT("- read u8 (%d) at (%x)", *midiArg, midiArg);
     return *midiArg;
 }
 
@@ -1109,10 +1105,8 @@ s32 seq_channel_layer_process_script_part2(struct SequenceChannelLayer *layer) {
                 break;
 
             case 0xc6: // layer_setinstr
-				DEBUG_PRINT("  - cmd 0xc6, setinstr");
 			
                 cmd = m64_read_u8(state);
-				DEBUG_PRINT("  - read %d from state", cmd);
 
                 if (cmd >= 0x7f) {
                     if (cmd == 0x7f) {
@@ -1405,8 +1399,6 @@ s32 seq_channel_layer_process_script_part3(struct SequenceChannelLayer *layer, s
 #endif
 
 u8 get_instrument(struct SequenceChannel *seqChannel, u8 instId, struct Instrument **instOut, struct AdsrSettings *adsr) {
-	DEBUG_PRINT("@ get_instrument()");
-	DEBUG_PRINT("- instrument id: %d", instId);
 	
     struct Instrument *inst;
 #if defined(VERSION_EU) || defined(VERSION_SH)
@@ -1465,9 +1457,6 @@ u8 get_instrument(struct SequenceChannel *seqChannel, u8 instId, struct Instrume
 }
 
 void set_instrument(struct SequenceChannel *seqChannel, u8 instId) {
-	DEBUG_PRINT("@ set_instrument()");
-	DEBUG_PRINT("- bank id: %d", seqChannel->bankId);
-	DEBUG_PRINT("- instrument id: %d", instId);
 
     if (instId >= 0x80) {
         seqChannel->instOrWave = instId;
@@ -1497,7 +1486,6 @@ void sequence_channel_set_volume(struct SequenceChannel *seqChannel, u8 volume) 
 }
 
 void sequence_channel_process_script(struct SequenceChannel *seqChannel) {
-	DEBUG_PRINT("sequence_channel_process_script()");
 
     struct M64ScriptState *state;
     struct SequencePlayer *seqPlayer;
@@ -1536,7 +1524,6 @@ void sequence_channel_process_script(struct SequenceChannel *seqChannel) {
     if (seqChannel->delay == 0) {
         for (;;) {
             cmd = m64_read_u8(state);
-			DEBUG_PRINT("- handling command: %x", cmd);
 			
 #if !defined(VERSION_EU) && !defined(VERSION_SH)
             if (cmd == 0xff) // chan_end
@@ -1718,10 +1705,8 @@ void sequence_channel_process_script(struct SequenceChannel *seqChannel) {
 #endif
 
                     case 0xc1: // chan_setinstr ("set program"?)
-						DEBUG_PRINT("  - cmd 0xc1, setinstr");
 			
 						u8 instrId = m64_read_u8(state);
-						DEBUG_PRINT("  - read %d from state", instrId);
 					
                         set_instrument(seqChannel, instrId);
                         break;
@@ -1852,12 +1837,7 @@ void sequence_channel_process_script(struct SequenceChannel *seqChannel) {
                         break;
 
                     case 0xc6: // chan_setbank; switch bank within set
-						DEBUG_PRINT("  - case 0xc6 - switch bank");
-					
-						DEBUG_PRINT("  - seq id %d", seqPlayer->seqId);
-
                         cmd = m64_read_u8(state);
-						DEBUG_PRINT("  - backwards bank id %d", cmd);
 
                         // Switch to the temp's (0-indexed) bank in this sequence's
                         // bank set. Note that in the binary format (not in the JSON!)
@@ -2154,8 +2134,6 @@ void sequence_channel_process_script(struct SequenceChannel *seqChannel) {
 #else
                     case 0x80: // chan_ioreadval; read data from audio lib
 #endif
-						DEBUG_PRINT("- cmd 0x80, read data from audio lib");
-						DEBUG_PRINT("  - reading index: %d", loBits);
                         value = seqChannel->soundScriptIO[loBits];
                         if (loBits < 4) {
                             seqChannel->soundScriptIO[loBits] = -1;
@@ -2247,7 +2225,6 @@ void sequence_channel_process_script(struct SequenceChannel *seqChannel) {
 }
 
 void sequence_player_process_sequence(struct SequencePlayer *seqPlayer) {
-	DEBUG_PRINT("sequence_player_process_sequence()");
 
 	u8 cmd;
 #ifdef VERSION_SH

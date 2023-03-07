@@ -1,7 +1,6 @@
 #ifndef VERSION_SH
 #include <ultra64.h>
 
-#include "../../debug_print.h"
 #include "synthesis.h"
 #include "heap.h"
 #include "data.h"
@@ -28,13 +27,9 @@
 #define DMEM_ADDR_WET_RIGHT_CH 0x880
 
 #define aSetLoadBufferPair(pkt, c, off)                                                                \
-	DEBUG_PRINT("- (in set load buffer pair, set buffer 1) "); \
     aSetBuffer(pkt, 0, c + DMEM_ADDR_WET_LEFT_CH, 0, DEFAULT_LEN_1CH - c);                             \
-	DEBUG_PRINT("- (in set load buffer pair, load buffer 1) "); \
     aLoadBuffer(pkt, VIRTUAL_TO_PHYSICAL2(gSynthesisReverb.ringBuffer.left + (off)));                  \
-	DEBUG_PRINT("- (in set load buffer pair, set buffer 2) "); \
     aSetBuffer(pkt, 0, c + DMEM_ADDR_WET_RIGHT_CH, 0, DEFAULT_LEN_1CH - c);                            \
-	DEBUG_PRINT("- (in set load buffer pair, load buffer 2) "); \
     aLoadBuffer(pkt, VIRTUAL_TO_PHYSICAL2(gSynthesisReverb.ringBuffer.right + (off)))
 
 #define aSetSaveBufferPair(pkt, c, d, off)                                                             \
@@ -329,7 +324,6 @@ u64 *synthesis_execute(u64 *cmdBuf, s32 *writtenCmds, s16 *aiBuf, s32 bufLen) {
 #else
 // bufLen will be divisible by 16
 u64 *synthesis_execute(u64 *cmdBuf, s32 *writtenCmds, s16 *aiBuf, s32 bufLen) {
-	DEBUG_PRINT("synthesis_execute()");
     s32 chunkLen;
     s32 i;
     u32 *aiBufPtr = (u32 *) aiBuf;
@@ -512,7 +506,6 @@ u64 *synthesis_do_one_audio_update(s16 *aiBuf, s32 bufLen, u64 *cmd, s32 updateI
 }
 #else
 u64 *synthesis_do_one_audio_update(s16 *aiBuf, s32 bufLen, u64 *cmd, s32 updateIndex) {
-	DEBUG_PRINT("synthesis_do_one_audio_update()");
 
     UNUSED s32 pad1[1];
     s16 ra;
@@ -522,52 +515,38 @@ u64 *synthesis_do_one_audio_update(s16 *aiBuf, s32 bufLen, u64 *cmd, s32 updateI
     UNUSED s32 pad2[1];
     s16 temp;
 
-	DEBUG_PRINT("- curFrame: %d", gSynthesisReverb.curFrame);
-	DEBUG_PRINT("- updateIndex: %d", updateIndex);
 
     v1 = &gSynthesisReverb.items[gSynthesisReverb.curFrame][updateIndex];
-	DEBUG_PRINT("- v1: %x", v1);
 
     if (gSynthesisReverb.useReverb == 0) {
-		DEBUG_PRINT("- w/o reverb");
         aClearBuffer(cmd++, DMEM_ADDR_LEFT_CH, DEFAULT_LEN_2CH);
         cmd = synthesis_process_notes(aiBuf, bufLen, cmd);
     } else {
-		DEBUG_PRINT("- w/ reverb");
         if (gReverbDownsampleRate == 1) {
-			DEBUG_PRINT("- w/ reverb downsample");
 
             // Put the oldest samples in the ring buffer into the wet channels
-			DEBUG_PRINT("- set load buffer pair 1");
-			DEBUG_PRINT("- startPos: %d", v1->startPos);
             aSetLoadBufferPair(cmd++, 0, v1->startPos);
             if (v1->lengthB != 0) {
                 // Ring buffer wrapped
-				DEBUG_PRINT("- set load buffer pair 2");
                 aSetLoadBufferPair(cmd++, v1->lengthA, 0);
                 temp = 0;
             }
 
             // Use the reverb sound as initial sound for this audio update
-			DEBUG_PRINT("- dmem move");
             aDMEMMove(cmd++, DMEM_ADDR_WET_LEFT_CH, DMEM_ADDR_LEFT_CH, DEFAULT_LEN_2CH);
 
             // (Hopefully) lower the volume of the wet channels. New reverb will later be mixed into
             // these channels.
-			DEBUG_PRINT("- set buffer");
             aSetBuffer(cmd++, 0, 0, 0, DEFAULT_LEN_2CH);
             // 0x8000 here is -100%
-			DEBUG_PRINT("- mix");
             aMix(cmd++, 0, /*gain*/ 0x8000 + gSynthesisReverb.reverbGain, /*in*/ DMEM_ADDR_WET_LEFT_CH,
                  /*out*/ DMEM_ADDR_WET_LEFT_CH);
         } else {
-			DEBUG_PRINT("- w/o reverb downsample");
 
             // Same as above but upsample the previously downsampled samples used for reverb first
             temp = 0; //! jesus christ
             t4 = (v1->startPos & 7) * 2;
             ra = ALIGN(v1->lengthA + t4, 4);
-			DEBUG_PRINT("- set load buffer pair");
             aSetLoadBufferPair(cmd++, 0, v1->startPos - t4 / 2);
             if (v1->lengthB != 0) {
                 // Ring buffer wrapped
@@ -578,19 +557,12 @@ u64 *synthesis_do_one_audio_update(s16 *aiBuf, s32 bufLen, u64 *cmd, s32 updateI
                 //! useless assignment.
                 ra = ra + temp;
             }
-			DEBUG_PRINT("- set buffer 1");
             aSetBuffer(cmd++, 0, t4 + DMEM_ADDR_WET_LEFT_CH, DMEM_ADDR_LEFT_CH, bufLen << 1);
-			DEBUG_PRINT("- resample 1");
             aResample(cmd++, gSynthesisReverb.resampleFlags, (u16) gSynthesisReverb.resampleRate, VIRTUAL_TO_PHYSICAL2(gSynthesisReverb.resampleStateLeft));
-			DEBUG_PRINT("- set buffer 2");
             aSetBuffer(cmd++, 0, t4 + DMEM_ADDR_WET_RIGHT_CH, DMEM_ADDR_RIGHT_CH, bufLen << 1);
-			DEBUG_PRINT("- resample 2");
             aResample(cmd++, gSynthesisReverb.resampleFlags, (u16) gSynthesisReverb.resampleRate, VIRTUAL_TO_PHYSICAL2(gSynthesisReverb.resampleStateRight));
-			DEBUG_PRINT("- set buffer 3");
             aSetBuffer(cmd++, 0, 0, 0, DEFAULT_LEN_2CH);
-			DEBUG_PRINT("- mix");
             aMix(cmd++, 0, /*gain*/ 0x8000 + gSynthesisReverb.reverbGain, /*in*/ DMEM_ADDR_LEFT_CH, /*out*/ DMEM_ADDR_LEFT_CH);
-			DEBUG_PRINT("- dmem move");
             aDMEMMove(cmd++, DMEM_ADDR_LEFT_CH, DMEM_ADDR_WET_LEFT_CH, DEFAULT_LEN_2CH);
         }
         cmd = synthesis_process_notes(aiBuf, bufLen, cmd);
@@ -618,7 +590,6 @@ u64 *synthesis_process_note(struct Note *note, struct NoteSubEu *noteSubEu, stru
     UNUSED s32 pad0[3];
 #else
 u64 *synthesis_process_notes(s16 *aiBuf, s32 bufLen, u64 *cmd) {
-	DEBUG_PRINT("synthesis_process_notes()");
 
     s32 noteIndex;                           // sp174
     struct Note *note;                       // s7
@@ -704,34 +675,26 @@ u64 *synthesis_process_notes(s16 *aiBuf, s32 bufLen, u64 *cmd) {
 
 
     for (noteIndex = 0; noteIndex < gMaxSimultaneousNotes; noteIndex++) {
-		DEBUG_PRINT("- for note index %d/%d", noteIndex, gMaxSimultaneousNotes);
 
-		DEBUG_PRINT("- getting note");
         note = &gNotes[noteIndex];
 
         //! This function requires note->enabled to be volatile, but it breaks other functions like note_enable.
         //! Casting to a struct with just the volatile bitfield works, but there may be a better way to match.
-		DEBUG_PRINT("- if note is enabled but not loaded");
         if (((struct vNote *)note)->enabled && IS_BANK_LOAD_COMPLETE(note->bankId) == FALSE) {
-			DEBUG_PRINT("- note is enabled but not loaded");
             gAudioErrorFlags = (note->bankId << 8) + noteIndex + 0x1000000;
 			continue;
         } 
 
-		DEBUG_PRINT("- if note is enabled");
 		if (((struct vNote *)note)->enabled) {
-			DEBUG_PRINT("$ note is enabled!");
 
             flags = 0;
 
-			DEBUG_PRINT("- if note needs to be init");
             if (note->needsInit == TRUE) {
                 flags = A_INIT;
                 note->samplePosInt = 0;
                 note->samplePosFrac = 0;
             }
 
-			DEBUG_PRINT("- if note frequency is less than 2");
             if (note->frequency < US_FLOAT(2.0)) {
                 nParts = 1;
                 if (note->frequency > US_FLOAT(1.99996)) {
@@ -751,11 +714,9 @@ u64 *synthesis_process_notes(s16 *aiBuf, s32 bufLen, u64 *cmd) {
             samplesLenFixedPoint = note->samplePosFrac + (resamplingRateFixedPoint * bufLen) * 2;
             note->samplePosFrac = samplesLenFixedPoint & 0xFFFF; // 16-bit store, can't reuse
 
-			DEBUG_PRINT("- if note sound is null");
             if (note->sound == NULL) {
                 // A wave synthesis note (not ADPCM)
 
-				DEBUG_PRINT("- note is null, do wave synthesis");
                 cmd = load_wave_samples(cmd, note, samplesLenFixedPoint >> 0x10);
                 noteSamplesDmemAddrBeforeResampling = DMEM_ADDR_UNCOMPRESSED_NOTE + note->samplePosInt * 2;
                 note->samplePosInt += (samplesLenFixedPoint >> 0x10);
@@ -763,7 +724,6 @@ u64 *synthesis_process_notes(s16 *aiBuf, s32 bufLen, u64 *cmd) {
             }
             else {
                 // ADPCM note
-				DEBUG_PRINT("- @ handle adpcm note");
 
                 audioBookSample = note->sound->sample;
 
@@ -772,7 +732,6 @@ u64 *synthesis_process_notes(s16 *aiBuf, s32 bufLen, u64 *cmd) {
                 sampleAddr = audioBookSample->sampleAddr;
                 resampledTempLen = 0;
                 for (curPart = 0; curPart < nParts; curPart++) {
-					DEBUG_PRINT("- for part %d", curPart);
                     nAdpcmSamplesProcessed = 0; // s8
                     s5 = 0;                     // s4
 
@@ -789,7 +748,6 @@ u64 *synthesis_process_notes(s16 *aiBuf, s32 bufLen, u64 *cmd) {
                         u32 nEntries; // v1
                         curLoadedBook = audioBookSample->book->book;
                         nEntries = audioBookSample->book->order * audioBookSample->book->npredictors;
-						DEBUG_PRINT("- loading adpcm");
                         aLoadADPCM(cmd++, nEntries * 16, VIRTUAL_TO_PHYSICAL2(curLoadedBook));
                     }
 
@@ -841,7 +799,6 @@ u64 *synthesis_process_notes(s16 *aiBuf, s32 bufLen, u64 *cmd) {
                             a3 = 0;
                         }
 
-						DEBUG_PRINT("- if not note restart");
                         if (note->restart != FALSE) {
                             aSetLoop(cmd++, VIRTUAL_TO_PHYSICAL2(audioBookSample->loop->state));
                             flags = A_LOOP; // = 2
@@ -881,7 +838,6 @@ u64 *synthesis_process_notes(s16 *aiBuf, s32 bufLen, u64 *cmd) {
                         }
                         flags = 0;
 
-						DEBUG_PRINT("- if note finished");
                         if (noteFinished) {
                             aClearBuffer(cmd++, DMEM_ADDR_UNCOMPRESSED_NOTE + s5,
                                          (samplesLenAdjusted - nAdpcmSamplesProcessed) * 2);
@@ -891,7 +847,6 @@ u64 *synthesis_process_notes(s16 *aiBuf, s32 bufLen, u64 *cmd) {
                             break;
                         }
 
-						DEBUG_PRINT("- if restart");
                         if (restart) {
                             note->restart = TRUE;
                             note->samplePosInt = loopInfo->start;
@@ -963,20 +918,14 @@ u64 *synthesis_process_notes(s16 *aiBuf, s32 bufLen, u64 *cmd) {
         }
     }
 
-	DEBUG_PRINT("- done handling notes");
 
-	DEBUG_PRINT("- setting buffer 1");
     t9 = bufLen * 2;
     aSetBuffer(cmd++, 0, 0, DMEM_ADDR_TEMP, t9);
-	DEBUG_PRINT("- interleaving");
     aInterleave(cmd++, DMEM_ADDR_LEFT_CH, DMEM_ADDR_RIGHT_CH);
     t9 *= 2;
-	DEBUG_PRINT("- setting buffer 2");
     aSetBuffer(cmd++, 0, 0, DMEM_ADDR_TEMP, t9);
-	DEBUG_PRINT("- saving buffer");
     aSaveBuffer(cmd++, VIRTUAL_TO_PHYSICAL2(aiBuf));
 
-	DEBUG_PRINT("- returning from process notes");
     return cmd;
 }
 

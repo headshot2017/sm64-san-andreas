@@ -23,7 +23,6 @@
 #else
 #define EU_FLOAT(x) x
 #endif
-#include "../../debug_print.h"
 
 // N.B. sound banks are different from the audio banks referred to in other
 // files. We should really fix our naming to be less ambiguous...
@@ -868,7 +867,6 @@ static void process_sound_request(u32 bits, f32 *pos) {
 
     // If free list has more than one element remaining
     if (sSoundBanks[bank][sSoundBankFreeListFront[bank]].next != 0xff && soundIndex != 0) {
-		DEBUG_PRINT("process_sound_request2: soundIndex %d\n", soundIndex);
         // Allocate from free list
         soundIndex = sSoundBankFreeListFront[bank];
 
