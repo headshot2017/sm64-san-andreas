@@ -6,9 +6,8 @@
 #include "CWorld.h"
 #include "CGame.h"
 #include "CEntryExitManager.h"
-#include "ePedBones.h"
 #include "CTaskSimpleIKLookAt.h"
-#include "CTaskSimpleTriggerLookAt.h"
+#include "CTaskSimpleIKManager.h"
 #include "CCutsceneMgr.h"
 
 #define _USE_MATH_DEFINES
@@ -28,6 +27,7 @@ extern "C" {
 #include "main.h"
 
 #define lerp(a, b, amnt) a + (b - a) * amnt
+#define sign(a) (a>0 ? 1 : a<0 ? -1 : 0)
 #define MAX_OBJS 512
 #define PED_HEIGHT 10.f
 
@@ -70,6 +70,7 @@ int marioTexturedCount = 0;
 int marioId = -1;
 float ticks = 0;
 bool surfaceDebugger = false;
+static float headAngle[2] = {0};
 
 
 void marioToggleDebug()
@@ -501,6 +502,7 @@ void marioSpawn()
     memset(&marioInput, 0, sizeof(marioInput));
     memset(&marioTextureIndices, 0, sizeof(marioTextureIndices));
     memset(&marioOriginalColor, 0, sizeof(marioOriginalColor));
+    memset(headAngle, 0, sizeof(headAngle));
     marioTexturedCount = 0;
 
     CPlayerPed* ped = FindPlayerPed();
@@ -552,70 +554,6 @@ void marioDestroy()
 
 void marioTick(float dt)
 {
-    /**
-        temporary code until i can find where CJ's head rotation is stored
-        when he looks at another entity, or a specific coordinate.
-
-        attempt 1: get CJ's head rotation from his head bone.
-        headOrientationZ should change when he turns his head towards a ped when he/she talks to him,
-        however it does not.
-
-        attempt 2: attempt to get m_fLookDirection or m_pLookEntity.
-        these fields are described in gta-reversed-modern.
-        however they don't change at all.
-
-        attempt 3: search for a secondary IK task.
-        when using ped->m_pIntelligence->m_TaskMgr.GetSecondaryTask(TASK_SECONDARY_IK),
-        it will be a CTask pointer when CJ rotates his head at someone.
-        however the pointer itself seems to be messy or corrupted? it's the only lead, though...
-    */
-
-    /*
-    CPlayerPed* ped = FindPlayerPed();
-    if (!ped) return;
-    ped->SetLook(M_PI_2);
-    ped->SetLookTimer(1000);
-    char buf[256];
-
-    // attempt 1
-    RpHAnimHierarchy* hierarchy = GetAnimHierarchyFromClump(ped->m_pRwClump);
-    RwMatrix headBone = RpHAnimHierarchyGetMatrixArray(hierarchy)[RpHAnimIDGetIndex(hierarchy, BONE_HEAD)];
-
-    float headOrientationX = asinf(headBone.at.z);
-    float cosX = cosf(headOrientationX);
-    float cosY = headBone.up.z / cosX;
-    float cosZ = headBone.at.y / cosX;
-    float headOrientationY = acosf(cosY);
-    float headOrientationZ = acosf(cosZ);
-
-    // attempt 2
-    CEntity* lookEnt; // thanks, gta-reversed-modern
-    float lookDirection = ped->field_73C;
-    memcpy(&lookEnt, &ped->field_738, 4);
-
-    // attempt 3
-    if (ped->m_pIntelligence->FindTaskByType(TASK_SIMPLE_IK_LOOK_AT))
-        sprintf(buf, "TASK_SIMPLE_IK_LOOK_AT");
-    else if (ped->m_pIntelligence->FindTaskByType(TASK_SIMPLE_TRIGGER_LOOK_AT))
-        sprintf(buf, "TASK_SIMPLE_TRIGGER_LOOK_AT");
-    else if (ped->m_pIntelligence->FindTaskByType(TASK_SIMPLE_CLEAR_LOOK_AT))
-        sprintf(buf, "TASK_SIMPLE_CLEAR_LOOK_AT");
-    else if (ped->m_pIntelligence->FindTaskByType(TASK_SIMPLE_LOOK_AT_ENTITY_OR_COORD))
-        sprintf(buf, "TASK_SIMPLE_LOOK_AT_ENTITY_OR_COORD");
-    else if (ped->m_pIntelligence->FindTaskByType(TASK_SIMPLE_IK_CHAIN))
-        sprintf(buf, "TASK_SIMPLE_IK_CHAIN");
-    else if (ped->m_pIntelligence->FindTaskByType(TASK_SECONDARY_IK))
-        sprintf(buf, "TASK_SECONDARY_IK");
-    else
-        sprintf(buf, "no task %d %d %u", ped->field_738, ped->field_73C, ped->field_748);
-
-    float pedHeading = ped->GetHeading();
-    //sprintf(buf, "%.2f %.2f %.2f - %.2f", headOrientationX, headOrientationY, headOrientationZ, pedHeading);
-    //sprintf(buf, "%s %s %s %.2f %.2f %.2f %.2f %.2f", lookEnt?"true":"false", ped->m_nPedFlags.bIsLooking?"true":"false", (ped->m_nPedState == PEDSTATE_LOOK_HEADING || ped->m_nPedState == PEDSTATE_LOOK_ENTITY)?"true":"false", ped->m_fCurrentRotation, lookDirection, ped->m_pedIK.m_TorsoOrien.m_fYaw, ped->m_fAimingRotation, pedHeading);
-    //sprintf(buf, "%.2f %.2f %.2f - %.2f", head.x, head.y, head.z, pedHeading);
-    CHud::SetMessage(buf);
-    */
-
     if (!marioSpawned() || !FindPlayerPed()) return;
     CPlayerPed* ped = FindPlayerPed();
     bool carDoor = ped->m_pIntelligence->IsPedGoingForCarDoor();
@@ -666,7 +604,6 @@ void marioTick(float dt)
         entryexit = nullptr;
     }
 
-
     ticks += dt;
     while (ticks >= 1.f/30)
     {
@@ -700,11 +637,6 @@ void marioTick(float dt)
             pad->bDisablePlayerDuck = 1;
 
             if (marioState.action == ACT_DRIVING_VEHICLE) sm64_set_mario_action(marioId, ACT_FREEFALL);
-            else if (marioState.action == ACT_FIRST_PERSON)
-            {
-                sm64_set_mario_headangle(marioId, 0,0,0);
-                sm64_set_mario_action(marioId, ACT_IDLE);
-            }
         }
         else
         {
@@ -742,10 +674,49 @@ void marioTick(float dt)
                 {
                     sm64_set_mario_position(marioId, sm64pos.x, sm64pos.y, sm64pos.z);
                     if (marioState.action == ACT_DRIVING_VEHICLE) sm64_set_mario_action(marioId, ACT_FREEFALL);
-                    else if (marioState.action == ACT_IDLE) sm64_set_mario_action(marioId, ACT_FIRST_PERSON);
                 }
             }
         }
+
+        // Mario head rotation
+        float headAngleTarget[2] = {0};
+        if (ped->m_pIntelligence->m_TaskMgr.m_aSecondaryTasks[TASK_SECONDARY_IK])
+        {
+            CTaskSimpleIKManager* task = static_cast<CTaskSimpleIKManager*>(ped->m_pIntelligence->m_TaskMgr.m_aSecondaryTasks[TASK_SECONDARY_IK]);
+            CTaskSimpleIKLookAt* lookAt = static_cast<CTaskSimpleIKLookAt*>(task->m_pIKChainTasks[0]);
+
+            if (lookAt)
+            {
+                // the math here was a bitch to get right...
+                CVector targetPos = (lookAt->m_bEntityExist) ? lookAt->m_pEntity->GetPosition() : lookAt->m_offsetPos;
+
+                // part 1: yaw
+                float atanRes = atan2f(targetPos.y - marioCurrPos.y, targetPos.x - marioCurrPos.x) + M_PI_2;
+                if (atanRes > M_PI) atanRes -= M_PI*2;
+
+                float ang = atanRes - marioState.angle[1];
+                if (ang < -M_PI) ang += M_PI*2;
+                if (ang > M_PI) ang -= M_PI*2;
+
+                headAngleTarget[1] = std::clamp(ang, (float)-M_PI_2+0.35f, (float)M_PI_2-0.35f);
+
+                // part 2: pitch
+                float dist = DistanceBetweenPoints(CVector2D(marioCurrPos), CVector2D(targetPos)) * 2.f;
+                int Zsign = -sign(targetPos.z - marioCurrPos.z);
+                headAngleTarget[0] = (M_PI_2 * Zsign) / dist;
+            }
+        }
+
+        for (int i=0; i<2; i++) headAngle[i] += (headAngleTarget[i] - headAngle[i])/5.f;
+        sm64_set_mario_headangle(marioId, headAngle[0], headAngle[1], 0);
+        if (!cjHasControl)
+        {
+            bool modifiedAngle = (headAngleTarget[0] || headAngleTarget[1]);
+            if (!modifiedAngle && marioState.action == ACT_FIRST_PERSON) sm64_set_mario_action(marioId, ACT_IDLE);
+            else if (modifiedAngle && marioState.action == ACT_IDLE) sm64_set_mario_action(marioId, ACT_FIRST_PERSON);
+        }
+        else if (!ped->m_nPedFlags.bInVehicle)
+            sm64_set_mario_action(marioId, ACT_FIRST_PERSON);
 
         // health
         float hp = ped->m_fHealth / ped->m_fMaxHealth;
