@@ -9,6 +9,10 @@
 #include "CTaskSimpleIKLookAt.h"
 #include "CTaskSimpleIKManager.h"
 #include "CCutsceneMgr.h"
+#include "CScene.h"
+#include "CPointLights.h"
+#include "CTimeCycle.h"
+#include "CWeather.h"
 
 #define _USE_MATH_DEFINES
 #include <stdio.h>
@@ -71,6 +75,9 @@ int marioId = -1;
 float ticks = 0;
 bool surfaceDebugger = false;
 static float headAngle[2] = {0};
+
+RpClump* marioClump;
+RpAtomic* marioAtomic;
 
 
 void marioToggleDebug()
@@ -505,6 +512,84 @@ void marioSpawn()
     memset(headAngle, 0, sizeof(headAngle));
     marioTexturedCount = 0;
 
+    // create Mario RenderWare clump
+    // steps from RenderWare's "geometry" example
+    RwRGBA noColor = {0,0,0,255};
+    RwV3d noV3d = {0.f, 0.f, 0.f};
+    RwTexCoords noTexCoord = {1.f, 1.f};
+
+    // create materials
+    RpMaterial* marioMaterialTextured = RpMaterialCreate();
+    RpMaterial* marioMaterial = RpMaterialCreate();
+    RpMaterialSetTexture(marioMaterialTextured, marioTextureRW);
+
+    // create geometry, and get the vertices, normals, tex coords, triangle indexes list and colors
+    // geometry is created in locked state so it can be modified
+    RpGeometry* marioRpGeometry = RpGeometryCreate(SM64_GEO_MAX_TRIANGLES*3, SM64_GEO_MAX_TRIANGLES, rpGEOMETRYLIGHT | rpGEOMETRYNORMALS | rpGEOMETRYTEXTURED | rpGEOMETRYPRELIT | rpGEOMETRYMODULATEMATERIALCOLOR);
+    RpMorphTarget* morphTarget = marioRpGeometry->morphTarget;
+    RwV3d* vlist = morphTarget->verts;
+    RwV3d* nlist = morphTarget->normals;
+    RwTexCoords* texCoord = marioRpGeometry->texCoords[0];
+    RpTriangle* tlist = marioRpGeometry->triangles;
+    RwRGBA* colors = marioRpGeometry->preLitLum;
+
+    // the geometry will have two materials
+    // one for textured triangles (mario's face, buttons on his overalls, etc),
+    // and one for solid-color triangles
+    marioRpGeometry->matList.numMaterials = 2;
+    marioRpGeometry->matList.materials = (RpMaterial**)malloc(sizeof(RpMaterial*) * marioRpGeometry->matList.numMaterials);
+    marioRpGeometry->matList.materials[0] = RpMaterialClone(marioMaterialTextured);
+    marioRpGeometry->matList.materials[1] = RpMaterialClone(marioMaterial);
+
+    // initialize the geometry with default values
+    for (int i=0; i<SM64_GEO_MAX_TRIANGLES*3; i++)
+    {
+        *vlist++ = noV3d;
+        *nlist++ = noV3d;
+        *texCoord++ = noTexCoord;
+        *colors++ = noColor;
+
+        if (i < SM64_GEO_MAX_TRIANGLES)
+        {
+            tlist->matIndex = 0;
+            for (int j=0; j<3; j++) tlist->vertIndex[j] = i*3+j;
+            *tlist++;
+        }
+    }
+
+    RwSphere boundingSphere;
+    RpMorphTargetCalcBoundingSphere(morphTarget, &boundingSphere);
+    morphTarget->boundingSphere = boundingSphere;
+
+    // unlock the geometry when done
+    RpGeometryUnlock(marioRpGeometry);
+
+    // create the clump itself and assign a single frame to it
+    marioClump = RpClumpCreate();
+    RwFrame* marioFrame = RwFrameCreate();
+    marioClump->object.parent = (void*)marioFrame; // RpClumpSetFrame
+
+    // create the atomic and make a new separate frame for it
+    marioAtomic = RpAtomicCreate();
+    RwFrame* marioFrameAtomic = RwFrameCreate();
+    RpAtomicSetFrame(marioAtomic, marioFrameAtomic);
+
+    // assign the geometry to the atomic. this will make a new copy of the geometry
+    // assign the atomic to the clump, as well as GTA camera and GTA world light (just in case)
+    RpAtomicSetGeometry(marioAtomic, marioRpGeometry, 0);
+    RpClumpAddAtomic(marioClump, marioAtomic);
+    //RpClumpAddCamera(marioClump, Scene.m_pRwCamera);
+    //RpClumpAddLight(marioClump, (RpLight*)&Scene.m_pRpWorld->lightList.link);
+
+    RwFrameAddChild(marioFrame, marioFrameAtomic);
+
+    // we can now delete the geometry and the material
+    RpGeometryDestroy(marioRpGeometry);
+    RpMaterialDestroy(marioMaterialTextured);
+    RpMaterialDestroy(marioMaterial);
+
+    RpWorldAddClump(Scene.m_pRpWorld, marioClump);
+
     CPlayerPed* ped = FindPlayerPed();
     sm64_set_mario_faceangle(marioId, ped->GetHeading() + M_PI);
 
@@ -515,8 +600,8 @@ void marioSpawn()
         ped->m_nPhysicalFlags.bApplyGravity = 0;
         ped->m_nPhysicalFlags.bCanBeCollidedWith = 0;
         ped->m_nPhysicalFlags.bCollidable = 0;
-        ped->m_nPhysicalFlags.bDisableCollisionForce = 1;
-        ped->m_nPhysicalFlags.bOnSolidSurface = 0;
+        ped->m_nPhysicalFlags.bDisableCollisionForce = 0;
+        ped->m_nPhysicalFlags.bOnSolidSurface = 1;
         ped->m_nPhysicalFlags.bDisableMoveForce = 1;
         ped->m_nPhysicalFlags.bDisableTurnForce = 1;
         ped->m_nPhysicalFlags.bDontApplySpeed = 1;
@@ -531,6 +616,15 @@ void marioDestroy()
     sm64_mario_delete(marioId);
     marioId = -1;
 
+    RpWorldRemoveClump(Scene.m_pRpWorld, marioClump);
+    RpClumpRemoveAtomic(marioClump, marioAtomic);
+    //RwFrameRemoveChild((RwFrame*)marioClump->object.parent);
+
+    RwFrameDestroy((RwFrame*)marioClump->object.parent);
+    //RwFrameDestroy((RwFrame*)marioAtomic->object.object.parent);
+    RpClumpDestroy(marioClump);
+    RpAtomicDestroy(marioAtomic);
+
     delete[] marioGeometry.position;
     delete[] marioGeometry.normal;
     delete[] marioGeometry.color;
@@ -539,7 +633,7 @@ void marioDestroy()
     if (FindPlayerPed())
     {
         CPlayerPed* ped = FindPlayerPed();
-        ped->SetPosn(marioInterpPos + CVector(0, 0, 0.5f));
+        //ped->SetPosn(marioInterpPos + CVector(0, 0, 0.5f));
         ped->m_nPhysicalFlags.bApplyGravity = 1;
         ped->m_nPhysicalFlags.bCanBeCollidedWith = 1;
         ped->m_nPhysicalFlags.bCollidable = 1;
@@ -563,12 +657,11 @@ void marioTick(float dt)
     bool cjHasControl = (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle);
     if (cjHasControl && !cjLastControl)
     {
-        ped->SetPosn(marioInterpPos + CVector(0, 0, 0.5f));
+        //ped->SetPosn(marioInterpPos + CVector(0, 0, 0.5f));
         ped->m_nPhysicalFlags.bApplyGravity = 1;
         ped->m_nPhysicalFlags.bCanBeCollidedWith = 1;
         ped->m_nPhysicalFlags.bCollidable = 1;
         ped->m_nPhysicalFlags.bDisableCollisionForce = 0;
-        ped->m_nPhysicalFlags.bOnSolidSurface = 1;
         ped->m_nPhysicalFlags.bDisableMoveForce = 0;
         ped->m_nPhysicalFlags.bDisableTurnForce = 0;
         ped->m_nPhysicalFlags.bDontApplySpeed = 0;
@@ -579,8 +672,7 @@ void marioTick(float dt)
         ped->m_nPhysicalFlags.bApplyGravity = 0;
         ped->m_nPhysicalFlags.bCanBeCollidedWith = 0;
         ped->m_nPhysicalFlags.bCollidable = 0;
-        ped->m_nPhysicalFlags.bDisableCollisionForce = !carDoor;
-        ped->m_nPhysicalFlags.bOnSolidSurface = 0;
+        ped->m_nPhysicalFlags.bDisableCollisionForce = 0;
         ped->m_nPhysicalFlags.bDisableMoveForce = 1;
         ped->m_nPhysicalFlags.bDisableTurnForce = !carDoor;
         ped->m_nPhysicalFlags.bDontApplySpeed = 1;
@@ -600,15 +692,17 @@ void marioTick(float dt)
     else if (!CEntryExitManager::mp_Active && entryexit)
     {
         // entered/exited the building, teleport Mario to the destination
-        marioSetPos(entryexit->m_pLink->m_vecExitPos - CVector(0,0,1));
+        marioSetPos(entryexit->m_pLink->m_vecExitPos + CVector(0,0,-1));
         entryexit = nullptr;
     }
 
+    bool geometryLocked = false;
     ticks += dt;
     while (ticks >= 1.f/30)
     {
         ticks -= 1.f/30;
         elapsedTicks++;
+        geometryLocked = true;
 
         marioTexturedCount = 0;
         memcpy(&marioLastPos, &marioCurrPos, sizeof(marioCurrPos));
@@ -836,7 +930,15 @@ void marioTick(float dt)
 
         marioCurrPos = CVector(marioState.position[0] * MARIO_SCALE, -marioState.position[2] * MARIO_SCALE, marioState.position[1] * MARIO_SCALE);
 
-        for (int i=0; i<marioGeometry.numTrianglesUsed*3; i++)
+        RpGeometryLock(marioAtomic->geometry, rpGEOMETRYLOCKALL);
+        RpMorphTarget* morphTarget = marioAtomic->geometry->morphTarget;
+        RwV3d* vlist = morphTarget->verts;
+        RwV3d* nlist = morphTarget->normals;
+        RwTexCoords* texCoord = marioAtomic->geometry->texCoords[0];
+        RwRGBA* colors = marioAtomic->geometry->preLitLum;
+        RpTriangle* tlist = marioAtomic->geometry->triangles;
+        memset(tlist, 0, sizeof(RpTriangle) * SM64_GEO_MAX_TRIANGLES);
+        for (uint16_t i=0; i<marioGeometry.numTrianglesUsed*3; i++)
         {
             bool hasTexture = (marioGeometry.uv[i*2+0] != 1 && marioGeometry.uv[i*2+1] != 1);
 
@@ -858,7 +960,42 @@ void marioTick(float dt)
             marioCurrGeoPos[i].objVertex.x = marioGeometry.position[i*3+0] * MARIO_SCALE;
             marioCurrGeoPos[i].objVertex.y = -marioGeometry.position[i*3+2] * MARIO_SCALE;
             marioCurrGeoPos[i].objVertex.z = marioGeometry.position[i*3+1] * MARIO_SCALE;
+
+            RwTexCoords texCoords = {1.f, 1.f};
+            RwRGBA marioColor = {(RwUInt8)(marioGeometry.color[i*3+0]*255), (RwUInt8)(marioGeometry.color[i*3+1]*255), (RwUInt8)(marioGeometry.color[i*3+2]*255), 255};
+            *vlist++ = marioCurrGeoPos[i].objVertex;
+            *nlist++ = marioCurrGeoPos[i].objNormal;
+            *texCoord++ = texCoords;
+            *colors++ = marioColor;
+            if (i < marioGeometry.numTrianglesUsed)
+            {
+                tlist->matIndex = 1;
+                for (int j=0; j<3; j++) tlist->vertIndex[j] = i*3+j;
+                *tlist++;
+            }
         }
+        uint16_t texInd = marioGeometry.numTrianglesUsed*3;
+        for (int i=0; i<marioTexturedCount; i+=3)
+        {
+            RwRGBA white = {255,255,255,255};
+            RwTexCoords texCoords1 = {marioCurrGeoPos[marioTextureIndices[i+0]].u, marioCurrGeoPos[marioTextureIndices[i+0]].v};
+            RwTexCoords texCoords2 = {marioCurrGeoPos[marioTextureIndices[i+1]].u, marioCurrGeoPos[marioTextureIndices[i+1]].v};
+            RwTexCoords texCoords3 = {marioCurrGeoPos[marioTextureIndices[i+2]].u, marioCurrGeoPos[marioTextureIndices[i+2]].v};
+
+            *texCoord++ = texCoords1;
+            *texCoord++ = texCoords2;
+            *texCoord++ = texCoords3;
+            tlist->matIndex = 0;
+            for (int j=0; j<3; j++)
+            {
+                *vlist++ = marioCurrGeoPos[marioTextureIndices[i+j]].objVertex;
+                *nlist++ = marioCurrGeoPos[marioTextureIndices[i+j]].objNormal;
+                *colors++ = white;
+                tlist->vertIndex[j] = texInd++;
+            }
+            *tlist++;
+        }
+        RpGeometryUnlock(marioAtomic->geometry);
 
         memcpy(&marioInterpPos, &marioCurrPos, sizeof(marioCurrPos));
         memcpy(marioInterpGeo, marioCurrGeoPos, sizeof(marioCurrGeoPos));
@@ -878,7 +1015,10 @@ void marioTick(float dt)
 
     CVector pos = ped->GetPosition();
     if (!cjHasControl)
-        ped->SetPosn(marioInterpPos + CVector(0, 0, 0.5f));
+    {
+        TheCamera.SetPosn(TheCamera.GetPosition() - CVector(0,0, 0.5f));
+        ped->SetPosn(marioInterpPos + CVector(0, 0, 1.f));
+    }
     else
     {
         if (ped->m_nPedFlags.bInVehicle)
@@ -890,6 +1030,9 @@ void marioTick(float dt)
         pos.y += sin(ped->GetHeading() + M_PI_2) * 0.3f;
     }
 
+    RpGeometryLock(marioAtomic->geometry, rpGEOMETRYLOCKALL);
+    RpMorphTarget* morphTarget = marioAtomic->geometry->morphTarget;
+    RwV3d* vlist = morphTarget->verts;
     for (int i=0; i<marioGeometry.numTrianglesUsed*3; i++)
     {
         marioInterpGeo[i].objVertex.x = lerp(marioLastGeoPos[i].objVertex.x, marioCurrGeoPos[i].objVertex.x, ticks / (1./30));
@@ -901,7 +1044,12 @@ void marioTick(float dt)
             marioInterpGeo[i].objVertex.y = marioInterpGeo[i].objVertex.y - marioInterpPos.y + pos.y;
             marioInterpGeo[i].objVertex.z = marioInterpGeo[i].objVertex.z - marioInterpPos.z + pos.z;
         }
+
+        *vlist++ = marioInterpGeo[i].objVertex;
     }
+    for (int i=0; i<marioTexturedCount*3; i++)
+        *vlist++ = marioInterpGeo[marioTextureIndices[i]].objVertex;
+    RpGeometryUnlock(marioAtomic->geometry);
 }
 
 void marioRender()
@@ -911,6 +1059,42 @@ void marioRender()
     RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)1);
     RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, (void*)1);
 
+    CPlayerPed* ped = FindPlayerPed();
+    CVector pos = ped->GetPosition();
+
+    float dynLight = 0.f;
+    float generatedLightings = CPointLights::GenerateLightsAffectingObject(&pos, &dynLight, ped);
+    float lightingMultiplier = (ped->GetLightingFromCol(true) * (1.0f - 0.05f) + 0.05f) * generatedLightings;
+    SetAmbientColours();
+    ActivateDirectional();
+    SetLightColoursForPedsCarsAndObjects(lightingMultiplier);
+
+    RwSurfaceProperties surfProp;
+    surfProp.ambient = 0;
+    surfProp.diffuse = 1.f / lightingMultiplier;
+    surfProp.specular = 0;
+    if (surfProp.diffuse > 1) surfProp.diffuse = 1;
+
+    RwUInt16 r = (RwUInt16)(255*CTimeCycle::GetAmbientRed_Obj() * lightingMultiplier * 2.25f);
+    RwUInt16 g = (RwUInt16)(255*CTimeCycle::GetAmbientGreen_Obj() * lightingMultiplier * 2.25f);
+    RwUInt16 b = (RwUInt16)(255*CTimeCycle::GetAmbientBlue_Obj() * lightingMultiplier * 2.25f);
+    if (r > 255) r = 255;
+    if (g > 255) g = 255;
+    if (b > 255) b = 255;
+    RwRGBA newColor = {
+        (RwUInt8)r,
+        (RwUInt8)g,
+        (RwUInt8)b,
+        255
+    };
+
+    marioAtomic->geometry->matList.materials[0]->color = newColor;
+    marioAtomic->geometry->matList.materials[1]->color = newColor;
+    RpMaterialSetSurfaceProperties(marioAtomic->geometry->matList.materials[0], &surfProp);
+    RpMaterialSetSurfaceProperties(marioAtomic->geometry->matList.materials[1], &surfProp);
+
+    RpClumpRender(marioClump);
+    /*
     if (RwIm3DTransform(marioInterpGeo, SM64_GEO_MAX_TRIANGLES*3, 0, rwIM3D_VERTEXXYZ | rwIM3D_VERTEXRGBA | rwIM3D_VERTEXUV))
     {
         for (int i=0; i<marioTexturedCount; i++) marioInterpGeo[marioTextureIndices[i]].color = marioOriginalColor[i];
@@ -924,6 +1108,7 @@ void marioRender()
         RwRenderStateSet(rwRENDERSTATEDESTBLEND, (void*)rwBLENDINVSRCALPHA);
         RwIm3DRenderIndexedPrimitive(rwPRIMTYPETRILIST, marioTextureIndices, marioTexturedCount);
     }
+    */
 
 #ifdef _DEBUG
     if (surfaceDebugger)
