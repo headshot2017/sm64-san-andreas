@@ -19,6 +19,7 @@ void initD3D()
     RwRasterUnlock(raster);
 
     marioTextureRW = RwTextureCreate(raster);
+    RwTextureSetFilterMode(marioTextureRW, rwFILTERLINEAR);
 }
 
 void destroyD3D()
