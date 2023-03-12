@@ -1070,14 +1070,15 @@ void marioRender()
     SetLightColoursForPedsCarsAndObjects(lightingMultiplier);
 
     RwSurfaceProperties surfProp;
-    surfProp.ambient = 0;
-    surfProp.diffuse = 1.f / lightingMultiplier;
+    surfProp.ambient = 1.f / (-lightingMultiplier*2.f);
+    surfProp.diffuse = surfProp.ambient * -1.5f;
     surfProp.specular = 0;
+    if (surfProp.ambient < -0.75f) surfProp.ambient = -0.75f;
     if (surfProp.diffuse > 1) surfProp.diffuse = 1;
 
-    RwUInt16 r = (RwUInt16)(255*CTimeCycle::GetAmbientRed_Obj() * lightingMultiplier * 2.25f);
-    RwUInt16 g = (RwUInt16)(255*CTimeCycle::GetAmbientGreen_Obj() * lightingMultiplier * 2.25f);
-    RwUInt16 b = (RwUInt16)(255*CTimeCycle::GetAmbientBlue_Obj() * lightingMultiplier * 2.25f);
+    RwUInt16 r = (RwUInt16)(255*CTimeCycle::GetAmbientRed_Obj() * lightingMultiplier * 3.f);
+    RwUInt16 g = (RwUInt16)(255*CTimeCycle::GetAmbientGreen_Obj() * lightingMultiplier * 3.f);
+    RwUInt16 b = (RwUInt16)(255*CTimeCycle::GetAmbientBlue_Obj() * lightingMultiplier * 3.f);
     if (r > 255) r = 255;
     if (g > 255) g = 255;
     if (b > 255) b = 255;
