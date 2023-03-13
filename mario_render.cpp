@@ -287,8 +287,8 @@ void marioRender()
     };
 
     // apply changes
-    marioAtomic->geometry->matList.materials[0]->color = newColor;
-    marioAtomic->geometry->matList.materials[1]->color = newColor;
+    RpMaterialSetColor(marioAtomic->geometry->matList.materials[0], &newColor);
+    RpMaterialSetColor(marioAtomic->geometry->matList.materials[1], &newColor);
     RpMaterialSetSurfaceProperties(marioAtomic->geometry->matList.materials[0], &surfProp);
     RpMaterialSetSurfaceProperties(marioAtomic->geometry->matList.materials[1], &surfProp);
 
