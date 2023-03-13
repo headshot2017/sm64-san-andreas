@@ -706,7 +706,7 @@ void marioTick(float dt)
             if (!modifiedAngle && marioState.action == ACT_FIRST_PERSON) sm64_set_mario_action(marioId, ACT_IDLE);
             else if (modifiedAngle && marioState.action == ACT_IDLE) sm64_set_mario_action(marioId, ACT_FIRST_PERSON);
         }
-        else if (!ped->m_nPedFlags.bInVehicle)
+        else if (!ped->m_nPedFlags.bInVehicle && marioState.action == ACT_IDLE)
             sm64_set_mario_action(marioId, ACT_FIRST_PERSON);
 
         // health
