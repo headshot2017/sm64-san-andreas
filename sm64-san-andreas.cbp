@@ -103,6 +103,8 @@
 		<Unit filename="main.h" />
 		<Unit filename="mario.cpp" />
 		<Unit filename="mario.h" />
+		<Unit filename="mario_render.cpp" />
+		<Unit filename="mario_render.h" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
 		</Extensions>
