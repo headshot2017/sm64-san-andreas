@@ -528,6 +528,7 @@ void marioDestroy()
     if (FindPlayerPed())
     {
         CPlayerPed* ped = FindPlayerPed();
+        ped->GetPadFromPlayer()->bDisablePlayerDuck = 0;
         //ped->SetPosn(marioInterpPos + CVector(0, 0, 0.5f));
         ped->m_nPhysicalFlags.bApplyGravity = 1;
         ped->m_nPhysicalFlags.bCanBeCollidedWith = 1;
