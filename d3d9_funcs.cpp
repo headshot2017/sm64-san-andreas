@@ -7,7 +7,7 @@ extern "C" {
 }
 
 #include "main.h"
-#include "mario.h"
+#include "mario_render.h"
 
 RwTexture* marioTextureRW = nullptr;
 

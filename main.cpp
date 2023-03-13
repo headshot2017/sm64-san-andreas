@@ -11,6 +11,7 @@ extern "C" {
 #include "audio.h"
 #include "d3d9_funcs.h"
 #include "mario.h"
+#include "mario_render.h"
 
 using namespace plugin;
 
@@ -118,7 +119,7 @@ public:
             else if (KeyPressed(VK_OEM_COMMA))
             {
                 keyPressTime = CTimer::m_snTimeInMilliseconds;
-                marioToggleDebug();
+                marioRenderToggleDebug();
             }
         }
 

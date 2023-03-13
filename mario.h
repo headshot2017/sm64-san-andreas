@@ -2,6 +2,7 @@
 #define MARIO_H_INCLUDED
 
 #define MARIO_SCALE 0.0085f
+#define lerp(a, b, amnt) a + (b - a) * amnt
 
 #include <stdint.h>
 
@@ -11,10 +12,7 @@
 
 #include <libsm64.h>
 
-extern SM64MarioState marioState;
-extern SM64MarioInputs marioInput;
-
-void marioToggleDebug();
+extern CVector marioInterpPos;
 
 bool marioSpawned();
 
@@ -24,6 +22,5 @@ void onWallAttack(uint32_t surfaceObjectID);
 void marioSpawn();
 void marioDestroy();
 void marioTick(float dt);
-void marioRender();
 
 #endif // MARIO_H_INCLUDED
