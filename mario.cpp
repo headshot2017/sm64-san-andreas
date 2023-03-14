@@ -600,6 +600,7 @@ void marioTick(float dt)
     {
         // entered/exited the building, teleport Mario to the destination
         marioSetPos(entryexit->m_pLink->m_vecExitPos + CVector(0,0,-1));
+        sm64_set_mario_faceangle(marioId, entryexit->m_pLink->m_fExitAngle + M_PI);
         entryexit = nullptr;
     }
 
