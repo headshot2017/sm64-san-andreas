@@ -24,6 +24,8 @@ RwUInt32 marioOriginalColor[SM64_GEO_MAX_TRIANGLES * 3];
 // Retained Mode API
 RpClump* marioClump;
 RpAtomic* marioAtomic;
+//RwFrame* marioFrameClump;
+RwFrame* marioFrameAtomic;
 
 
 void marioRenderToggleDebug()
@@ -94,21 +96,18 @@ void marioRenderInit()
 
     // create the clump itself and assign a single frame to it
     marioClump = RpClumpCreate();
-    RwFrame* marioFrame = RwFrameCreate();
-    marioClump->object.parent = (void*)marioFrame; // RpClumpSetFrame
+    //marioFrameClump = RwFrameCreate();
+    //marioClump->object.parent = (void*)marioFrameClump; // RpClumpSetFrame
 
     // create the atomic and make a new separate frame for it
     marioAtomic = RpAtomicCreate();
-    RwFrame* marioFrameAtomic = RwFrameCreate();
+    marioFrameAtomic = RwFrameCreate();
     RpAtomicSetFrame(marioAtomic, marioFrameAtomic);
 
     // assign the geometry to the atomic. this will make a new copy of the geometry
-    // assign the atomic to the clump, as well as GTA camera and GTA world light (just in case)
+    // then assign the atomic to the clump
     RpAtomicSetGeometry(marioAtomic, marioRpGeometry, 0);
     RpClumpAddAtomic(marioClump, marioAtomic);
-
-    // add frame child
-    RwFrameAddChild(marioFrame, marioFrameAtomic);
 
     // we can now delete the geometry and the materials
     RpGeometryDestroy(marioRpGeometry);
@@ -126,10 +125,10 @@ void marioRenderDestroy()
     // remove clump from world, and remove atomic from clump
     RpWorldRemoveClump(Scene.m_pRpWorld, marioClump);
     RpClumpRemoveAtomic(marioClump, marioAtomic);
-    //RwFrameRemoveChild((RwFrame*)marioClump->object.parent);
+    RpAtomicSetFrame(marioAtomic, nullptr);
 
-    RwFrameDestroy((RwFrame*)marioClump->object.parent);
-    //RwFrameDestroy((RwFrame*)marioAtomic->object.object.parent);
+    //RwFrameDestroy(marioFrameClump);
+    RwFrameDestroy(marioFrameAtomic);
 
     // destroy them
     RpClumpDestroy(marioClump);
