@@ -420,6 +420,10 @@ void marioSetPos(const CVector& pos)
     if (!marioSpawned()) return;
     loadCollisions(pos);
 
+    marioLastPos = pos;
+    marioCurrPos = pos;
+    marioInterpPos = pos;
+
     CVector sm64pos(pos.x / MARIO_SCALE, pos.z / MARIO_SCALE, -pos.y / MARIO_SCALE);
     sm64_set_mario_position(marioId, sm64pos.x, sm64pos.y, sm64pos.z);
 }
