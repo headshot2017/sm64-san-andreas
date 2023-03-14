@@ -297,9 +297,11 @@ void marioRender()
 
 
     // Immediate Mode API
+    bool immediateDrawn = false;
     /*
     if (RwIm3DTransform(marioInterpGeo, SM64_GEO_MAX_TRIANGLES*3, 0, rwIM3D_VERTEXXYZ | rwIM3D_VERTEXRGBA | rwIM3D_VERTEXUV))
     {
+        immediateDrawn = true;
         for (int i=0; i<marioTexturedCount; i++) marioInterpGeo[marioTextureIndices[i]].color = marioOriginalColor[i];
         RwD3D9SetTexture(0, 0);
         RwIm3DRenderIndexedPrimitive(rwPRIMTYPETRILIST, marioIndices, marioGeometry.numTrianglesUsed*3);
@@ -365,6 +367,8 @@ void marioRender()
 
         if (RwIm3DTransform(surfaceVertices, vertexCount, 0, rwIM3D_VERTEXXYZ | rwIM3D_VERTEXRGBA))
         {
+            immediateDrawn = true;
+
             RwD3D9SetTexture(0, 0);
             RwIm3DRenderIndexedPrimitive(rwPRIMTYPETRILIST, surfaceIndices, vertexCount);
         }
@@ -373,5 +377,5 @@ void marioRender()
 
     RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, (void*)0);
     RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)0);
-    RwIm3DEnd();
+    if (immediateDrawn) RwIm3DEnd();
 }
