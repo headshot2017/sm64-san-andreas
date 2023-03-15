@@ -61,6 +61,7 @@ SM64MarioGeometryBuffers marioGeometry;
 
 CVector marioLastPos, marioCurrPos, marioInterpPos, marioBlocksPos;
 uint32_t elapsedTicks = 0;
+uint32_t safeTicks = 0;
 int marioId = -1;
 float ticks = 0;
 static float headAngle[2] = {0};
@@ -503,10 +504,10 @@ void marioSpawn()
     bool cjHasControl = (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle);
     if (!cjHasControl)
     {
+        safeTicks = 0;
         ped->m_nPhysicalFlags.bApplyGravity = 0;
         ped->m_nPhysicalFlags.bCanBeCollidedWith = 0;
         ped->m_nPhysicalFlags.bCollidable = 0;
-        ped->m_nPhysicalFlags.bDisableCollisionForce = 0;
         ped->m_nPhysicalFlags.bOnSolidSurface = 1;
         ped->m_nPhysicalFlags.bDisableMoveForce = 1;
         ped->m_nPhysicalFlags.bDisableTurnForce = 1;
@@ -537,7 +538,6 @@ void marioDestroy()
         ped->m_nPhysicalFlags.bApplyGravity = 1;
         ped->m_nPhysicalFlags.bCanBeCollidedWith = 1;
         ped->m_nPhysicalFlags.bCollidable = 1;
-        ped->m_nPhysicalFlags.bDisableCollisionForce = 0;
         ped->m_nPhysicalFlags.bOnSolidSurface = 1;
         ped->m_nPhysicalFlags.bDisableMoveForce = 0;
         ped->m_nPhysicalFlags.bDisableTurnForce = 0;
@@ -560,32 +560,31 @@ void marioTick(float dt)
     pad->bDisablePlayerDuck = 1;
     if (attackState > 1) attackState = 0; // fix bug where pressing jump makes attackState above 1
 
-    static bool cjLastControl = true;
-    bool cjHasControl = (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle);
-    if (cjHasControl && !cjLastControl)
+    //static bool cjLastControl = true;
+    bool cjHasControl = (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle || safeTicks > 0);
+    if (cjHasControl)
     {
         //ped->SetPosn(marioInterpPos + CVector(0, 0, 0.5f));
+        if (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle) safeTicks = 2;
         ped->m_nPhysicalFlags.bApplyGravity = 1;
         ped->m_nPhysicalFlags.bCanBeCollidedWith = 1;
         ped->m_nPhysicalFlags.bCollidable = 1;
-        ped->m_nPhysicalFlags.bDisableCollisionForce = 0;
         ped->m_nPhysicalFlags.bDisableMoveForce = 0;
         ped->m_nPhysicalFlags.bDisableTurnForce = 0;
         ped->m_nPhysicalFlags.bDontApplySpeed = 0;
         ped->m_nAllowedAttackMoves = 5;
     }
-    else if (!cjHasControl)
+    else
     {
         ped->m_nPhysicalFlags.bApplyGravity = 0;
         ped->m_nPhysicalFlags.bCanBeCollidedWith = 0;
         ped->m_nPhysicalFlags.bCollidable = 0;
-        ped->m_nPhysicalFlags.bDisableCollisionForce = 0;
         ped->m_nPhysicalFlags.bDisableMoveForce = 1;
         ped->m_nPhysicalFlags.bDisableTurnForce = !carDoor;
         ped->m_nPhysicalFlags.bDontApplySpeed = 1;
         ped->m_nAllowedAttackMoves = 0;
     }
-    cjLastControl = cjHasControl;
+    //cjLastControl = cjHasControl;
 
     ped->m_bIsVisible = 0;
 
@@ -609,6 +608,7 @@ void marioTick(float dt)
     {
         ticks -= 1.f/30;
         elapsedTicks++;
+        if (safeTicks > 0) safeTicks--;
 
         memcpy(&marioLastPos, &marioCurrPos, sizeof(marioCurrPos));
 
