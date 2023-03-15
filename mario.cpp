@@ -775,7 +775,7 @@ void marioTick(float dt)
                             weapon = WEAPON_SHOTGUN;
                             piece = (ePedPieceTypes)3; // torso piece
                         }
-                        else if (marioState.action == ACT_GROUND_POUND)
+                        else if (marioState.action == ACT_GROUND_POUND && marioState.velocity[1] < 0)
                         {
                             // crack everything in this poor ped's body
                             damage += 50;
