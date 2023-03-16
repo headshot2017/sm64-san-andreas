@@ -586,9 +586,6 @@ void marioTick(float dt)
     }
     //cjLastControl = cjHasControl;
 
-    ped->m_nPedFlags.bDontRender = 1;
-    ped->m_bIsVisible = 0;
-
     // handle entering/exiting buildings
     static CEntryExit* entryexit = nullptr;
     if (CEntryExitManager::mp_Active && !entryexit)

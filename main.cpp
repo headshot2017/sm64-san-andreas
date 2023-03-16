@@ -139,5 +139,8 @@ public:
 
         Events::gameProcessEvent.Add(tick);
         Events::drawingEvent.Add(draw);
+
+        Events::pedRenderEvent.before.Add(marioRenderPed);
+        Events::pedRenderEvent.after.Add(marioRenderPedReset);
     }
 } _sm64_san_andreas;

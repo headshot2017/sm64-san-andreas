@@ -291,8 +291,7 @@ void marioRender()
     RpMaterialSetSurfaceProperties(marioAtomic->geometry->matList.materials[0], &surfProp);
     RpMaterialSetSurfaceProperties(marioAtomic->geometry->matList.materials[1], &surfProp);
 
-    // render the clump
-    RpClumpRender(marioClump);
+    // Mario model is rendered by changing the CJ ped's RW atomic, clump and RWobject values below
 
 
     // Immediate Mode API
@@ -377,4 +376,28 @@ void marioRender()
     RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, (void*)0);
     RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)0);
     if (immediateDrawn) RwIm3DEnd();
+}
+
+
+static RpAtomic* pedAtomic;
+static RpClump* pedClump;
+static RwObject* pedObject;
+void marioRenderPed(CPed* ped)
+{
+    if (!marioSpawned() || !ped->IsPlayer()) return;
+    pedAtomic = ped->m_pRwAtomic;
+    pedClump = ped->m_pRwClump;
+    pedObject = ped->m_pRwObject;
+    ped->m_pRwAtomic = marioAtomic;
+    ped->m_pRwClump = marioClump;
+    ped->m_pRwObject = &marioClump->object;
+}
+
+void marioRenderPedReset(CPed* ped)
+{
+    if (!marioSpawned() || !ped->IsPlayer()) return;
+
+    ped->m_pRwAtomic = pedAtomic;
+    ped->m_pRwClump = pedClump;
+    ped->m_pRwObject = pedObject;
 }
