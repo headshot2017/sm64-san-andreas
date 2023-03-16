@@ -775,10 +775,10 @@ void marioTick(float dt)
                             weapon = WEAPON_SHOTGUN;
                             piece = (ePedPieceTypes)3; // torso piece
                         }
-                        else if (marioState.action == ACT_GROUND_POUND && marioState.velocity[1] < 0)
+                        else if (marioState.action == ACT_GROUND_POUND)
                         {
                             // crack everything in this poor ped's body
-                            damage += 50;
+                            damage = (marioState.velocity[1] < 0) ? damage+50 : 0;
                             weapon = (eWeaponType)54; // WEAPON_FALL
                         }
                         if (marioState.flags & MARIO_METAL_CAP)
@@ -786,7 +786,9 @@ void marioTick(float dt)
                             damage += 200;
                             weapon = (eWeaponType)51; // WEAPON_EXPLOSION
                         }
-                        CWeapon::GenerateDamageEvent(entPed, ped, weapon, damage, (ePedPieceTypes)3, dir);
+
+                        if (damage)
+                            CWeapon::GenerateDamageEvent(entPed, ped, weapon, damage, (ePedPieceTypes)3, dir);
                     }
                 }
             }
