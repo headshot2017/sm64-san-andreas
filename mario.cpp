@@ -551,6 +551,7 @@ void marioTick(float dt)
 {
     if (!marioSpawned() || !FindPlayerPed()) return;
     CPlayerPed* ped = FindPlayerPed();
+    ped->m_pShadowData = nullptr;
     bool carDoor = ped->m_pIntelligence->IsPedGoingForCarDoor();
 
     CPad* pad = ped->GetPadFromPlayer();
