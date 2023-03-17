@@ -557,6 +557,7 @@ void marioTick(float dt)
     int jumpState = pad->GetJump();
     int attackState = pad->GetMeleeAttack();
     int duckState = pad->GetDuck();
+    int walkState = pad->NewState.m_bPedWalk;
     pad->bDisablePlayerDuck = 1;
     if (attackState > 1) attackState = 0; // fix bug where pressing jump makes attackState above 1
 
@@ -613,6 +614,7 @@ void marioTick(float dt)
         // handle input
         float length = sqrtf(pad->GetPedWalkLeftRight() * pad->GetPedWalkLeftRight() + pad->GetPedWalkUpDown() * pad->GetPedWalkUpDown()) / 128.f;
         if (length > 1) length = 1;
+        if (walkState) length *= 0.65f;
 
         float angle;
         if ((marioState.action & ACT_GROUP_MASK) == ACT_GROUP_SUBMERGED)
