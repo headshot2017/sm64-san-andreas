@@ -699,9 +699,12 @@ void marioTick(float dt)
                 headAngleTarget[1] = std::clamp(ang, (float)-M_PI_2+0.35f, (float)M_PI_2-0.35f);
 
                 // part 2: pitch
-                float dist = DistanceBetweenPoints(CVector2D(marioCurrPos), CVector2D(targetPos)) * 2.f;
-                int Zsign = -sign(targetPos.z - marioCurrPos.z);
-                headAngleTarget[0] = (M_PI_2 * Zsign) / dist;
+                if (!ped->m_nPedFlags.bInVehicle)
+                {
+                    float dist = DistanceBetweenPoints(CVector2D(marioCurrPos), CVector2D(targetPos)) * 2.f;
+                    int Zsign = -sign(targetPos.z - marioCurrPos.z);
+                    headAngleTarget[0] = (M_PI_2 * Zsign) / dist;
+                }
             }
         }
 
