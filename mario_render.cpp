@@ -380,9 +380,10 @@ void marioRender()
 }
 
 
-static RpAtomic* pedAtomic;
-static RpClump* pedClump;
-static RwObject* pedObject;
+RpAtomic* pedAtomic;
+RpClump* pedClump;
+RwObject* pedObject;
+
 void marioRenderPed(CPed* ped)
 {
     if (!marioSpawned() || !ped->IsPlayer()) return;
