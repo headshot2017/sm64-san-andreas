@@ -265,16 +265,17 @@ void marioRender()
 
     // modify the materials' properties
     RwSurfaceProperties surfProp;
+    memset(&surfProp, 0, sizeof(surfProp));
     surfProp.ambient = 1.f / (-lightingMultiplier*2.f);
     surfProp.diffuse = surfProp.ambient * -1.5f;
     surfProp.specular = 0;
-    if (surfProp.ambient < -0.75f) surfProp.ambient = -0.75f;
-    if (surfProp.diffuse > 1) surfProp.diffuse = 1;
+    if (surfProp.ambient < -0.5f) surfProp.ambient = -0.5f;
+    if (surfProp.diffuse > 1.f) surfProp.diffuse = 1.f;
 
     // modify the materials' colors depending on daylight and light multiplier
-    RwUInt16 r = (RwUInt16)(255*CTimeCycle::GetAmbientRed_Obj() * lightingMultiplier * 3.f);
-    RwUInt16 g = (RwUInt16)(255*CTimeCycle::GetAmbientGreen_Obj() * lightingMultiplier * 3.f);
-    RwUInt16 b = (RwUInt16)(255*CTimeCycle::GetAmbientBlue_Obj() * lightingMultiplier * 3.f);
+    RwUInt16 r = (RwUInt16)(255*CTimeCycle::GetAmbientRed_Obj() * lightingMultiplier);
+    RwUInt16 g = (RwUInt16)(255*CTimeCycle::GetAmbientGreen_Obj() * lightingMultiplier);
+    RwUInt16 b = (RwUInt16)(255*CTimeCycle::GetAmbientBlue_Obj() * lightingMultiplier);
     if (r > 255) r = 255;
     if (g > 255) g = 255;
     if (b > 255) b = 255;
@@ -291,7 +292,7 @@ void marioRender()
     RpMaterialSetSurfaceProperties(marioAtomic->geometry->matList.materials[0], &surfProp);
     RpMaterialSetSurfaceProperties(marioAtomic->geometry->matList.materials[1], &surfProp);
 
-    // Mario model is rendered by changing the CJ ped's RW atomic, clump and RWobject values below
+    // Mario model is rendered by changing the CJ ped's RW atomic, clump and RWobject values below in marioRenderPed()
 
 
     // Immediate Mode API
@@ -385,6 +386,7 @@ static RwObject* pedObject;
 void marioRenderPed(CPed* ped)
 {
     if (!marioSpawned() || !ped->IsPlayer()) return;
+
     pedAtomic = ped->m_pRwAtomic;
     pedClump = ped->m_pRwClump;
     pedObject = ped->m_pRwObject;
