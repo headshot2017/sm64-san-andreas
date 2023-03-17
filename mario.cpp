@@ -256,7 +256,8 @@ void loadNonBuildings(const CVector& pos)
 
     for (short i=0; i<foundObjs; i++)
     {
-        if (outEntities[i]->m_bRemoveFromWorld || !outEntities[i]->m_bIsVisible)
+        if (outEntities[i]->m_bRemoveFromWorld || !outEntities[i]->m_bIsVisible ||
+           (outEntities[i]->m_nType == ENTITY_TYPE_OBJECT && ((CObject*)outEntities[i])->m_nPhysicalFlags.bDisableMoveForce)) // doors
             continue;
 
         CVector ePos = outEntities[i]->GetPosition();
