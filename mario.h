@@ -12,6 +12,7 @@
 
 #include <libsm64.h>
 
+extern SM64MarioState marioState;
 extern CVector marioInterpPos;
 
 bool marioSpawned();

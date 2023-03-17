@@ -6,6 +6,7 @@
 #include "CPointLights.h"
 #include "CScene.h"
 #include "CTimeCycle.h"
+#include "Fx_c.h"
 
 #include "d3d9_funcs.h"
 
@@ -20,6 +21,8 @@ RwIm3DVertex marioCurrGeoPos[SM64_GEO_MAX_TRIANGLES * 3];
 RwIm3DVertex marioLastGeoPos[SM64_GEO_MAX_TRIANGLES * 3];
 RwImVertexIndex marioTextureIndices[SM64_GEO_MAX_TRIANGLES * 3];
 RwUInt32 marioOriginalColor[SM64_GEO_MAX_TRIANGLES * 3];
+RwIm3DVertex shadowVert[4];
+RwImVertexIndex shadowInd[4] = {0, 1, 2, 3};
 
 // Retained Mode API
 RpClump* marioClump;
@@ -39,7 +42,12 @@ void marioRenderInit()
     memset(&marioOriginalColor, 0, sizeof(marioOriginalColor));
     marioTexturedCount = 0;
 
-    // Immediate Mode API requires no steps here
+    // Immediate Mode API stuff
+    // set up mario shadow UV coordinates
+    RwIm3DVertexSetU(&shadowVert[0], 0.f); RwIm3DVertexSetV(&shadowVert[0], 0.f);
+    RwIm3DVertexSetU(&shadowVert[1], 1.f); RwIm3DVertexSetV(&shadowVert[1], 0.f);
+    RwIm3DVertexSetU(&shadowVert[2], 0.f); RwIm3DVertexSetV(&shadowVert[2], 1.f);
+    RwIm3DVertexSetU(&shadowVert[3], 1.f); RwIm3DVertexSetV(&shadowVert[3], 1.f);
 
     // Retained Mode API
     // create Mario RenderWare clump.
@@ -297,6 +305,28 @@ void marioRender()
 
     // Immediate Mode API
     bool immediateDrawn = false;
+
+    // draw shadow on Mario
+    if (!ped->m_nPedFlags.bInVehicle && g_fx.GetFxQuality() >= FXQUALITY_HIGH)
+    {
+        float floorPos = sm64_surface_find_floor_height(marioState.position[0], marioState.position[1], marioState.position[2]);
+        RwUInt8 alpha = 255 - std::clamp((int)((marioState.position[1] - floorPos)/2.f), 0, 255);
+        RwIm3DVertexSetRGBA(&shadowVert[0], 255, 255, 255, alpha);
+        RwIm3DVertexSetRGBA(&shadowVert[1], 255, 255, 255, alpha);
+        RwIm3DVertexSetRGBA(&shadowVert[2], 255, 255, 255, alpha);
+        RwIm3DVertexSetRGBA(&shadowVert[3], 255, 255, 255, alpha);
+        RwIm3DVertexSetPos(&shadowVert[0], marioInterpPos.x-0.8f, marioInterpPos.y-0.8f, (floorPos+3) * MARIO_SCALE);
+        RwIm3DVertexSetPos(&shadowVert[1], marioInterpPos.x+0.8f, marioInterpPos.y-0.8f, (floorPos+3) * MARIO_SCALE);
+        RwIm3DVertexSetPos(&shadowVert[2], marioInterpPos.x-0.8f, marioInterpPos.y+0.8f, (floorPos+3) * MARIO_SCALE);
+        RwIm3DVertexSetPos(&shadowVert[3], marioInterpPos.x+0.8f, marioInterpPos.y+0.8f, (floorPos+3) * MARIO_SCALE);
+        if (RwIm3DTransform(shadowVert, 4, 0, rwIM3D_VERTEXXYZ | rwIM3D_VERTEXRGBA | rwIM3D_VERTEXUV))
+        {
+            immediateDrawn = true;
+            RwD3D9SetTexture(marioShadowRW, 0);
+            RwIm3DRenderIndexedPrimitive(rwPRIMTYPETRISTRIP, shadowInd, 4);
+        }
+    }
+
     /*
     if (RwIm3DTransform(marioInterpGeo, SM64_GEO_MAX_TRIANGLES*3, 0, rwIM3D_VERTEXXYZ | rwIM3D_VERTEXRGBA | rwIM3D_VERTEXUV))
     {

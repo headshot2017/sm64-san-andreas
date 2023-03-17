@@ -4,6 +4,7 @@
 #include "RenderWare.h"
 
 extern RwTexture* marioTextureRW;
+extern RwTexture* marioShadowRW;
 
 void initD3D();
 void destroyD3D();

@@ -8,18 +8,30 @@ extern "C" {
 
 #include "main.h"
 #include "mario_render.h"
+#include "mario_shadow.raw.h"
 
+RwRaster* marioRaster;
+RwRaster* marioShadowRaster;
 RwTexture* marioTextureRW = nullptr;
+RwTexture* marioShadowRW = nullptr;
 
 void initD3D()
 {
-    RwRaster* raster = RwRasterCreate(SM64_TEXTURE_WIDTH, SM64_TEXTURE_HEIGHT, 32, rwRASTERFORMAT8888 | rwRASTERTYPETEXTURE);
-    RwUInt8* pixels = RwRasterLock(raster, 0, 1);
+    marioRaster = RwRasterCreate(SM64_TEXTURE_WIDTH, SM64_TEXTURE_HEIGHT, 32, rwRASTERFORMAT8888 | rwRASTERTYPETEXTURE);
+    RwUInt8* pixels = RwRasterLock(marioRaster, 0, 1);
     memcpy(pixels, marioTexture, 4 * SM64_TEXTURE_WIDTH * SM64_TEXTURE_HEIGHT);
-    RwRasterUnlock(raster);
+    RwRasterUnlock(marioRaster);
 
-    marioTextureRW = RwTextureCreate(raster);
+    RwRaster* marioShadowRaster = RwRasterCreate(80, 80, 32, rwRASTERFORMAT8888 | rwRASTERTYPETEXTURE);
+    pixels = RwRasterLock(marioShadowRaster, 0, 1);
+    memcpy(pixels, marioShadow, 4 * 80 * 80);
+    RwRasterUnlock(marioShadowRaster);
+
+    marioTextureRW = RwTextureCreate(marioRaster);
     RwTextureSetFilterMode(marioTextureRW, rwFILTERLINEAR);
+
+    marioShadowRW = RwTextureCreate(marioShadowRaster);
+    RwTextureSetFilterMode(marioShadowRW, rwFILTERLINEAR);
 }
 
 void destroyD3D()
@@ -28,6 +40,11 @@ void destroyD3D()
     {
         RwTextureDestroy(marioTextureRW);
         marioTextureRW = nullptr;
+    }
+    if (marioShadowRW)
+    {
+        RwTextureDestroy(marioShadowRW);
+        marioShadowRW = nullptr;
     }
 }
 
