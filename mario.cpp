@@ -703,7 +703,8 @@ void marioTick(float dt)
                 {
                     float dist = DistanceBetweenPoints(CVector2D(marioCurrPos), CVector2D(targetPos)) * 2.f;
                     int Zsign = -sign(targetPos.z - marioCurrPos.z);
-                    headAngleTarget[0] = (M_PI_2 * Zsign) / dist;
+                    headAngleTarget[0] = (dist) ? (M_PI_2 * Zsign) / dist : 0;
+                    if (headAngleTarget[0] < -M_PI || headAngleTarget[0] > M_PI) headAngleTarget[0] = 0;
                 }
             }
         }
