@@ -67,6 +67,7 @@ struct SM64MarioState
     uint32_t flags;
     uint32_t particleFlags;
     int16_t invincTimer;
+    int32_t burnTimer;
 };
 
 struct SM64MarioGeometryBuffers

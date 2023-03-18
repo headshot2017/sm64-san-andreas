@@ -15,6 +15,7 @@
 #include "decomp/engine/math_util.h"
 #include "decomp/include/sm64.h"
 #include "decomp/include/seq_ids.h"
+#include "decomp/include/object_fields.h"
 #include "decomp/shim.h"
 #include "decomp/memory.h"
 #include "decomp/global_state.h"
@@ -274,6 +275,7 @@ SM64_LIB_FN void sm64_mario_tick( int32_t marioId, const struct SM64MarioInputs 
     outState->flags = gMarioState->flags;
     outState->particleFlags = gMarioState->particleFlags;
     outState->invincTimer = gMarioState->invincTimer;
+    outState->burnTimer = 80 - gMarioState->marioObj->oMarioBurnTimer/2;
 }
 
 SM64_LIB_FN void sm64_mario_delete( int32_t marioId )
