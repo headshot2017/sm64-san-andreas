@@ -737,6 +737,15 @@ void marioTick(float dt)
         else
             sm64_set_mario_water_level(marioId, INT16_MIN);
 
+        // fire
+        if (ped->m_pFire && hp > 0)
+        {
+            if (marioState.action != ACT_BURNING_GROUND && marioState.action != ACT_BURNING_FALL && marioState.action != ACT_BURNING_JUMP)
+                sm64_set_mario_action_arg(marioId, ACT_BURNING_JUMP, 1);
+            else if (marioState.burnTimer <= 1)
+                ped->m_pFire->Extinguish();
+        }
+
         // handles loaded objects, vehicles and peds
         for (int i=0; i<MAX_OBJS; i++)
         {
