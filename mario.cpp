@@ -653,7 +653,8 @@ void marioTick(float dt)
                 float orY = ped->GetMatrix()->right.z;
                 sm64_set_mario_angle(marioId, -orX, faceangle, -orY);
                 sm64_set_mario_position(marioId, sm64pos.x, sm64pos.y, sm64pos.z);
-                if (marioState.action != ACT_DRIVING_VEHICLE) sm64_set_mario_action(marioId, ACT_DRIVING_VEHICLE);
+                uint32_t arg = (ped->m_pVehicle->m_nVehicleClass == VEHICLE_BIKE || ped->m_pVehicle->m_nVehicleClass == VEHICLE_BMX);
+                if (marioState.action != ACT_DRIVING_VEHICLE) sm64_set_mario_action_arg(marioId, ACT_DRIVING_VEHICLE, arg);
             }
             else
             {
