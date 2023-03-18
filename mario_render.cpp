@@ -412,25 +412,29 @@ void marioRender()
 
 RpAtomic* pedAtomic;
 RpClump* pedClump;
-RwObject* pedObject;
 
 void marioRenderPed(CPed* ped)
 {
     if (!marioSpawned() || !ped->IsPlayer()) return;
 
-    pedAtomic = ped->m_pRwAtomic;
-    pedClump = ped->m_pRwClump;
-    pedObject = ped->m_pRwObject;
-    ped->m_pRwAtomic = marioAtomic;
-    ped->m_pRwClump = marioClump;
-    ped->m_pRwObject = &marioClump->object;
+    if (RwObjectGetType(ped->m_pRwObject) == rpCLUMP)
+    {
+        pedClump = ped->m_pRwClump;
+        ped->m_pRwClump = marioClump;
+    }
+    else if (RwObjectGetType(ped->m_pRwObject) == rpATOMIC)
+    {
+        pedAtomic = ped->m_pRwAtomic;
+        ped->m_pRwAtomic = marioAtomic;
+    }
 }
 
 void marioRenderPedReset(CPed* ped)
 {
     if (!marioSpawned() || !ped->IsPlayer()) return;
 
-    ped->m_pRwAtomic = pedAtomic;
-    ped->m_pRwClump = pedClump;
-    ped->m_pRwObject = pedObject;
+    if (RwObjectGetType(ped->m_pRwObject) == rpCLUMP)
+        ped->m_pRwClump = pedClump;
+    else if (RwObjectGetType(ped->m_pRwObject) == rpATOMIC)
+        ped->m_pRwAtomic = pedAtomic;
 }
