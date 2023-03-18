@@ -649,12 +649,13 @@ void marioTick(float dt)
 
             if (ped->m_nPedFlags.bInVehicle)
             {
+                bool tiltForward = ped->m_pVehicle->m_nNumPassengers && (ped->m_pVehicle->m_nVehicleClass == VEHICLE_BIKE || ped->m_pVehicle->m_nVehicleClass == VEHICLE_BMX);
                 float orX = ped->GetMatrix()->up.z;
                 float orY = ped->GetMatrix()->right.z;
                 sm64_set_mario_angle(marioId, -orX, faceangle, -orY);
+                sm64_set_mario_torsoangle(marioId, (tiltForward ? 0.4f : 0), 0, 0);
                 sm64_set_mario_position(marioId, sm64pos.x, sm64pos.y, sm64pos.z);
-                uint32_t arg = (ped->m_pVehicle->m_nVehicleClass == VEHICLE_BIKE || ped->m_pVehicle->m_nVehicleClass == VEHICLE_BMX);
-                if (marioState.action != ACT_DRIVING_VEHICLE) sm64_set_mario_action_arg(marioId, ACT_DRIVING_VEHICLE, arg);
+                if (marioState.action != ACT_DRIVING_VEHICLE) sm64_set_mario_action(marioId, ACT_DRIVING_VEHICLE);
             }
             else
             {
