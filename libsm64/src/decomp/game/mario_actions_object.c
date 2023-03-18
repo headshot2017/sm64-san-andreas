@@ -447,10 +447,6 @@ s32 act_releasing_bowser(struct MarioState *m) {
 
 s32 act_driving_vehicle(struct MarioState *m) {
     set_mario_animation(m, MARIO_ANIM_HOLDING_BOWSER);
-
-    if (m->actionArg == 1) // bike
-        m->marioBodyState->torsoAngle[0] = 0x1200;
-
     return FALSE;
 }
 
