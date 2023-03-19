@@ -29,10 +29,7 @@
 				<Linker>
 					<Add option="-m32" />
 					<Add library="plugin_d" />
-					<Add library="d3d9" />
-					<Add library="d3dx9" />
 					<Add directory="$(PLUGIN_SDK_DIR)/output/mingw/lib/" />
-					<Add directory="$(DIRECTX9_SDK_DIR)/Lib/x86/" />
 					<Add directory="libsm64/bin/Debug" />
 				</Linker>
 				<ExtraCommands>
@@ -62,10 +59,7 @@
 					<Add option="-s" />
 					<Add option="-m32" />
 					<Add library="plugin" />
-					<Add library="d3d9" />
-					<Add library="d3dx9" />
 					<Add directory="$(PLUGIN_SDK_DIR)/output/mingw/lib/" />
-					<Add directory="$(DIRECTX9_SDK_DIR)/Lib/x86/" />
 					<Add directory="libsm64/bin/Release" />
 				</Linker>
 				<ExtraCommands>
@@ -79,7 +73,6 @@
 			<Add directory="$(PLUGIN_SDK_DIR)/plugin_sa/game_sa/" />
 			<Add directory="$(PLUGIN_SDK_DIR)/shared/" />
 			<Add directory="$(PLUGIN_SDK_DIR)/shared/game/" />
-			<Add directory="$(DIRECTX9_SDK_DIR)/Include/" />
 			<Add directory="libsm64/src" />
 			<Add directory="SDL2/include" />
 		</Compiler>

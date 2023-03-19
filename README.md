@@ -14,14 +14,16 @@ This is still under development!
 ### Requirements
 * [Code::Blocks with x86 (32-bit) MinGW compiler](http://www.codeblocks.org/downloads/binaries/#imagesoswindows48pnglogo-microsoft-windows) (codeblocks-mingw-32bit-setup.exe)
 * [plugin-sdk](https://github.com/DK22Pac/plugin-sdk)
+  * You only need to set environment variables for "Plugin-SDK folder" and "GTA San Andreas folder".
   * To create the Code::Blocks Plugin-SDK workspace, replace `tools\premake\premake5.exe` with [this version](https://github.com/DK22Pac/plugin-sdk/raw/cc130098120f45de0f62f34681555d7184719263/tools/premake/premake5.exe), otherwise it won't work
-* [DirectX9 SDK](https://www.microsoft.com/en-us/download/details.aspx?id=6812)
-* [rwd3d9](https://gtaforums.com/topic/819551-rwd3d9-d3d9-extension-for-rw/)
 
 Make sure all of these are installed in a path that does not contain spaces, e.g. `C:\apps\CodeBlocks` instead of `C:\Program Files (x86)\CodeBlocks`
 
 ### Inside Code::Blocks
-Open `sm64-san-andreas.workspace` inside Code::Blocks.<br />
+First, make sure you have compiled plugin-sdk, by opening `plugin.workspace` in Code::Blocks, then selecting `plugin_sa` in the projects pane on the left.<br />
+For the build target, choose 'Release' or 'Debug' (or both), and press CTRL+F9 to start compiling.
+
+Next, open `sm64-san-andreas.workspace` inside Code::Blocks.<br />
 Make sure to build the `libsm64` project first, then build `sm64-san-andreas` afterwards.
 
 NOTE: The build targets for both projects must match! e.g. if libsm64 is built with the Debug target, sm64-san-andreas must also be built with the GTASA Debug target.
