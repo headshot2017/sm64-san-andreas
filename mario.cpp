@@ -553,6 +553,7 @@ void marioTick(float dt)
     CPlayerPed* ped = FindPlayerPed();
     ped->m_pShadowData = nullptr;
     bool carDoor = ped->m_pIntelligence->IsPedGoingForCarDoor();
+    float hp = ped->m_fHealth / ped->m_fMaxHealth;
 
     CPad* pad = ped->GetPadFromPlayer();
     pad->bDisablePlayerDuck = 0;
@@ -564,11 +565,11 @@ void marioTick(float dt)
     if (attackState > 1) attackState = 0; // fix bug where pressing jump makes attackState above 1
 
     //static bool cjLastControl = true;
-    bool cjHasControl = (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle || safeTicks > 0);
+    bool cjHasControl = (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle || hp <= 0 || safeTicks > 0);
     if (cjHasControl)
     {
         //ped->SetPosn(marioInterpPos + CVector(0, 0, 0.5f));
-        if (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle) safeTicks = 2;
+        if (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle || hp <= 0) safeTicks = 2;
         ped->m_nPhysicalFlags.bApplyGravity = 1;
         ped->m_nPhysicalFlags.bCanBeCollidedWith = 1;
         ped->m_nPhysicalFlags.bCollidable = 1;
@@ -723,13 +724,15 @@ void marioTick(float dt)
             sm64_set_mario_action(marioId, ACT_FIRST_PERSON);
 
         // health
-        float hp = ped->m_fHealth / ped->m_fMaxHealth;
         if (hp <= 0)
             sm64_mario_kill(marioId);
         else if ((marioState.action & ACT_GROUP_MASK) == ACT_GROUP_SUBMERGED)
             sm64_set_mario_health(marioId, 0x880);
         else
+        {
+            if (marioState.health < 0x100) sm64_set_mario_action(marioId, ACT_SPAWN_SPIN_AIRBORNE);
             sm64_set_mario_health(marioId, (hp <= 0.1f) ? 0x200 : 0x880);
+        }
 
         // water level
         if (CGame::CanSeeWaterFromCurrArea())
