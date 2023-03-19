@@ -13,6 +13,7 @@ This is still under development!
 ## Compiling
 ### Requirements
 * [Code::Blocks with x86 (32-bit) MinGW compiler](http://www.codeblocks.org/downloads/binaries/#imagesoswindows48pnglogo-microsoft-windows) (codeblocks-mingw-32bit-setup.exe)
+  * Download from FossHUB the one that says `Code Blocks Windows 32 bit (including 32 bit compiler)`
 * [plugin-sdk](https://github.com/DK22Pac/plugin-sdk)
   * Ignore the "Install Plugin-SDK Wizard/Templates" step - this is only if you're going to be creating a plugin.
   * You only need to set environment variables for "Plugin-SDK folder" and "GTA San Andreas folder".
