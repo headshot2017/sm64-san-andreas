@@ -1105,7 +1105,7 @@ s32 seq_channel_layer_process_script_part2(struct SequenceChannelLayer *layer) {
                 break;
 
             case 0xc6: // layer_setinstr
-			
+
                 cmd = m64_read_u8(state);
 
                 if (cmd >= 0x7f) {
@@ -1399,7 +1399,7 @@ s32 seq_channel_layer_process_script_part3(struct SequenceChannelLayer *layer, s
 #endif
 
 u8 get_instrument(struct SequenceChannel *seqChannel, u8 instId, struct Instrument **instOut, struct AdsrSettings *adsr) {
-	
+
     struct Instrument *inst;
 #if defined(VERSION_EU) || defined(VERSION_SH)
     inst = get_instrument_inner(seqChannel->bankId, instId);
@@ -1524,7 +1524,7 @@ void sequence_channel_process_script(struct SequenceChannel *seqChannel) {
     if (seqChannel->delay == 0) {
         for (;;) {
             cmd = m64_read_u8(state);
-			
+
 #if !defined(VERSION_EU) && !defined(VERSION_SH)
             if (cmd == 0xff) // chan_end
             {
@@ -1705,10 +1705,7 @@ void sequence_channel_process_script(struct SequenceChannel *seqChannel) {
 #endif
 
                     case 0xc1: // chan_setinstr ("set program"?)
-			
-						u8 instrId = m64_read_u8(state);
-					
-                        set_instrument(seqChannel, instrId);
+                        set_instrument(seqChannel, m64_read_u8(state));
                         break;
 
                     case 0xc3: // chan_largenotesoff
