@@ -7,7 +7,7 @@
 		<Option compiler="gcc" />
 		<Build>
 			<Target title="GTASA Debug">
-				<Option output="$(GTA_SA_DIR)/scripts/sm64_san_andreas.SA_d.asi" prefix_auto="0" extension_auto="0" />
+				<Option output='&quot;$(GTA_SA_DIR)&quot;/scripts/sm64_san_andreas.SA_d.asi' prefix_auto="0" extension_auto="0" />
 				<Option object_output=".obj/Debug" />
 				<Option type="3" />
 				<Option compiler="gcc" />
@@ -37,7 +37,7 @@
 				</ExtraCommands>
 			</Target>
 			<Target title="GTASA Release">
-				<Option output="$(GTA_SA_DIR)/scripts/sm64_san_andreas.SA.asi" prefix_auto="0" extension_auto="0" />
+				<Option output='&quot;$(GTA_SA_DIR)&quot;/scripts/sm64_san_andreas.SA.asi' prefix_auto="0" extension_auto="0" />
 				<Option object_output=".obj/Release" />
 				<Option type="3" />
 				<Option compiler="gcc" />
