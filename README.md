@@ -14,8 +14,10 @@ This is still under development!
 ### Requirements
 * [Code::Blocks with x86 (32-bit) MinGW compiler](http://www.codeblocks.org/downloads/binaries/#imagesoswindows48pnglogo-microsoft-windows) (codeblocks-mingw-32bit-setup.exe)
 * [plugin-sdk](https://github.com/DK22Pac/plugin-sdk)
+  * Ignore the "Install Plugin-SDK Wizard/Templates" step - this is only if you're going to be creating a plugin.
   * You only need to set environment variables for "Plugin-SDK folder" and "GTA San Andreas folder".
   * To create the Code::Blocks Plugin-SDK workspace, replace `tools\premake\premake5.exe` with [this version](https://github.com/DK22Pac/plugin-sdk/raw/cc130098120f45de0f62f34681555d7184719263/tools/premake/premake5.exe), otherwise it won't work
+  * On the "Create Plugin-SDK solution/workspace", select Code::Blocks and click 'Generate'.
 
 Make sure all of these are installed in a path that does not contain spaces, e.g. `C:\apps\CodeBlocks` instead of `C:\Program Files (x86)\CodeBlocks`
 
