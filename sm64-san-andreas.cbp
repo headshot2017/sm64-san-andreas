@@ -85,8 +85,8 @@
 		</Linker>
 		<ExtraCommands>
 			<Add after='cmd /c copy /Y SDL2\bin\SDL2.dll &quot;$(GTA_SA_DIR)\scripts\&quot;' />
-			<Add after='cmd /c copy /Y &quot;$(TARGET_COMPILER_DIR)libwinpthread-1.dll&quot; &quot;$(GTA_SA_DIR)\scripts\&quot;' />
-			<Add after='cmd /c copy /Y &quot;$(TARGET_COMPILER_DIR)libgcc_s_dw2-1.dll&quot; &quot;$(GTA_SA_DIR)\scripts\&quot;' />
+			<Add after='cmd /c copy /Y &quot;$(TARGET_COMPILER_DIR)bin\libwinpthread-1.dll&quot; &quot;$(GTA_SA_DIR)\scripts\&quot;' />
+			<Add after='cmd /c copy /Y &quot;$(TARGET_COMPILER_DIR)bin\libgcc_s_dw2-1.dll&quot; &quot;$(GTA_SA_DIR)\scripts\&quot;' />
 		</ExtraCommands>
 		<Unit filename="audio.cpp" />
 		<Unit filename="audio.h" />
