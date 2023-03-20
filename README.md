@@ -8,6 +8,9 @@ This plugin requires the following in order to work:
 * [Silent's ASI Loader](https://www.gtagarage.com/mods/show.php?id=21709)
 * Super Mario 64 US ROM, with the filename `sm64.us.z64`, located in the GTA San Andreas folder alongside `gta_sa.exe`
 
+It's also recommended to install the [SilentPatchSA](https://gtaforums.com/topic/669045-silentpatch) mod.
+It's not necessary in order for this plugin to work, but it fixes an issue with Mario's shading appearing to be flat while outdoors.
+
 This is still under development!
 
 ## Compiling
