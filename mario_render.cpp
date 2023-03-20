@@ -12,6 +12,7 @@
 
 
 // General rendering stuff
+bool inited = false;
 bool surfaceDebugger = false;
 int marioTexturedCount = 0;
 
@@ -38,6 +39,9 @@ void marioRenderToggleDebug()
 
 void marioRenderInit()
 {
+    if (inited) return;
+    inited = true;
+
     memset(&marioTextureIndices, 0, sizeof(marioTextureIndices));
     memset(&marioOriginalColor, 0, sizeof(marioOriginalColor));
     marioTexturedCount = 0;
@@ -128,6 +132,9 @@ void marioRenderInit()
 
 void marioRenderDestroy()
 {
+    if (!inited) return;
+    inited = false;
+
     // Retained Mode API only
 
     // remove clump from world, and remove atomic from clump
@@ -145,6 +152,8 @@ void marioRenderDestroy()
 
 void marioRenderUpdateGeometry(const SM64MarioGeometryBuffers& marioGeometry)
 {
+    if (!inited) return;
+
     marioTexturedCount = 0;
     memcpy(marioLastGeoPos, marioCurrGeoPos, sizeof(marioCurrGeoPos));
 
@@ -228,6 +237,8 @@ void marioRenderUpdateGeometry(const SM64MarioGeometryBuffers& marioGeometry)
 
 void marioRenderInterpolate(const SM64MarioGeometryBuffers& marioGeometry, float& ticks, bool useCJPos, const CVector& pos)
 {
+    if (!inited) return;
+
     RpGeometryLock(marioAtomic->geometry, rpGEOMETRYLOCKVERTICES);
     RpMorphTarget* morphTarget = marioAtomic->geometry->morphTarget;
     RwV3d* vlist = morphTarget->verts;
@@ -252,7 +263,7 @@ void marioRenderInterpolate(const SM64MarioGeometryBuffers& marioGeometry, float
 
 void marioRender()
 {
-    if (!marioSpawned() || CCutsceneMgr::ms_running) return;
+    if (!marioSpawned() || CCutsceneMgr::ms_running || !inited) return;
 
     RwRenderStateSet(rwRENDERSTATEZTESTENABLE, (void*)1);
     RwRenderStateSet(rwRENDERSTATEZWRITEENABLE, (void*)1);

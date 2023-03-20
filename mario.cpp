@@ -496,8 +496,6 @@ void marioSpawn()
     memset(&marioInput, 0, sizeof(marioInput));
     memset(headAngle, 0, sizeof(headAngle));
 
-    marioRenderInit();
-
     CPlayerPed* ped = FindPlayerPed();
     sm64_set_mario_faceangle(marioId, ped->GetHeading() + M_PI);
 
@@ -523,8 +521,6 @@ void marioDestroy()
 
     sm64_mario_delete(marioId);
     marioId = -1;
-
-    marioRenderDestroy();
 
     delete[] marioGeometry.position;
     delete[] marioGeometry.normal;

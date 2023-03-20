@@ -80,12 +80,14 @@ public:
     {
         if (!loaded) return;
         if (marioSpawned()) marioDestroy();
+        marioRenderInit();
     }
 
     static void destroy()
     {
         if (!loaded) return;
 
+        marioRenderDestroy();
         marioDestroy();
         audio_thread_stop();
         sm64_global_terminate();
