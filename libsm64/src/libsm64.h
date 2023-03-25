@@ -64,6 +64,8 @@ struct SM64MarioState
     float angle[3];
     int16_t health;
     uint32_t action;
+    uint32_t actionState;
+    uint32_t actionTimer;
     uint32_t flags;
     uint32_t particleFlags;
     int16_t invincTimer;
