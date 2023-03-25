@@ -8,7 +8,10 @@
 #include "CEntryExitManager.h"
 #include "CTaskSimpleIKLookAt.h"
 #include "CTaskSimpleIKManager.h"
+#include "CTaskComplexEnterCar.h"
 #include "CCutsceneMgr.h"
+#include "CModelInfo.h"
+#include "ePedBones.h"
 
 #define _USE_MATH_DEFINES
 #include <stdio.h>
@@ -417,10 +420,10 @@ void loadCollisions(const CVector& pos)
     loadNonBuildings(pos);
 }
 
-void marioSetPos(const CVector& pos)
+void marioSetPos(const CVector& pos, bool load)
 {
     if (!marioSpawned()) return;
-    loadCollisions(pos);
+    if (load) loadCollisions(pos);
 
     marioLastPos = pos;
     marioCurrPos = pos;
@@ -560,7 +563,6 @@ void marioTick(float dt)
     pad->bDisablePlayerDuck = 1;
     if (attackState > 1) attackState = 0; // fix bug where pressing jump makes attackState above 1
 
-    //static bool cjLastControl = true;
     bool cjHasControl = (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle || hp <= 0 || safeTicks > 0);
     if (cjHasControl)
     {
@@ -584,7 +586,6 @@ void marioTick(float dt)
         ped->m_nPhysicalFlags.bDontApplySpeed = 1;
         ped->m_nAllowedAttackMoves = 0;
     }
-    //cjLastControl = cjHasControl;
 
     // handle entering/exiting buildings
     static CEntryExit* entryexit = nullptr;
@@ -744,6 +745,110 @@ void marioTick(float dt)
             else if (marioState.burnTimer <= 1)
                 ped->m_pFire->Extinguish();
         }
+
+        // enter vehicle animation handling
+        if (ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_ENTER_CAR_AS_DRIVER))
+        {
+            CTaskComplexEnterCar* task = static_cast<CTaskComplexEnterCar*>(ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_ENTER_CAR_AS_DRIVER));
+
+            float targetAngle = 0;
+            if (task->m_nTargetDoor == 10) // front left door
+                targetAngle = task->m_pTargetVehicle->GetHeading() + M_PI_2;
+            else if (task->m_nTargetDoor == TARGET_DOOR_FRONT_RIGHT)
+                targetAngle = task->m_pTargetVehicle->GetHeading() - M_PI_2;
+
+            if (targetAngle < -M_PI) targetAngle += M_PI*2;
+            if (targetAngle > M_PI) targetAngle -= M_PI*2;
+
+            // create actionArg with bitflags to tell libsm64 which anims to play
+            uint32_t arg = (task->m_nTargetDoor == 10 || task->m_nTargetDoor == TARGET_DOOR_REAR_LEFT) ? SM64_VEHICLE_DOOR_LEFT : SM64_VEHICLE_DOOR_RIGHT;
+            arg |= SM64_VEHICLE_OPEN_DOOR | SM64_VEHICLE_ENTER | SM64_VEHICLE_CLOSE_DOOR;
+
+            if ((arg & SM64_VEHICLE_DOOR_LEFT && (task->m_pTargetVehicle->IsDoorMissing(DOOR_FRONT_LEFT) || task->m_pTargetVehicle->IsDoorMissing(DOOR_REAR_LEFT))) ||
+                (arg & SM64_VEHICLE_DOOR_RIGHT && (task->m_pTargetVehicle->IsDoorMissing(DOOR_FRONT_RIGHT) || task->m_pTargetVehicle->IsDoorMissing(DOOR_REAR_RIGHT)))
+               )
+            {
+                // only jump inside car seat
+                arg &= ~SM64_VEHICLE_OPEN_DOOR;
+                arg &= ~SM64_VEHICLE_CLOSE_DOOR;
+            }
+            else if ((arg & SM64_VEHICLE_DOOR_LEFT && (task->m_pTargetVehicle->IsDoorFullyOpen(DOOR_FRONT_LEFT) || task->m_pTargetVehicle->IsDoorFullyOpen(DOOR_REAR_LEFT))) ||
+                     (arg & SM64_VEHICLE_DOOR_RIGHT && (task->m_pTargetVehicle->IsDoorFullyOpen(DOOR_FRONT_RIGHT) || task->m_pTargetVehicle->IsDoorFullyOpen(DOOR_REAR_RIGHT)))
+                    )
+            {
+                // door is already open
+                arg &= ~SM64_VEHICLE_OPEN_DOOR;
+            }
+
+            if ((task->m_pTargetVehicle->m_pDriver && task->m_nTargetDoor == 10) ||
+                (task->m_pTargetVehicle->m_nNumPassengers && task->m_nTargetDoor == TARGET_DOOR_FRONT_RIGHT)
+               )
+            {
+                // add animation of mario throwing ped out the car
+                arg |= SM64_VEHICLE_KICK_PED_OUT;
+            }
+
+            if (task->m_pTargetVehicle->m_nVehicleClass == VEHICLE_BIKE || task->m_pTargetVehicle->m_nVehicleClass == VEHICLE_BMX)
+                arg |= SM64_VEHICLE_BIKE;
+
+
+            // set the action once in the door!
+            static CVector startPos;
+            static int didTimes = 0;
+            if (task->m_nNumGettingInSet && marioState.action != ACT_ENTER_VEHICLE)
+            {
+                didTimes = 0;
+                marioSetPos(task->m_vTargetDoorPos - CVector(0,0,1), false);
+                startPos = marioCurrPos;
+
+                sm64_set_mario_action_arg(marioId, ACT_ENTER_VEHICLE, arg);
+                sm64_set_mario_faceangle(marioId, targetAngle);
+            }
+            else if (marioState.action == ACT_ENTER_VEHICLE)
+            {
+                CVehicleModelInfo* modelInfo = (CVehicleModelInfo*)CModelInfo::GetModelInfo(task->m_pTargetVehicle->m_nModelIndex);
+                CVector seatPos = modelInfo->m_pVehicleStruct->m_avDummyPos[4]; // DUMMY_SEAT_FRONT
+                seatPos.z -= 0.375f;
+                seatPos.y += 0.375f;
+
+                // by default, seatPos.x is passenger seat. if entering from left side, invert X pos to get driver seat
+                if (arg & SM64_VEHICLE_DOOR_LEFT && !(arg & SM64_VEHICLE_BIKE))
+                    seatPos.x *= -1;
+
+                CVector targetPos = *(task->m_pTargetVehicle->m_matrix) * seatPos;
+                CVector newPos = (targetPos - startPos);
+
+                if (!(marioState.actionState & SM64_VEHICLE_OPEN_DOOR) && marioState.actionState & SM64_VEHICLE_KICK_PED_OUT)
+                {
+                    marioSetPos(task->m_vTargetDoorPos - CVector(0,0,1), false);
+                }
+                else if (!(marioState.actionState & SM64_VEHICLE_OPEN_DOOR) && !(marioState.actionState & SM64_VEHICLE_KICK_PED_OUT) && marioState.actionState & SM64_VEHICLE_ENTER && didTimes++ < 7)
+                {
+                    // jumping into car seat
+                    newPos.x /= 7.f; newPos.y /= 7.f; newPos.z /= 7.f;
+                    marioSetPos(marioCurrPos + newPos, false);
+                    sm64_set_mario_faceangle(marioId, targetAngle);
+                }
+                else if (!(marioState.actionState & SM64_VEHICLE_ENTER))
+                {
+                    marioSetPos(targetPos, false);
+
+                    float watchTheDamnRoadAngle = targetAngle + (arg&SM64_VEHICLE_DOOR_LEFT ? M_PI_2 : -M_PI_2);
+                    if (marioState.actionTimer > 20 && marioState.actionTimer <= 40)
+                    {
+                        // look at the door during this time
+                        watchTheDamnRoadAngle += (arg&SM64_VEHICLE_DOOR_LEFT ? M_PI_2 : -M_PI_2);
+                    }
+
+                    if (watchTheDamnRoadAngle < -M_PI) watchTheDamnRoadAngle += M_PI*2;
+                    if (watchTheDamnRoadAngle > M_PI) watchTheDamnRoadAngle -= M_PI*2;
+
+                    sm64_set_mario_faceangle(marioId, watchTheDamnRoadAngle);
+                }
+            }
+        }
+        else if (marioState.action == ACT_ENTER_VEHICLE)
+            sm64_set_mario_action(marioId, ACT_FREEFALL);
 
         // handles loaded objects, vehicles and peds
         for (int i=0; i<MAX_OBJS; i++)

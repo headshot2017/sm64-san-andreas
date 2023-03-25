@@ -17,7 +17,7 @@ extern CVector marioInterpPos;
 
 bool marioSpawned();
 
-void marioSetPos(const CVector& pos);
+void marioSetPos(const CVector& pos, bool load=true);
 void onWallAttack(uint32_t surfaceObjectID);
 
 void marioSpawn();
