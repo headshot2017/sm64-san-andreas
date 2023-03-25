@@ -404,6 +404,7 @@
 #define ACT_HOLDING_BOWSER             0x00000391 // (0x191 | ACT_FLAG_STATIONARY)
 #define ACT_RELEASING_BOWSER           0x00000392 // (0x192 | ACT_FLAG_STATIONARY)
 #define ACT_DRIVING_VEHICLE            0x00000393 // (0x193 | ACT_FLAG_STATIONARY) (custom libsm64 GTA SA action)
+#define ACT_ENTER_VEHICLE              0x00000394 // (0x194 | ACT_FLAG_STATIONARY) (custom libsm64 GTA SA action)
 
 /*
  this input mask is unused by the controller,
@@ -419,5 +420,16 @@
                        U_CBUTTONS | D_CBUTTONS | L_CBUTTONS | R_CBUTTONS   )
 
 #define C_BUTTONS     (U_CBUTTONS | D_CBUTTONS | L_CBUTTONS | R_CBUTTONS   )
+
+// additional libsm64 GTA SA stuff
+#define SM64_VEHICLE_DOOR_LEFT      (1 << 0)
+#define SM64_VEHICLE_DOOR_RIGHT     (1 << 1)
+#define SM64_VEHICLE_BIKE           (1 << 2)
+#define SM64_VEHICLE_ROTATE_TO_DOOR (1 << 3)
+
+#define SM64_VEHICLE_OPEN_DOOR      (1 << 4)
+#define SM64_VEHICLE_KICK_PED_OUT   (1 << 5)
+#define SM64_VEHICLE_ENTER          (1 << 6)
+#define SM64_VEHICLE_CLOSE_DOOR     (1 << 7)
 
 #endif // SM64SHARED_H

@@ -450,6 +450,80 @@ s32 act_driving_vehicle(struct MarioState *m) {
     return FALSE;
 }
 
+s32 act_enter_vehicle(struct MarioState *m) {
+    if (m->actionArg && !m->actionState)
+    {
+        m->actionState = m->actionArg;
+        m->actionArg = 0;
+    }
+
+    s32 animFrame;
+    if (m->actionState & SM64_VEHICLE_OPEN_DOOR)
+    {
+        animFrame = set_mario_animation(m, MARIO_ANIM_GROUND_THROW);
+        if (animFrame == -1) m->marioObj->header.gfx.animInfo.animFrame = m->animation->targetAnim->loopEnd;
+        else if (animFrame > 0 && !m->actionTimer) m->marioObj->header.gfx.animInfo.animFrame-=2;
+        else
+        {
+            m->marioObj->header.gfx.animInfo.animFrame = m->animation->targetAnim->loopEnd;
+            if (m->actionTimer++ > 15)
+            {
+                m->actionState &= ~SM64_VEHICLE_OPEN_DOOR;
+                m->actionTimer = 0;
+                m->actionArg = MARIO_ANIM_FIRST_PUNCH;
+            }
+        }
+
+        stationary_ground_step(m);
+    }
+    else if (m->actionState & SM64_VEHICLE_KICK_PED_OUT)
+    {
+        m->actionTimer++;
+
+        if (m->actionTimer >= 7 && m->actionTimer < 20)
+        {
+            set_mario_animation(m, m->actionArg);
+            if (is_anim_at_end(m) && m->actionArg == MARIO_ANIM_FIRST_PUNCH)
+                m->actionArg = MARIO_ANIM_PICK_UP_LIGHT_OBJ;
+        }
+        else if (m->actionTimer > 34 && m->actionTimer <= 42)
+        {
+            m->faceAngle[1] += 0x1000;
+        }
+        else if (m->actionTimer == 45)
+            set_mario_animation(m, MARIO_ANIM_GROUND_THROW);
+        else if (m->actionTimer == 70)
+        {
+            m->actionState &= ~SM64_VEHICLE_KICK_PED_OUT;
+            m->actionTimer = 0;
+        }
+
+        stationary_ground_step(m);
+    }
+    else if (m->actionState & SM64_VEHICLE_ENTER)
+    {
+        m->actionArg = 0;
+        m->actionTimer++;
+        if (m->actionTimer < 7)
+        {
+            animFrame = set_mario_animation(m, MARIO_ANIM_SINGLE_JUMP);
+            play_mario_sound(m, SOUND_ACTION_TERRAIN_JUMP, SOUND_MARIO_YAH_WAH_HOO);
+        }
+        else if (m->actionTimer == 7)
+        {
+            animFrame = set_mario_animation(m, MARIO_ANIM_HOLDING_BOWSER);
+            m->actionState &= ~SM64_VEHICLE_ENTER;
+            m->actionTimer = 0;
+        }
+    }
+    else if (m->actionState & SM64_VEHICLE_CLOSE_DOOR)
+    {
+        m->actionTimer++;
+    }
+
+    return FALSE;
+}
+
 s32 check_common_object_cancels(struct MarioState *m) {
     f32 waterSurface = m->waterLevel - 100;
     if (m->pos[1] < waterSurface) {
@@ -491,6 +565,7 @@ s32 mario_execute_object_action(struct MarioState *m) {
         case ACT_HOLDING_BOWSER:     cancel = act_holding_bowser(m);     break;
         case ACT_RELEASING_BOWSER:   cancel = act_releasing_bowser(m);   break;
         case ACT_DRIVING_VEHICLE:    cancel = act_driving_vehicle(m);    break;
+        case ACT_ENTER_VEHICLE:      cancel = act_enter_vehicle(m);      break;
     }
     /* clang-format on */
 
