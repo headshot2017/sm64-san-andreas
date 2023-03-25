@@ -73,6 +73,7 @@ public:
             message = "libsm64 loaded";
 
             initD3D();
+            marioRenderInit();
         }
     }
 
@@ -80,7 +81,6 @@ public:
     {
         if (!loaded) return;
         if (marioSpawned()) marioDestroy();
-        marioRenderInit();
     }
 
     static void destroy()
