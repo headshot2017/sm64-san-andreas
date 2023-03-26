@@ -847,7 +847,7 @@ void marioTick(float dt)
                 }
             }
         }
-        else if (marioState.action == ACT_ENTER_VEHICLE)
+        else if (marioState.action == ACT_ENTER_VEHICLE && !ped->m_nPedFlags.bInVehicle)
             sm64_set_mario_action(marioId, ACT_FREEFALL);
 
         // handles loaded objects, vehicles and peds
