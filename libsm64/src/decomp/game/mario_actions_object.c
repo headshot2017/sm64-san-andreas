@@ -519,6 +519,27 @@ s32 act_enter_vehicle_jumpinside(struct MarioState *m) {
     return FALSE;
 }
 
+s32 act_leave_vehicle_jumpout(struct MarioState *m) {
+    m->actionTimer++;
+    if (m->actionTimer < 7)
+    {
+        set_mario_animation(m, MARIO_ANIM_SINGLE_JUMP);
+        play_mario_sound(m, 0, SOUND_MARIO_YAH_WAH_HOO);
+    }
+    else if (m->actionTimer == 7)
+    {
+        set_mario_animation(m, MARIO_ANIM_LAND_FROM_SINGLE_JUMP);
+        play_mario_landing_sound(m, SOUND_ACTION_TERRAIN_LANDING);
+    }
+
+    return FALSE;
+}
+
+s32 act_leave_vehicle_closedoor(struct MarioState *m) {
+    set_mario_animation(m, MARIO_ANIM_GROUND_THROW);
+    return FALSE;
+}
+
 s32 check_common_object_cancels(struct MarioState *m) {
     f32 waterSurface = m->waterLevel - 100;
     if (m->pos[1] < waterSurface) {
@@ -563,6 +584,8 @@ s32 mario_execute_object_action(struct MarioState *m) {
         case ACT_ENTER_VEHICLE_OPENDOOR:   cancel = act_enter_vehicle_opendoor(m);   break;
         case ACT_ENTER_VEHICLE_DRAGPED:    cancel = act_enter_vehicle_dragped(m);    break;
         case ACT_ENTER_VEHICLE_JUMPINSIDE: cancel = act_enter_vehicle_jumpinside(m); break;
+        case ACT_LEAVE_VEHICLE_JUMPOUT:    cancel = act_leave_vehicle_jumpout(m);    break;
+        case ACT_LEAVE_VEHICLE_CLOSEDOOR:  cancel = act_leave_vehicle_closedoor(m);  break;
     }
     /* clang-format on */
 

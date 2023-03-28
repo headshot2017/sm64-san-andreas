@@ -875,7 +875,94 @@ void marioTick(float dt)
         if (ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_LEAVE_CAR))
         {
             CTaskComplexLeaveCar* task = static_cast<CTaskComplexLeaveCar*>(ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_LEAVE_CAR));
+
+            float targetAngle = 0;
+            if (task->m_nTargetDoor == 10) // front left door
+                targetAngle = task->m_pTargetVehicle->GetHeading() - M_PI_2;
+            else if (task->m_nTargetDoor == TARGET_DOOR_FRONT_RIGHT)
+                targetAngle = task->m_pTargetVehicle->GetHeading() + M_PI_2;
+
+            if (targetAngle < -M_PI) targetAngle += M_PI*2;
+            if (targetAngle > M_PI) targetAngle -= M_PI*2;
+
+            // create actionArg with bitflags to tell libsm64 how to play the anims
+            uint32_t arg = (task->m_nTargetDoor == 10 || task->m_nTargetDoor == TARGET_DOOR_REAR_LEFT) ? SM64_VEHICLE_DOOR_LEFT : SM64_VEHICLE_DOOR_RIGHT;
+
+            // calculate car seat target position
+            CVehicleModelInfo* modelInfo = (CVehicleModelInfo*)CModelInfo::GetModelInfo(task->m_pTargetVehicle->m_nModelIndex);
+            CVector seatPos = modelInfo->m_pVehicleStruct->m_avDummyPos[4]; // DUMMY_SEAT_FRONT
+            seatPos.z -= 0.375f;
+            seatPos.y += 0.375f;
+
+            // by default, seatPos.x is passenger seat. if entering from left side, invert X pos to get driver seat
+            if (arg & SM64_VEHICLE_DOOR_LEFT && !(arg & SM64_VEHICLE_BIKE))
+                seatPos.x *= -1;
+
+            CVector startPos = *(task->m_pTargetVehicle->m_matrix) * seatPos;
+
+            seatPos.x += 1.1f * sign(seatPos.x);
+            seatPos.y -= 0.35f;
+            CVector targetPos = *(task->m_pTargetVehicle->m_matrix) * seatPos;
+            targetPos.z = sm64_surface_find_floor_height(targetPos.x/MARIO_SCALE, targetPos.z/MARIO_SCALE, -targetPos.y/MARIO_SCALE) * MARIO_SCALE;
+
+
+            // set the action!
+            if (task->m_pSubTask)
+            {
+                CTask* sub = task->m_pSubTask;
+
+                // calling sub->GetID() returns some garbage number, so i copied this from plugin_sa CTask.cpp
+                eTaskType taskID = ((eTaskType (__thiscall *)(CTask *))plugin::GetVMT(sub, 4))(sub);
+
+                switch(taskID)
+                {
+                    case TASK_SIMPLE_CAR_GET_OUT:
+                        if (marioState.action != ACT_LEAVE_VEHICLE_JUMPOUT)
+                            sm64_set_mario_action_arg(marioId, ACT_LEAVE_VEHICLE_JUMPOUT, arg);
+
+                        if (marioState.actionTimer < 7)
+                        {
+                            // jumping inside
+                            CVector newPos(
+                                lerp(startPos.x, targetPos.x, marioState.actionTimer/7.f),
+                                lerp(startPos.y, targetPos.y, marioState.actionTimer/7.f),
+                                lerp(startPos.z, targetPos.z, marioState.actionTimer/7.f)
+                            );
+
+                            marioSetPos(newPos, false);
+                            sm64_set_mario_faceangle(marioId, targetAngle);
+                        }
+                        else
+                        {
+                            // now inside
+                            marioSetPos(targetPos, false);
+
+                            /*float watchTheDamnRoadAngle = targetAngle + (arg&SM64_VEHICLE_DOOR_LEFT ? M_PI_2 : -M_PI_2);
+                            if (watchTheDamnRoadAngle < -M_PI) watchTheDamnRoadAngle += M_PI*2;
+                            if (watchTheDamnRoadAngle > M_PI) watchTheDamnRoadAngle -= M_PI*2;*/
+
+                            sm64_set_mario_faceangle(marioId, targetAngle);
+                        }
+                        break;
+
+                    case TASK_SIMPLE_CAR_CLOSE_DOOR_FROM_OUTSIDE:
+                        {
+                            if (marioState.action != ACT_LEAVE_VEHICLE_CLOSEDOOR)
+                                sm64_set_mario_action_arg(marioId, ACT_LEAVE_VEHICLE_CLOSEDOOR, arg);
+                            marioSetPos(targetPos, false);
+
+                            float faceDoorAngle = targetAngle + M_PI;
+                            if (faceDoorAngle < -M_PI) faceDoorAngle += M_PI*2;
+                            if (faceDoorAngle > M_PI) faceDoorAngle -= M_PI*2;
+
+                            sm64_set_mario_faceangle(marioId, faceDoorAngle);
+                        }
+                        break;
+                }
+            }
         }
+        else if (marioState.action >= ACT_LEAVE_VEHICLE_JUMPOUT && marioState.action <= ACT_LEAVE_VEHICLE_CLOSEDOOR)
+            sm64_set_mario_action(marioId, ACT_IDLE);
 
         // get dragged out of vehicle - animation handling
         if (ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_CAR_SLOW_BE_DRAGGED_OUT))
