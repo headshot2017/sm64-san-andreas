@@ -451,13 +451,24 @@ s32 act_driving_vehicle(struct MarioState *m) {
 }
 
 s32 act_enter_vehicle_opendoor(struct MarioState *m) {
-    s32 animFrame = set_mario_animation(m, MARIO_ANIM_GROUND_THROW);
-    if (animFrame == -1) m->marioObj->header.gfx.animInfo.animFrame = m->animation->targetAnim->loopEnd;
-    else if (animFrame > 0 && !m->actionTimer) m->marioObj->header.gfx.animInfo.animFrame -= 2;
-    else
+    s32 animFrame;
+
+    switch(m->actionState)
     {
-        m->marioObj->header.gfx.animInfo.animFrame = m->animation->targetAnim->loopEnd;
-        m->actionTimer++;
+        case 0:
+            animFrame = set_mario_animation(m, MARIO_ANIM_GROUND_THROW);
+            if (animFrame == -1) m->marioObj->header.gfx.animInfo.animFrame = m->animation->targetAnim->loopEnd;
+            else if (animFrame > 0) m->marioObj->header.gfx.animInfo.animFrame -= 2;
+            else m->actionState++;
+            break;
+
+        case 1:
+            if (set_mario_animation(m, MARIO_ANIM_UNLOCK_DOOR) == -1)
+                m->marioObj->header.gfx.animInfo.animFrame = m->animation->targetAnim->loopEnd-17;
+
+            m->actionTimer++;
+            break;
+
     }
 
     stationary_ground_step(m);
@@ -467,7 +478,8 @@ s32 act_enter_vehicle_opendoor(struct MarioState *m) {
 s32 act_enter_vehicle_dragped(struct MarioState *m) {
     m->actionTimer++;
 
-    if (m->actionTimer >= 7 && m->actionTimer < 20)
+    u16 start = (m->actionArg & SM64_VEHICLE_DOOR_LEFT || m->actionArg & SM64_VEHICLE_BIKE) ? 0 : 9;
+    if (m->actionTimer >= start+7 && m->actionTimer < start+20)
     {
         switch(m->actionState)
         {
@@ -481,11 +493,11 @@ s32 act_enter_vehicle_dragped(struct MarioState *m) {
                 break;
         }
     }
-    else if (m->actionTimer > 34 && m->actionTimer <= 42)
+    else if (m->actionTimer > start+34 && m->actionTimer <= start+42)
     {
         m->faceAngle[1] += (m->actionArg & SM64_VEHICLE_DOOR_LEFT) ? 0x1000 : -0x1000;
     }
-    else if (m->actionTimer == 45)
+    else if (m->actionTimer == start+45)
         set_mario_animation(m, MARIO_ANIM_GROUND_THROW);
 
     stationary_ground_step(m);

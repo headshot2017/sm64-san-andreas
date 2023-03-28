@@ -783,21 +783,36 @@ void marioTick(float dt)
 
             CVector targetPos = *(task->m_pTargetVehicle->m_matrix) * seatPos;
 
+            seatPos.x += 1.1f * sign(seatPos.x);
+            seatPos.y -= 0.35f;
+            CVector startPos = *(task->m_pTargetVehicle->m_matrix) * seatPos;
+            startPos.z = task->m_vTargetDoorPos.z-1;
+
 
             // set the action!
             if (task->m_pSubTask)
             {
-                CVector startPos = task->m_vTargetDoorPos - CVector(0,0,1);
                 CTask* sub = task->m_pSubTask;
 
                 // calling sub->GetID() returns some garbage number, so i copied this from plugin_sa CTask.cpp
                 eTaskType taskID = ((eTaskType (__thiscall *)(CTask *))plugin::GetVMT(sub, 4))(sub);
 
-                if (taskID == TASK_SIMPLE_CAR_OPEN_DOOR_FROM_OUTSIDE && marioState.action != ACT_ENTER_VEHICLE_OPENDOOR)
+                if (taskID == TASK_SIMPLE_CAR_OPEN_DOOR_FROM_OUTSIDE)
                 {
-                    marioSetPos(startPos, false);
-                    sm64_set_mario_action_arg(marioId, ACT_ENTER_VEHICLE_OPENDOOR, arg);
+                    if (marioState.action != ACT_ENTER_VEHICLE_OPENDOOR)
+                        sm64_set_mario_action_arg(marioId, ACT_ENTER_VEHICLE_OPENDOOR, arg);
                     sm64_set_mario_faceangle(marioId, targetAngle);
+
+                    CVector doorPos = task->m_vTargetDoorPos - CVector(0,0,1);
+                    if (marioState.actionTimer)
+                    {
+                        uint32_t ticks = marioState.actionTimer;
+                        if (ticks > 10) ticks = 10;
+                        doorPos.x = lerp(doorPos.x, startPos.x, ticks/10.f);
+                        doorPos.y = lerp(doorPos.y, startPos.y, ticks/10.f);
+                        doorPos.z = lerp(doorPos.z, startPos.z, ticks/10.f);
+                    }
+                    marioSetPos(doorPos, false);
                 }
                 else if (marioState.action != ACT_ENTER_VEHICLE_DRAGPED && (taskID == TASK_SIMPLE_CAR_SLOW_DRAG_PED_OUT))
                 {
@@ -815,10 +830,13 @@ void marioTick(float dt)
                     if (marioState.actionTimer < 7)
                     {
                         // jumping inside
-                        CVector newPos = (targetPos - startPos);
-                        newPos.x /= 7.f; newPos.y /= 7.f; newPos.z /= 7.f;
+                        CVector newPos(
+                            lerp(startPos.x, targetPos.x, marioState.actionTimer/7.f),
+                            lerp(startPos.y, targetPos.y, marioState.actionTimer/7.f),
+                            lerp(startPos.z, targetPos.z, marioState.actionTimer/7.f)
+                        );
 
-                        marioSetPos(marioCurrPos + newPos, false);
+                        marioSetPos(newPos, false);
                         sm64_set_mario_faceangle(marioId, targetAngle);
                     }
                     else
