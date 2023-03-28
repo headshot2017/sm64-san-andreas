@@ -785,8 +785,13 @@ void marioTick(float dt)
 
             seatPos.x += 1.1f * sign(seatPos.x);
             seatPos.y -= 0.35f;
-            CVector startPos = *(task->m_pTargetVehicle->m_matrix) * seatPos;
-            startPos.z = task->m_vTargetDoorPos.z-1;
+
+            CVector startPos = task->m_vTargetDoorPos - CVector(0,0,1);
+            if (!(arg & SM64_VEHICLE_BIKE))
+            {
+                startPos = *(task->m_pTargetVehicle->m_matrix) * seatPos;
+                startPos.z = task->m_vTargetDoorPos.z-1;
+            }
 
 
             // set the action!
@@ -887,6 +892,8 @@ void marioTick(float dt)
 
             // create actionArg with bitflags to tell libsm64 how to play the anims
             uint32_t arg = (task->m_nTargetDoor == 10 || task->m_nTargetDoor == TARGET_DOOR_REAR_LEFT) ? SM64_VEHICLE_DOOR_LEFT : SM64_VEHICLE_DOOR_RIGHT;
+            if (task->m_pTargetVehicle->m_nVehicleClass == VEHICLE_BIKE || task->m_pTargetVehicle->m_nVehicleClass == VEHICLE_BMX)
+                arg |= SM64_VEHICLE_BIKE;
 
             // calculate car seat target position
             CVehicleModelInfo* modelInfo = (CVehicleModelInfo*)CModelInfo::GetModelInfo(task->m_pTargetVehicle->m_nModelIndex);
@@ -895,7 +902,9 @@ void marioTick(float dt)
             seatPos.y += 0.375f;
 
             // by default, seatPos.x is passenger seat. if entering from left side, invert X pos to get driver seat
-            if (arg & SM64_VEHICLE_DOOR_LEFT && !(arg & SM64_VEHICLE_BIKE))
+            if (arg & SM64_VEHICLE_BIKE)
+                seatPos.x = 0.005f;
+            if (arg & SM64_VEHICLE_DOOR_LEFT)
                 seatPos.x *= -1;
 
             CVector startPos = *(task->m_pTargetVehicle->m_matrix) * seatPos;
@@ -922,7 +931,7 @@ void marioTick(float dt)
 
                         if (marioState.actionTimer < 7)
                         {
-                            // jumping inside
+                            // jumping outside
                             CVector newPos(
                                 lerp(startPos.x, targetPos.x, marioState.actionTimer/7.f),
                                 lerp(startPos.y, targetPos.y, marioState.actionTimer/7.f),
@@ -934,12 +943,8 @@ void marioTick(float dt)
                         }
                         else
                         {
-                            // now inside
+                            // now outside
                             marioSetPos(targetPos, false);
-
-                            /*float watchTheDamnRoadAngle = targetAngle + (arg&SM64_VEHICLE_DOOR_LEFT ? M_PI_2 : -M_PI_2);
-                            if (watchTheDamnRoadAngle < -M_PI) watchTheDamnRoadAngle += M_PI*2;
-                            if (watchTheDamnRoadAngle > M_PI) watchTheDamnRoadAngle -= M_PI*2;*/
 
                             sm64_set_mario_faceangle(marioId, targetAngle);
                         }
