@@ -24,4 +24,6 @@ void marioSpawn();
 void marioDestroy();
 void marioTick(float dt);
 
+void marioTestAnim();
+
 #endif // MARIO_H_INCLUDED

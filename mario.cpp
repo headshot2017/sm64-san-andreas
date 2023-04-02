@@ -1124,3 +1124,16 @@ void marioTick(float dt)
 
     marioRenderInterpolate(marioGeometry, ticks, overrideWithCJPos, pos);
 }
+
+void marioTestAnim()
+{
+    if (!marioSpawned()) return;
+
+    if (marioState.action == ACT_CUSTOM_ANIM)
+        sm64_set_mario_action(marioId, ACT_IDLE);
+    else if (marioState.action == ACT_IDLE || marioState.action == ACT_PANTING)
+    {
+        sm64_set_mario_action(marioId, ACT_CUSTOM_ANIM);
+        sm64_set_mario_animation(marioId, MARIO_ANIM_CUSTOM_TEST);
+    }
+}
