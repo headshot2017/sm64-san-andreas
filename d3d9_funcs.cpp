@@ -8,7 +8,7 @@ extern "C" {
 
 #include "main.h"
 #include "mario_render.h"
-#include "mario_shadow.raw.h"
+#include "raw/mario_shadow.raw.h"
 
 RwRaster* marioRaster;
 RwRaster* marioShadowRaster;
