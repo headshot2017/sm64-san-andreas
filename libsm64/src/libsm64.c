@@ -171,6 +171,11 @@ extern SM64_LIB_FN uint32_t sm64_audio_tick( uint32_t numQueuedSamples, uint32_t
     return num_audio_samples;
 }
 
+SM64_LIB_FN uint32_t sm64_custom_animation_init( const uint8_t *data, const uint32_t size )
+{
+    return load_mario_custom_anim_from_data(data, size);
+}
+
 SM64_LIB_FN void sm64_static_surfaces_load( const struct SM64Surface *surfaceArray, uint32_t numSurfaces )
 {
     surfaces_load_static( surfaceArray, numSurfaces );

@@ -2019,13 +2019,13 @@ void generate_yellow_sparkles(s16 x, s16 y, s16 z, f32 radius) {
 //     f32 sp20;
 //     f32 sp1C;
 //     f32 sp18;
-// 
+//
 //     find_mario_anim_flags_and_translation(o, o->header.gfx.angle[1], sp24);
-// 
+//
 //     sp20 = o->header.gfx.pos[0] + sp24[0];
 //     sp1C = o->header.gfx.pos[1] + 10.0f;
 //     sp18 = o->header.gfx.pos[2] + sp24[2];
-// 
+//
 //     return find_floor(sp20, sp1C, sp18, &surf);
 // }
 
@@ -2653,6 +2653,17 @@ static s32 act_end_waving_cutscene(struct MarioState *m) {
     return FALSE;
 }
 
+static s32 act_custom_anim(struct MarioState *m) {
+    return FALSE;
+}
+
+static s32 act_custom_anim_to_idle(struct MarioState *m) {
+    if (is_anim_at_end(m))
+        return set_mario_action(m, ACT_IDLE, 0);
+    return FALSE;
+}
+
+
 static s32 check_for_instant_quicksand(struct MarioState *m) {
     if (m->floor->type == SURFACE_INSTANT_QUICKSAND && m->action & ACT_FLAG_INVULNERABLE
         && m->action != ACT_QUICKSAND_DEATH) {
@@ -2722,6 +2733,8 @@ s32 mario_execute_cutscene_action(struct MarioState *m) {
         case ACT_BUTT_STUCK_IN_GROUND:       cancel = act_butt_stuck_in_ground(m);       break;
         case ACT_FEET_STUCK_IN_GROUND:       cancel = act_feet_stuck_in_ground(m);       break;
         case ACT_PUTTING_ON_CAP:             cancel = act_putting_on_cap(m);             break;
+        case ACT_CUSTOM_ANIM:                cancel = act_custom_anim(m);                break;
+        case ACT_CUSTOM_ANIM_TO_IDLE:        cancel = act_custom_anim_to_idle(m);        break;
     }
     /* clang-format on */
 

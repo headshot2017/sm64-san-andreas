@@ -31,6 +31,7 @@
 #include "mario_step.h"
 // #include "memory.h"
 #include "../include/object_fields.h"
+#include "../include/mario_animation_ids.h"
 // #include "object_helpers.h"
 // #include "object_list_processor.h"
 // #include "print.h"
@@ -70,8 +71,8 @@ s32 is_anim_past_end(struct MarioState *m) {
  */
 s16 set_mario_animation(struct MarioState *m, s32 targetAnimID) {
     struct Object *o = m->marioObj;
-
     load_mario_animation(m->animation, targetAnimID);
+
     struct Animation *targetAnim = m->animation->targetAnim;
     //if (load_patchable_table(m->animation, targetAnimID)) {
     //    targetAnim->values = (void *) VIRTUAL_TO_PHYSICAL((u8 *) targetAnim + (uintptr_t) targetAnim->values);
