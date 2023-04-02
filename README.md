@@ -14,22 +14,6 @@ It's not necessary in order for this plugin to work, but it fixes an issue with 
 This is still under development!
 
 ## Compiling
-### Requirements
-* [Code::Blocks with x86 (32-bit) MinGW compiler](http://www.codeblocks.org/downloads/binaries/#imagesoswindows48pnglogo-microsoft-windows) (codeblocks-mingw-32bit-setup.exe)
-  * Download from FossHUB the one that says `Code Blocks Windows 32 bit (including 32 bit compiler)`
-* [plugin-sdk](https://github.com/DK22Pac/plugin-sdk)
-  * Ignore the "Install Plugin-SDK Wizard/Templates" step - this is only if you're going to be creating a plugin.
-  * You only need to set environment variables for "Plugin-SDK folder" and "GTA San Andreas folder".
-  * To create the Code::Blocks Plugin-SDK workspace, replace `tools\premake\premake5.exe` with [this version](https://github.com/DK22Pac/plugin-sdk/raw/cc130098120f45de0f62f34681555d7184719263/tools/premake/premake5.exe), otherwise it won't work
-  * On the "Create Plugin-SDK solution/workspace", select Code::Blocks and click 'Generate'.
+See the [Compiling the plugin](https://github.com/headshot2017/sm64-san-andreas/wiki/Compiling-the-plugin) wiki page for a complete tutorial for setting up CodeBlocks, mingw-w64, plugin-sdk, and this plugin.
 
-Make sure all of these are installed in a path that does not contain spaces, e.g. `C:\apps\CodeBlocks` instead of `C:\Program Files (x86)\CodeBlocks`
-
-### Inside Code::Blocks
-First, make sure you have compiled plugin-sdk, by opening `plugin.workspace` in Code::Blocks, then selecting `plugin_sa` in the projects pane on the left.<br />
-For the build target, choose 'Release' or 'Debug' (or both), and press CTRL+F9 to start compiling.
-
-Next, open `sm64-san-andreas.workspace` inside Code::Blocks.<br />
-Make sure to build the `libsm64` project first, then build `sm64-san-andreas` afterwards.
-
-NOTE: The build targets for both projects must match! e.g. if libsm64 is built with the Debug target, sm64-san-andreas must also be built with the GTASA Debug target.
+NOTE: The build targets for both projects must match! e.g. if libsm64 is built with the Release target, sm64-san-andreas must also be built with the GTASA Release target.
