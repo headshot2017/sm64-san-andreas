@@ -30,6 +30,7 @@ extern "C" {
 #include "d3d9_funcs.h"
 #include "main.h"
 #include "mario_render.h"
+#include "mario_custom_anims.h"
 
 #define sign(a) (a>0 ? 1 : a<0 ? -1 : 0)
 #define MAX_OBJS 512
@@ -858,14 +859,15 @@ void marioTick(float dt)
                 }
                 else if (taskID == TASK_SIMPLE_CAR_CLOSE_DOOR_FROM_INSIDE)
                 {
+                    if (marioState.action != ACT_CUSTOM_ANIM)
+                    {
+                        sm64_set_mario_action(marioId, ACT_CUSTOM_ANIM);
+                        sm64_set_mario_animation(marioId, (arg&SM64_VEHICLE_DOOR_LEFT) ? MARIO_ANIM_CUSTOM_CLOSE_CAR_DOOR_LEFT : MARIO_ANIM_CUSTOM_CLOSE_CAR_DOOR_RIGHT);
+                    }
+
                     marioSetPos(targetPos, false);
 
-                    float watchTheDamnRoadAngle = targetAngle;
-                    if (arg & SM64_VEHICLE_BIKE)
-                        watchTheDamnRoadAngle += M_PI_2;
-                    else
-                        watchTheDamnRoadAngle = targetAngle + (arg&SM64_VEHICLE_DOOR_LEFT ? M_PI : -M_PI);
-
+                    float watchTheDamnRoadAngle = targetAngle + (arg&SM64_VEHICLE_DOOR_LEFT ? M_PI_2 : -M_PI_2);
                     if (watchTheDamnRoadAngle < -M_PI) watchTheDamnRoadAngle += M_PI*2;
                     if (watchTheDamnRoadAngle > M_PI) watchTheDamnRoadAngle -= M_PI*2;
 

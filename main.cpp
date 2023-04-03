@@ -12,8 +12,7 @@ extern "C" {
 #include "d3d9_funcs.h"
 #include "mario.h"
 #include "mario_render.h"
-
-#include "raw/anim_test.raw.h"
+#include "mario_custom_anims.h"
 
 using namespace plugin;
 
@@ -21,8 +20,6 @@ bool loaded;
 std::string message;
 uint8_t* marioTexture;
 RwImVertexIndex marioIndices[SM64_GEO_MAX_TRIANGLES * 3];
-
-int MARIO_ANIM_CUSTOM_TEST;
 
 class sm64_san_andreas {
 public:
@@ -70,7 +67,7 @@ public:
             sm64_register_wall_attack_function(onWallAttack);
             sm64_register_debug_print_function( [](const char* msg){printf("%s\n", msg);} );
 
-            MARIO_ANIM_CUSTOM_TEST = sm64_custom_animation_init(marioAnimTestRaw, marioAnimTestRaw_length);
+            marioInitCustomAnims();
 
             audio_thread_init();
             sm64_play_sound_global(SOUND_MENU_STAR_SOUND);
