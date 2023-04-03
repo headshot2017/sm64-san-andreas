@@ -2654,10 +2654,13 @@ static s32 act_end_waving_cutscene(struct MarioState *m) {
 }
 
 static s32 act_custom_anim(struct MarioState *m) {
+    if (m->actionArg) stationary_ground_step(m);
     return FALSE;
 }
 
 static s32 act_custom_anim_to_idle(struct MarioState *m) {
+    if (m->actionArg) stationary_ground_step(m);
+
     if (is_anim_at_end(m))
         return set_mario_action(m, ACT_IDLE, 0);
     return FALSE;
