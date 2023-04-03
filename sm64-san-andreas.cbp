@@ -96,9 +96,13 @@
 		<Unit filename="main.h" />
 		<Unit filename="mario.cpp" />
 		<Unit filename="mario.h" />
+		<Unit filename="mario_custom_anims.cpp" />
+		<Unit filename="mario_custom_anims.h" />
 		<Unit filename="mario_render.cpp" />
 		<Unit filename="mario_render.h" />
 		<Unit filename="mario_shadow.raw.h" />
+		<Unit filename="raw/anim_close_car_door_left.raw.h" />
+		<Unit filename="raw/anim_close_car_door_right.raw.h" />
 		<Unit filename="raw/anim_test.raw.h" />
 		<Unit filename="raw/mario_shadow.raw.h" />
 		<Extensions>
