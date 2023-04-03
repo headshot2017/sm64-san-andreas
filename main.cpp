@@ -129,7 +129,7 @@ public:
                 keyPressTime = CTimer::m_snTimeInMilliseconds;
                 marioRenderToggleDebug();
             }
-            else if (KeyPressed(VK_OEM_PERIOD))
+            else if (KeyPressed('P'))
             {
                 keyPressTime = CTimer::m_snTimeInMilliseconds;
                 marioTestAnim();
