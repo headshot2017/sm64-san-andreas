@@ -3,6 +3,7 @@
 #include <unistd.h>
 #include <sys/time.h>
 #include <pthread.h>
+#include <fstream>
 
 #include <SDL2/SDL.h>
 #include <libsm64.h>
@@ -51,7 +52,8 @@ void audio_thread_init()
 
     if (SDL_Init(SDL_INIT_AUDIO) < 0)
     {
-        fprintf(stderr, "SDL_INIT_AUDIO failure: %s\n", SDL_GetError());
+        std::ofstream log("libsm64.log", std::ios::app);
+        log << "SDL_Init(SDL_INIT_AUDIO) failure: " << SDL_GetError() << std::endl;
         return;
     }
     SDL_AudioSpec want, have;
@@ -63,7 +65,8 @@ void audio_thread_init()
     want.callback = NULL;
     dev = SDL_OpenAudioDevice(NULL, 0, &want, &have, 0);
     if (dev == 0) {
-        fprintf(stderr, "SDL_OpenAudio error: %s\n", SDL_GetError());
+        std::ofstream log("libsm64.log", std::ios::app);
+        log << "SDL_OpenAudioDevice error: " << SDL_GetError() << std::endl;
         return;
     }
     SDL_PauseAudioDevice(dev, 0);
