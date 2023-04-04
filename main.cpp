@@ -43,7 +43,6 @@ public:
             file.seekg(0);
             file.read((char*)romBuffer, romFileLength);
             romBuffer[romFileLength] = 0;
-            file.close();
 
             // Mario texture is 704x64 RGBA
             marioTexture = new uint8_t[4 * SM64_TEXTURE_WIDTH * SM64_TEXTURE_HEIGHT];
