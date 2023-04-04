@@ -873,6 +873,46 @@ void marioTick(float dt)
 
                     sm64_set_mario_faceangle(marioId, watchTheDamnRoadAngle);
                 }
+                else if (taskID == TASK_SIMPLE_CAR_SHUFFLE)
+                {
+                    // switch from passenger to driver seat
+                    CVector driverSeatPos = modelInfo->m_pVehicleStruct->m_avDummyPos[4]; // DUMMY_SEAT_FRONT
+                    driverSeatPos.z -= 0.375f;
+                    driverSeatPos.y += 0.375f;
+                    driverSeatPos.x *= -1;
+
+                    CVector driverTargetPos = *(task->m_pTargetVehicle->m_matrix) * driverSeatPos;
+
+                    if (marioState.action != ACT_ENTER_VEHICLE_JUMPINSIDE)
+                    {
+                        sm64_set_mario_action_arg(marioId, ACT_ENTER_VEHICLE_JUMPINSIDE, arg);
+                        marioState.actionTimer = 0;
+                    }
+
+                    if (marioState.actionTimer < 7)
+                    {
+                        // jumping to different seat
+                        CVector newPos(
+                            lerp(targetPos.x, driverTargetPos.x, marioState.actionTimer/7.f),
+                            lerp(targetPos.y, driverTargetPos.y, marioState.actionTimer/7.f),
+                            lerp(targetPos.z, driverTargetPos.z, marioState.actionTimer/7.f)
+                        );
+
+                        marioSetPos(newPos, false);
+                        sm64_set_mario_faceangle(marioId, targetAngle);
+                    }
+                    else
+                    {
+                        // now in driver seat
+                        marioSetPos(driverTargetPos, false);
+
+                        float watchTheDamnRoadAngle = targetAngle + (arg&SM64_VEHICLE_DOOR_LEFT ? M_PI_2 : -M_PI_2);
+                        if (watchTheDamnRoadAngle < -M_PI) watchTheDamnRoadAngle += M_PI*2;
+                        if (watchTheDamnRoadAngle > M_PI) watchTheDamnRoadAngle -= M_PI*2;
+
+                        sm64_set_mario_faceangle(marioId, watchTheDamnRoadAngle);
+                    }
+                }
             }
         }
         else if (!ped->m_nPedFlags.bInVehicle && marioState.action >= ACT_ENTER_VEHICLE_OPENDOOR && marioState.action <= ACT_ENTER_VEHICLE_JUMPINSIDE)
