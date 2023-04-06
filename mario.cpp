@@ -418,6 +418,20 @@ void loadNonBuildings(const CVector& pos)
 
 void loadCollisions(const CVector& pos)
 {
+    int width = 16384;
+    SM64Surface surfaces[2];
+    CVector sm64pos(pos.x / MARIO_SCALE, -70 / MARIO_SCALE, -pos.y / MARIO_SCALE);
+
+    surfaces[0].vertices[0][0] = sm64pos.x + width;	surfaces[0].vertices[0][1] = sm64pos.y;	surfaces[0].vertices[0][2] = sm64pos.z + width;
+    surfaces[0].vertices[1][0] = sm64pos.x - width;	surfaces[0].vertices[1][1] = sm64pos.y;	surfaces[0].vertices[1][2] = sm64pos.z - width;
+    surfaces[0].vertices[2][0] = sm64pos.x - width;	surfaces[0].vertices[2][1] = sm64pos.y;	surfaces[0].vertices[2][2] = sm64pos.z + width;
+
+    surfaces[1].vertices[0][0] = sm64pos.x - width;	surfaces[1].vertices[0][1] = sm64pos.y;	surfaces[1].vertices[0][2] = sm64pos.z - width;
+    surfaces[1].vertices[1][0] = sm64pos.x + width;	surfaces[1].vertices[1][1] = sm64pos.y;	surfaces[1].vertices[1][2] = sm64pos.z + width;
+    surfaces[1].vertices[2][0] = sm64pos.x + width;	surfaces[1].vertices[2][1] = sm64pos.y;	surfaces[1].vertices[2][2] = sm64pos.z - width;
+
+    sm64_static_surfaces_load(surfaces, 2);
+
     loadBuildings(pos);
     loadNonBuildings(pos);
 }
