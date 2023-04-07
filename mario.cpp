@@ -468,9 +468,6 @@ void onWallAttack(uint32_t surfaceObjectID)
             {
                 obj->ObjectDamage(1000.f, &marioInterpPos, &direction, player, WEAPON_UNARMED); // directly using this without "health -= 500" instantly destroys object
                 sm64_play_sound_global(SOUND_GENERAL_BREAK_BOX);
-                //char buf[256];
-                //sprintf(buf, "%d: %d", i, obj->m_nModelIndex);
-                //CHud::SetHelpMessage(buf, false,false,false);
             }
         }
         break;
