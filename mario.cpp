@@ -814,7 +814,14 @@ void marioTick(float dt)
                 // calling sub->GetID() returns some garbage number, so i copied this from plugin_sa CTask.cpp
                 eTaskType taskID = ((eTaskType (__thiscall *)(CTask *))plugin::GetVMT(sub, 4))(sub);
 
-                if (taskID == TASK_SIMPLE_CAR_OPEN_DOOR_FROM_OUTSIDE)
+                if (taskID == TASK_SIMPLE_BIKE_PICK_UP)
+                {
+                    if (marioState.action != ACT_BIKE_PICK_UP)
+                        sm64_set_mario_action_arg(marioId, ACT_BIKE_PICK_UP, arg);
+                    marioSetPos(task->m_vTargetDoorPos - CVector(0,0,1), false);
+                    sm64_set_mario_faceangle(marioId, targetAngle);
+                }
+                else if (taskID == TASK_SIMPLE_CAR_OPEN_DOOR_FROM_OUTSIDE)
                 {
                     if (marioState.action != ACT_ENTER_VEHICLE_OPENDOOR)
                         sm64_set_mario_action_arg(marioId, ACT_ENTER_VEHICLE_OPENDOOR, arg);

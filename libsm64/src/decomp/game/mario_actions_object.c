@@ -540,6 +540,23 @@ s32 act_leave_vehicle_closedoor(struct MarioState *m) {
     return FALSE;
 }
 
+s32 act_bike_pick_up(struct MarioState *m) {
+    if (!m->actionState)
+    {
+        s32 animFrame = set_mario_animation(m, MARIO_ANIM_PLACE_LIGHT_OBJ);
+        if (animFrame == -1 || m->actionTimer++ < 6) m->marioObj->header.gfx.animInfo.animFrame = m->animation->targetAnim->loopEnd;
+        else if (animFrame > 0) m->marioObj->header.gfx.animInfo.animFrame -= 2;
+        else
+        {
+            m->marioObj->header.gfx.animInfo.animFrame = m->animation->targetAnim->loopEnd;
+            m->actionState++;
+        }
+    }
+
+    stationary_ground_step(m);
+    return FALSE;
+}
+
 s32 check_common_object_cancels(struct MarioState *m) {
     f32 waterSurface = m->waterLevel - 100;
     if (m->pos[1] < waterSurface) {
@@ -586,6 +603,7 @@ s32 mario_execute_object_action(struct MarioState *m) {
         case ACT_ENTER_VEHICLE_JUMPINSIDE: cancel = act_enter_vehicle_jumpinside(m); break;
         case ACT_LEAVE_VEHICLE_JUMPOUT:    cancel = act_leave_vehicle_jumpout(m);    break;
         case ACT_LEAVE_VEHICLE_CLOSEDOOR:  cancel = act_leave_vehicle_closedoor(m);  break;
+        case ACT_BIKE_PICK_UP:             cancel = act_bike_pick_up(m);             break;
     }
     /* clang-format on */
 

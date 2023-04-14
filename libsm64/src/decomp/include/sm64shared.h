@@ -411,6 +411,7 @@
 #define ACT_ENTER_VEHICLE_JUMPINSIDE   0x00000396 // (0x196 | ACT_FLAG_STATIONARY) (custom libsm64 GTA SA action)
 #define ACT_LEAVE_VEHICLE_JUMPOUT      0x00000397 // (0x197 | ACT_FLAG_STATIONARY) (custom libsm64 GTA SA action)
 #define ACT_LEAVE_VEHICLE_CLOSEDOOR    0x00000398 // (0x198 | ACT_FLAG_STATIONARY) (custom libsm64 GTA SA action)
+#define ACT_BIKE_PICK_UP               0x00000399 // (0x199 | ACT_FLAG_STATIONARY) (custom libsm64 GTA SA action)
 
 /*
  this input mask is unused by the controller,
