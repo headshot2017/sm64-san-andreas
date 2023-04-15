@@ -933,7 +933,7 @@ void marioTick(float dt)
                 }
             }
         }
-        else if (!ped->m_nPedFlags.bInVehicle && marioState.action >= ACT_ENTER_VEHICLE_OPENDOOR && marioState.action <= ACT_ENTER_VEHICLE_JUMPINSIDE)
+        else if (!ped->m_nPedFlags.bInVehicle && marioState.action >= ACT_ENTER_VEHICLE_OPENDOOR && marioState.action <= ACT_BIKE_PICK_UP)
             sm64_set_mario_action(marioId, ACT_FREEFALL);
 
         // exit vehicle animation handling
@@ -1023,6 +1023,10 @@ void marioTick(float dt)
                             sm64_set_mario_faceangle(marioId, faceDoorAngle);
                         }
                         break;
+
+                    case TASK_SIMPLE_CAR_JUMP_OUT:
+                        CHud::SetMessage("TASK_SIMPLE_CAR_JUMP_OUT");
+                        break;
                 }
             }
         }
@@ -1033,14 +1037,11 @@ void marioTick(float dt)
         if (ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_CAR_SLOW_BE_DRAGGED_OUT))
         {
             // slow version: for cars, trucks, etc
+            CHud::SetMessage("TASK_COMPLEX_CAR_SLOW_BE_DRAGGED_OUT");
         }
         else if (ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_BIKE_JACKED))
         {
-            //CHud::SetMessage("TASK_SIMPLE_BIKE_JACKED");
-        }
-        else if (ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_CAR_JUMP_OUT))
-        {
-            //CHud::SetMessage("TASK_SIMPLE_CAR_JUMP_OUT");
+            CHud::SetMessage("TASK_SIMPLE_BIKE_JACKED");
         }
 
         // handles loaded objects, vehicles and peds
