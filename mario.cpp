@@ -578,6 +578,7 @@ void marioTick(float dt)
 
     bool cjHasControl = (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle || hp <= 0 || safeTicks > 0);
     bool overrideWithCJPos = (cjHasControl &&
+                              !ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_ENTER_CAR_AS_DRIVER) &&
                               !ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_LEAVE_CAR) &&
                               !ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_CAR_SLOW_BE_DRAGGED_OUT));
     bool overrideWithCJAI = (cjHasControl || carDoor);
@@ -937,6 +938,7 @@ void marioTick(float dt)
             sm64_set_mario_action(marioId, ACT_FREEFALL);
 
         // exit vehicle animation handling
+        static int jumpedOut = 0;
         if (ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_LEAVE_CAR))
         {
             CTaskComplexLeaveCar* task = static_cast<CTaskComplexLeaveCar*>(ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_LEAVE_CAR));
@@ -999,15 +1001,13 @@ void marioTick(float dt)
                             );
 
                             marioSetPos(newPos, false);
-                            sm64_set_mario_faceangle(marioId, targetAngle);
                         }
                         else
                         {
                             // now outside
                             marioSetPos(targetPos, false);
-
-                            sm64_set_mario_faceangle(marioId, targetAngle);
                         }
+                        sm64_set_mario_faceangle(marioId, targetAngle);
                         break;
 
                     case TASK_SIMPLE_CAR_CLOSE_DOOR_FROM_OUTSIDE:
@@ -1025,13 +1025,31 @@ void marioTick(float dt)
                         break;
 
                     case TASK_SIMPLE_CAR_JUMP_OUT:
-                        CHud::SetMessage("TASK_SIMPLE_CAR_JUMP_OUT");
+                        if (jumpedOut < 5)
+                        {
+                            sm64_set_mario_forward_velocity(marioId, 70);
+                            sm64_set_mario_faceangle(marioId, targetAngle);
+                            //seatPos.x += 1.5f * sign(seatPos.x);
+                            CVector targetPos = *(task->m_pTargetVehicle->m_matrix) * seatPos;
+                            marioSetPos(CVector(targetPos.x, targetPos.y, startPos.z), false);
+                        }
+
+                        if (marioState.action != ACT_DIVE && !jumpedOut)
+                        {
+                            sm64_set_mario_action(marioId, ACT_DIVE);
+                        }
+
+                        jumpedOut++;
                         break;
                 }
             }
         }
-        else if (marioState.action >= ACT_LEAVE_VEHICLE_JUMPOUT && marioState.action <= ACT_LEAVE_VEHICLE_CLOSEDOOR)
-            sm64_set_mario_action(marioId, ACT_IDLE);
+        else
+        {
+            jumpedOut = 0;
+            if (marioState.action >= ACT_LEAVE_VEHICLE_JUMPOUT && marioState.action <= ACT_LEAVE_VEHICLE_CLOSEDOOR)
+                sm64_set_mario_action(marioId, ACT_IDLE);
+        }
 
         // get dragged out of vehicle - animation handling
         if (ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_CAR_SLOW_BE_DRAGGED_OUT))
