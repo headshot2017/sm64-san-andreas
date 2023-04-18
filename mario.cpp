@@ -1061,7 +1061,7 @@ void marioTick(float dt)
         {
             if (!_fallen)
             {
-                float _angle1 = (ped->m_pVehicle) ? atan2(ped->m_pVehicle->m_vecMoveSpeed.y, ped->m_pVehicle->m_vecMoveSpeed.x) : 0;
+                float _angle1 = (ped->m_pVehicle) ? atan2(ped->m_pVehicle->m_vecMoveSpeed.y, ped->m_pVehicle->m_vecMoveSpeed.x) : -1;
                 float _angle2 = (ped->m_pVehicle) ? ped->m_pVehicle->GetHeading()+M_PI_2 : 0;
                 if (_angle2 < -M_PI) _angle2 += M_PI*2;
                 if (_angle2 > M_PI) _angle2 -= M_PI*2;
@@ -1070,15 +1070,11 @@ void marioTick(float dt)
 
                 _fallen = true;
 
-                if (angle1 == angle2 && marioState.action != ACT_HARD_FORWARD_AIR_KB)
-                    sm64_set_mario_action_arg(marioId, ACT_HARD_FORWARD_AIR_KB, 1);
-                else if (marioState.action != ACT_HARD_BACKWARD_AIR_KB)
+                if (angle1 != angle2 && marioState.action != ACT_HARD_BACKWARD_AIR_KB)
                     sm64_set_mario_action_arg(marioId, ACT_HARD_BACKWARD_AIR_KB, 1);
+                else if (marioState.action != ACT_HARD_FORWARD_AIR_KB)
+                    sm64_set_mario_action_arg(marioId, ACT_HARD_FORWARD_AIR_KB, 1);
             }
-        }
-        else if (ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_BIKE_JACKED))
-        {
-            CHud::SetMessage("TASK_SIMPLE_BIKE_JACKED");
         }
         else
         {
