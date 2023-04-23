@@ -1029,7 +1029,6 @@ void marioTick(float dt)
                         {
                             sm64_set_mario_forward_velocity(marioId, 70);
                             sm64_set_mario_faceangle(marioId, targetAngle);
-                            //seatPos.x += 1.5f * sign(seatPos.x);
                             CVector targetPos = *(task->m_pTargetVehicle->m_matrix) * seatPos;
                             marioSetPos(CVector(targetPos.x, targetPos.y, startPos.z), false);
                         }
@@ -1055,7 +1054,45 @@ void marioTick(float dt)
         if (ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_CAR_SLOW_BE_DRAGGED_OUT))
         {
             // get dragged out of vehicle - animation handling
-            CHud::SetMessage("TASK_COMPLEX_CAR_SLOW_BE_DRAGGED_OUT");
+            uint32_t arg = (ped->m_pVehicle->IsDriver(ped)) ? SM64_VEHICLE_DOOR_LEFT : SM64_VEHICLE_DOOR_RIGHT;
+            if (ped->m_pVehicle->m_nVehicleClass == VEHICLE_BIKE || ped->m_pVehicle->m_nVehicleClass == VEHICLE_BMX)
+                arg |= SM64_VEHICLE_BIKE;
+
+            // calculate car seat target position
+            CVehicleModelInfo* modelInfo = (CVehicleModelInfo*)CModelInfo::GetModelInfo(ped->m_pVehicle->m_nModelIndex);
+            CVector seatPos = modelInfo->m_pVehicleStruct->m_avDummyPos[4]; // DUMMY_SEAT_FRONT
+            seatPos.z -= 0.375f;
+            seatPos.y += 0.375f;
+
+            // by default, seatPos.x is passenger seat. if entering from left side, invert X pos to get driver seat
+            if (arg & SM64_VEHICLE_BIKE)
+                seatPos.x = 0.005f;
+            if (arg & SM64_VEHICLE_DOOR_LEFT)
+                seatPos.x *= -1;
+
+            CVector startPos = *(ped->m_pVehicle->m_matrix) * seatPos;
+
+            seatPos.x += 1.1f * sign(seatPos.x);
+            seatPos.y -= 0.35f;
+            CVector targetPos = *(ped->m_pVehicle->m_matrix) * seatPos;
+
+            if (!_fallen && marioState.action != ACT_VEHICLE_JACKED)
+            {
+                _fallen = true;
+                marioSetPos(startPos, false);
+                sm64_set_mario_action_arg(marioId, ACT_VEHICLE_JACKED, arg);
+            }
+
+            if (marioState.actionState == 2)
+            {
+                CVector newPos(
+                    lerp(startPos.x, targetPos.x, marioState.actionTimer/8.f),
+                    lerp(startPos.y, targetPos.y, marioState.actionTimer/8.f),
+                    lerp(startPos.z, targetPos.z, marioState.actionTimer/8.f)
+                );
+
+                marioSetPos(newPos, false);
+            }
         }
         else if (ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_FALL_AND_GET_UP))
         {

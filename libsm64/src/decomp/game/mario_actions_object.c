@@ -519,6 +519,23 @@ s32 act_enter_vehicle_jumpinside(struct MarioState *m) {
     return FALSE;
 }
 
+s32 act_bike_pick_up(struct MarioState *m) {
+    if (!m->actionState)
+    {
+        s32 animFrame = set_mario_animation(m, MARIO_ANIM_PLACE_LIGHT_OBJ);
+        if (animFrame == -1 || m->actionTimer++ < 6) m->marioObj->header.gfx.animInfo.animFrame = m->animation->targetAnim->loopEnd;
+        else if (animFrame > 0) m->marioObj->header.gfx.animInfo.animFrame -= 2;
+        else
+        {
+            m->marioObj->header.gfx.animInfo.animFrame = m->animation->targetAnim->loopEnd;
+            m->actionState++;
+        }
+    }
+
+    stationary_ground_step(m);
+    return FALSE;
+}
+
 s32 act_leave_vehicle_jumpout(struct MarioState *m) {
     m->actionTimer++;
     if (m->actionTimer < 7)
@@ -540,20 +557,38 @@ s32 act_leave_vehicle_closedoor(struct MarioState *m) {
     return FALSE;
 }
 
-s32 act_bike_pick_up(struct MarioState *m) {
-    if (!m->actionState)
-    {
-        s32 animFrame = set_mario_animation(m, MARIO_ANIM_PLACE_LIGHT_OBJ);
-        if (animFrame == -1 || m->actionTimer++ < 6) m->marioObj->header.gfx.animInfo.animFrame = m->animation->targetAnim->loopEnd;
-        else if (animFrame > 0) m->marioObj->header.gfx.animInfo.animFrame -= 2;
-        else
-        {
-            m->marioObj->header.gfx.animInfo.animFrame = m->animation->targetAnim->loopEnd;
-            m->actionState++;
-        }
-    }
+s32 act_vehicle_jacked(struct MarioState *m) {
+    u16 start = (m->actionArg & SM64_VEHICLE_DOOR_LEFT) ? 0 : 9;
 
-    stationary_ground_step(m);
+    switch(m->actionState)
+    {
+        case 0:
+            if (m->actionTimer++ >= start+16)
+            {
+                set_mario_animation(m, MARIO_ANIM_LAND_ON_STOMACH);
+                play_sound(SOUND_MARIO_ATTACKED, m->marioObj->header.gfx.cameraToObject);
+                m->faceAngle[1] += (m->actionArg & SM64_VEHICLE_DOOR_LEFT) ? -0x4000 : 0x4000;
+                m->marioObj->header.gfx.angle[1] = m->faceAngle[1];
+                m->actionTimer = 0;
+                m->actionState++;
+            }
+            break;
+
+        case 1:
+            if (m->actionTimer++ >= 22)
+            {
+                set_mario_animation(m, MARIO_ANIM_BACKWARD_AIR_KB);
+                play_sound(SOUND_MARIO_UH, m->marioObj->header.gfx.cameraToObject);
+                m->actionTimer = 0;
+                m->actionState++;
+            }
+            break;
+
+        case 2:
+            if (m->actionTimer++ >= 8)
+                return set_mario_action(m, ACT_HARD_BACKWARD_AIR_KB, 2);
+            break;
+    }
     return FALSE;
 }
 
@@ -601,9 +636,10 @@ s32 mario_execute_object_action(struct MarioState *m) {
         case ACT_ENTER_VEHICLE_OPENDOOR:   cancel = act_enter_vehicle_opendoor(m);   break;
         case ACT_ENTER_VEHICLE_DRAGPED:    cancel = act_enter_vehicle_dragped(m);    break;
         case ACT_ENTER_VEHICLE_JUMPINSIDE: cancel = act_enter_vehicle_jumpinside(m); break;
+        case ACT_BIKE_PICK_UP:             cancel = act_bike_pick_up(m);             break;
         case ACT_LEAVE_VEHICLE_JUMPOUT:    cancel = act_leave_vehicle_jumpout(m);    break;
         case ACT_LEAVE_VEHICLE_CLOSEDOOR:  cancel = act_leave_vehicle_closedoor(m);  break;
-        case ACT_BIKE_PICK_UP:             cancel = act_bike_pick_up(m);             break;
+        case ACT_VEHICLE_JACKED:           cancel = act_vehicle_jacked(m);           break;
     }
     /* clang-format on */
 
