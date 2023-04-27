@@ -577,7 +577,7 @@ void marioTick(float dt)
     if (attackState > 1) attackState = 0; // fix bug where pressing jump makes attackState above 1
 
     bool cjHasControl = (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle || hp <= 0 || safeTicks > 0);
-    bool overrideWithCJPos = (cjHasControl &&
+    bool overrideWithCJPos = ((ped->m_nPedFlags.bInVehicle || hp <= 0) &&
                               !ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_ENTER_CAR_AS_DRIVER) &&
                               !ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_LEAVE_CAR) &&
                               !ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_CAR_SLOW_BE_DRAGGED_OUT));
@@ -619,6 +619,15 @@ void marioTick(float dt)
         sm64_set_mario_faceangle(marioId, entryexit->m_pLink->m_fExitAngle + M_PI);
         entryexit = nullptr;
     }
+
+    static bool lastCutsceneRunning = false;
+    if (CCutsceneMgr::ms_running && !lastCutsceneRunning)
+    {
+        lastCutsceneRunning = true;
+        marioSetPos(ped->GetPosition());
+    }
+    else if (!CCutsceneMgr::ms_running && lastCutsceneRunning)
+        lastCutsceneRunning = false;
 
     ticks += dt;
     while (ticks >= 1.f/30)
