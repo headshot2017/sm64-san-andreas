@@ -17,6 +17,8 @@ RwTexture* marioShadowRW = nullptr;
 
 void initD3D()
 {
+    if (!loaded) return;
+
     marioRaster = RwRasterCreate(SM64_TEXTURE_WIDTH, SM64_TEXTURE_HEIGHT, 32, rwRASTERFORMAT8888 | rwRASTERTYPETEXTURE);
     RwUInt8* pixels = RwRasterLock(marioRaster, 0, 1);
     memcpy(pixels, marioTexture, 4 * SM64_TEXTURE_WIDTH * SM64_TEXTURE_HEIGHT);

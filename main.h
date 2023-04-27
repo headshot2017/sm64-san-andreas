@@ -5,6 +5,7 @@
 
 #include <libsm64.h>
 
+extern bool loaded;
 extern uint8_t* marioTexture;
 extern RwImVertexIndex marioIndices[SM64_GEO_MAX_TRIANGLES * 3];
 
