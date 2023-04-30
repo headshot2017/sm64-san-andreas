@@ -13,6 +13,7 @@
 #include "CCutsceneMgr.h"
 #include "CModelInfo.h"
 #include "ePedBones.h"
+#include "eSurfaceType.h"
 
 #define _USE_MATH_DEFINES
 #include <stdio.h>
@@ -77,6 +78,55 @@ bool marioSpawned()
     return marioId != -1;
 }
 
+uint8_t determineMarioTerrain(uint8_t GTAmaterial)
+{
+    switch(GTAmaterial)
+    {
+        case SURFACE_SAND_DEEP:
+        case SURFACE_SAND_MEDIUM:
+        case SURFACE_SAND_COMPACT:
+        case SURFACE_SAND_ARID:
+        case SURFACE_SAND_MORE:
+        case SURFACE_SAND_BEACH:
+        case SURFACE_P_SAND:
+        case SURFACE_P_SANDBEACH:
+        case SURFACE_P_SAND_DENSE:
+        case SURFACE_P_SAND_ARID:
+        case SURFACE_P_SAND_COMPACT:
+            return TERRAIN_SAND;
+            break;
+
+        case SURFACE_GRASS_LONG_DRY:
+        case SURFACE_GRASS_LONG_LUSH:
+        case SURFACE_GRASS_MEDIUM_DRY:
+        case SURFACE_GRASS_MEDIUM_LUSH:
+        case SURFACE_GRASS_SHORT_DRY:
+        case SURFACE_GRASS_SHORT_LUSH:
+        case SURFACE_DIRT:
+        case SURFACE_DIRTTRACK:
+        case SURFACE_GRAVEL:
+        case SURFACE_VEGETATION:
+        case SURFACE_RUBBER:
+        case SURFACE_PLASTIC:
+        case SURFACE_CARPET:
+        case SURFACE_PAVEMENT:
+        case SURFACE_PAVEMENT_FUCKED:
+        case SURFACE_STAIRSCARPET:
+        case SURFACE_RAILTRACK:
+        case SURFACE_FLOORBOARD:
+            return TERRAIN_GRASS;
+            break;
+
+        case SURFACE_WOOD_SOLID:
+        case SURFACE_WOOD_THIN:
+        case SURFACE_P_WOODDENSE:
+            return TERRAIN_SPOOKY;
+            break;
+    }
+
+    return TERRAIN_STONE;
+}
+
 void deleteBuildings()
 {
     for (int i=0; i<MAX_OBJS; i++)
@@ -110,6 +160,7 @@ void loadBuildings(const CVector& pos)
         CCollisionData* colData = outEntities[i]->GetColModel()->m_pColData;
         if (!colData) continue;
 
+        uint8_t terrainType = TERRAIN_STONE;
         CVector ePos = outEntities[i]->GetPosition();
         float heading = outEntities[i]->GetHeading();
         float orX = outEntities[i]->GetMatrix()->up.z;
@@ -126,6 +177,9 @@ void loadBuildings(const CVector& pos)
 
         for (uint16_t j=0; j<colData->m_nNumTriangles; j++)
         {
+            if (terrainType == TERRAIN_STONE)
+                terrainType = determineMarioTerrain(colData->m_pTriangles[j].m_nMaterial);
+
             CVector vertA, vertB, vertC;
             colData->GetTrianglePoint(vertA, colData->m_pTriangles[j].m_nVertA);
             colData->GetTrianglePoint(vertB, colData->m_pTriangles[j].m_nVertB);
@@ -142,6 +196,9 @@ void loadBuildings(const CVector& pos)
 
         for (uint16_t j=0; j<colData->m_nNumBoxes; j++)
         {
+            if (terrainType == TERRAIN_STONE)
+                terrainType = determineMarioTerrain(colData->m_pBoxes[j].m_nMaterial);
+
             obj.surfaceCount += 12;
             obj.surfaces = (SM64Surface*)realloc(obj.surfaces, sizeof(SM64Surface) * obj.surfaceCount);
 
@@ -208,7 +265,7 @@ void loadBuildings(const CVector& pos)
         {
             obj.surfaces[j].type = SURFACE_DEFAULT;
             obj.surfaces[j].force = 0;
-            obj.surfaces[j].terrain = TERRAIN_STONE;
+            obj.surfaces[j].terrain = terrainType;
         }
 
         for (int j=0; j<MAX_OBJS; j++)
@@ -566,6 +623,12 @@ void marioTick(float dt)
     ped->m_pShadowData = nullptr;
     bool carDoor = ped->m_pIntelligence->IsPedGoingForCarDoor();
     float hp = ped->m_fHealth / ped->m_fMaxHealth;
+
+    /*
+    char bufsurface[64];
+    sprintf(bufsurface, "%d", ped->m_nContactSurface);
+    CHud::SetMessage(bufsurface);
+    */
 
     CPad* pad = ped->GetPadFromPlayer();
     pad->bDisablePlayerDuck = 0;
