@@ -283,6 +283,7 @@ SM64_LIB_FN void sm64_mario_tick( int32_t marioId, const struct SM64MarioInputs 
     outState->particleFlags = gMarioState->particleFlags;
     outState->invincTimer = gMarioState->invincTimer;
     outState->burnTimer = 80 - gMarioState->marioObj->oMarioBurnTimer/2;
+    outState->hurtCounter = gMarioState->hurtCounter;
 }
 
 SM64_LIB_FN void sm64_mario_delete( int32_t marioId )

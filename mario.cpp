@@ -836,6 +836,20 @@ void marioTick(float dt)
                 ped->m_pFire->Extinguish();
         }
 
+        // mario damage -> CJ
+        static uint8_t lastHurtCounter = 0;
+        if (marioState.hurtCounter && !lastHurtCounter)
+        {
+            lastHurtCounter = marioState.hurtCounter;
+            // 64 is 0x40, 2176 is 0x880 (full mario HP), from libsm64 decomp/game/mario.c
+            float damage = (64.f * marioState.hurtCounter) / 2176.f * ped->m_fMaxHealth;
+
+            ped->m_fHealth -= damage;
+            if (ped->m_fHealth < 0) ped->m_fHealth = 0;
+        }
+        else if (!marioState.hurtCounter && lastHurtCounter)
+            lastHurtCounter = 0;
+
         // enter vehicle animation handling
         if (ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_ENTER_CAR_AS_DRIVER))
         {
