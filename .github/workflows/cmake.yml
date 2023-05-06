@@ -22,6 +22,11 @@ jobs:
         repository: headshot2017/plugin-sdk
         path: '${{github.workspace}}/plugin-sdk'
 
+    - name: Set up MinGW 32 bit
+      uses: egor-tensin/setup-mingw@v2
+      with:
+        platform: x86
+
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
       # See https://cmake.org/cmake/help/latest/variable/CMAKE_BUILD_TYPE.html?highlight=cmake_build_type
@@ -48,6 +53,11 @@ jobs:
       with:
         repository: headshot2017/plugin-sdk
         path: '${{github.workspace}}/plugin-sdk'
+
+    - name: Set up MinGW 32 bit
+      uses: egor-tensin/setup-mingw@v2
+      with:
+        platform: x86
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
