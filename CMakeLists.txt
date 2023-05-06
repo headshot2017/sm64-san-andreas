@@ -10,6 +10,8 @@ endif()
 
 project(sm64-san-andreas)
 
+option(BUILD_AS_PRE_RELEASE "Compile as a pre-release build" ON)
+
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_FLAGS "-m32 -fpermissive -fPIC")
 set(CMAKE_CXX_FLAGS_DEBUG "-g")
@@ -55,6 +57,10 @@ target_compile_definitions(sm64-san-andreas PRIVATE
 	GTAGAME_PROTAGONISTNAME="\"CJ"\"
 	GTAGAME_CITYNAME="\"San Andreas"\"
 )
+
+if (BUILD_AS_PRE_RELEASE)
+	target_compile_definitions(sm64-san-andreas PRIVATE PRE_RELEASE_BUILD)
+endif()
 
 get_filename_component(COMPILER_DIR ${CMAKE_CXX_COMPILER} DIRECTORY)
 add_custom_command(TARGET sm64-san-andreas POST_BUILD

@@ -586,6 +586,16 @@ void marioSpawn()
         ped->m_nPhysicalFlags.bDontApplySpeed = 1;
         ped->m_nAllowedAttackMoves = 0;
     }
+
+#ifdef PRE_RELEASE_BUILD
+    static bool firstInit = false;
+    if (!firstInit)
+    {
+        sprintf(buf, "sm64-san-andreas build date %s. Things are subject to change!", __DATE__);
+        CHud::SetHelpMessage(buf, false,false,false);
+        firstInit = true;
+    }
+#endif // PRE_RELEASE_BUILD
 }
 
 void marioDestroy()
