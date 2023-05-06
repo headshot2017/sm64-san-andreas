@@ -19,8 +19,8 @@ jobs:
     - name: Clone headshot2017/plugin-sdk
       uses: actions/checkout@v3
       with:
-        name: headshot2017/plugin-sdk
-        path: '${{github.workspace}}'
+        repository: headshot2017/plugin-sdk
+        path: $PLUGIN_SDK_DIR
 
     - name: Configure CMake
       # Configure CMake in a 'build' subdirectory. `CMAKE_BUILD_TYPE` is only required if you are using a single-configuration generator such as make.
@@ -46,7 +46,7 @@ jobs:
     - name: Clone headshot2017/plugin-sdk
       uses: actions/checkout@v3
       with:
-        name: headshot2017/plugin-sdk
+        repository: headshot2017/plugin-sdk
         path: $PLUGIN_SDK_DIR
 
     - name: Configure CMake
