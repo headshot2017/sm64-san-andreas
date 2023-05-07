@@ -591,7 +591,7 @@ void marioSpawn()
     static bool firstInit = false;
     if (!firstInit)
     {
-        sprintf(buf, "sm64-san-andreas build date %s. Things are subject to change!", __DATE__);
+        sprintf(buf, "sm64-san-andreas build date %s %s. Things are subject to change!", __DATE__, __TIME__);
         CHud::SetHelpMessage(buf, false,false,false);
         firstInit = true;
     }
