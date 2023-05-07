@@ -19,6 +19,7 @@ This is still under development!
 * Go to the [Actions](https://github.com/headshot2017/sm64-san-andreas/actions) page
 * Click the first item that appears in the "workflow runs" list
 * Scroll down to "Artifacts" and click "sm64-san-andreas-release"
+* Extract the zip's contents to your GTA SA "scripts" folder.
 
 ## Compiling
 See the [Compiling the plugin](https://github.com/headshot2017/sm64-san-andreas/wiki/Compiling-the-plugin) wiki page for a complete tutorial for setting up CodeBlocks, mingw-w64, plugin-sdk, and this plugin.
