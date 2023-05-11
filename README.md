@@ -12,6 +12,8 @@ This plugin requires the following in order to work:
 It's also recommended to install the [SilentPatchSA](https://gtaforums.com/topic/669045-silentpatch) mod.
 It's not necessary in order for this plugin to work, but it fixes an issue with Mario's shading appearing to be flat while outdoors.
 
+Once you are ingame, press the M key to switch between Mario and CJ.
+
 This is still under development!
 
 ## Downloading a pre-release build from GitHub Actions (NEW)
