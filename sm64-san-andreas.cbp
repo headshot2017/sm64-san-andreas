@@ -122,6 +122,7 @@
 		</ExtraCommands>
 		<Unit filename="CTaskComplexGoPickUpEntity.h" />
 		<Unit filename="CTaskSimpleHoldEntity2.h" />
+		<Unit filename="TinySHA1.hpp" />
 		<Unit filename="audio.cpp" />
 		<Unit filename="audio.h" />
 		<Unit filename="d3d9_funcs.cpp" />

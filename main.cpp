@@ -3,6 +3,7 @@
 #include "CMenuSystem.h"
 #include "CTimer.h"
 
+#include "TinySHA1.hpp"
 extern "C" {
     #include <decomp/include/PR/ultratypes.h>
     #include <decomp/include/audio_defines.h>
@@ -42,6 +43,21 @@ public:
         file.seekg(0);
         file.read((char*)romBuffer, romFileLength);
         romBuffer[romFileLength] = 0;
+
+        // check ROM SHA1 to avoid crash
+        sha1::SHA1 s;
+        char hexdigest[256];
+        uint32_t digest[5];
+        s.processBytes(romBuffer, romFileLength);
+        s.getDigest(digest);
+        sprintf(hexdigest, "%08x", digest[0]);
+        if (strcmp(hexdigest, "9bef1128"))
+        {
+            char msg[128];
+            sprintf(msg, "Super Mario 64 US ROM checksum does not match!\nYou have the wrong ROM.\n\nExpected: 9bef1128\nYour copy: %s", hexdigest);
+            MessageBoxA(0, msg, "sm64-san-andreas", 0);
+            return;
+        }
 
         // Mario texture is 704x64 RGBA
         marioTexture = new uint8_t[4 * SM64_TEXTURE_WIDTH * SM64_TEXTURE_HEIGHT];
