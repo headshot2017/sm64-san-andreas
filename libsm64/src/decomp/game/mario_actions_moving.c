@@ -898,16 +898,18 @@ s32 act_hold_walking(struct MarioState *m) {
     }
 
     if (m->input & INPUT_A_PRESSED) {
-        return set_jumping_action(m, ACT_HOLD_JUMP, 0);
+        //return set_jumping_action(m, ACT_HOLD_JUMP, 0);
+        return set_jumping_action(m, ACT_JUMP, 0);
     }
 
     if (m->input & INPUT_UNKNOWN_5) {
         return set_mario_action(m, ACT_HOLD_DECELERATING, 0);
     }
 
+    /*
     if (m->input & INPUT_Z_PRESSED) {
         return drop_and_set_mario_action(m, ACT_CROUCH_SLIDE, 0);
-    }
+    }*/
 
     m->intendedMag *= 0.4f;
 
@@ -1156,12 +1158,14 @@ s32 act_hold_decelerating(struct MarioState *m) {
     }
 
     if (m->input & INPUT_A_PRESSED) {
-        return set_jumping_action(m, ACT_HOLD_JUMP, 0);
+        //return set_jumping_action(m, ACT_HOLD_JUMP, 0);
+        return set_jumping_action(m, ACT_JUMP, 0);
     }
 
+    /*
     if (m->input & INPUT_Z_PRESSED) {
         return drop_and_set_mario_action(m, ACT_CROUCH_SLIDE, 0);
-    }
+    }*/
 
     if (m->input & INPUT_NONZERO_ANALOG) {
         return set_mario_action(m, ACT_HOLD_WALKING, 0);
@@ -1451,7 +1455,9 @@ s32 act_hold_butt_slide(struct MarioState *m) {
         return drop_and_set_mario_action(m, ACT_BUTT_SLIDE, 0);
     }
 
-    cancel = common_slide_action_with_jump(m, ACT_HOLD_BUTT_SLIDE_STOP, ACT_HOLD_JUMP, ACT_HOLD_BUTT_SLIDE_AIR,
+    /*cancel = common_slide_action_with_jump(m, ACT_HOLD_BUTT_SLIDE_STOP, ACT_HOLD_JUMP, ACT_HOLD_BUTT_SLIDE_AIR,
+                                           MARIO_ANIM_SLIDING_ON_BOTTOM_WITH_LIGHT_OBJ);*/
+    cancel = common_slide_action_with_jump(m, ACT_HOLD_BUTT_SLIDE_STOP, ACT_JUMP, ACT_HOLD_BUTT_SLIDE_AIR,
                                            MARIO_ANIM_SLIDING_ON_BOTTOM_WITH_LIGHT_OBJ);
     tilt_body_butt_slide(m);
     return cancel;

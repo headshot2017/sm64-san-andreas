@@ -2658,11 +2658,12 @@ static s32 act_custom_anim(struct MarioState *m) {
     return FALSE;
 }
 
-static s32 act_custom_anim_to_idle(struct MarioState *m) {
+static s32 act_custom_anim_to_action(struct MarioState *m) {
     if (m->actionArg) stationary_ground_step(m);
+    if (!m->actionArg2) m->actionArg2 = ACT_IDLE;
 
     if (is_anim_at_end(m))
-        return set_mario_action(m, ACT_IDLE, 0);
+        return set_mario_action(m, m->actionArg2, 0);
     return FALSE;
 }
 
@@ -2737,7 +2738,7 @@ s32 mario_execute_cutscene_action(struct MarioState *m) {
         case ACT_FEET_STUCK_IN_GROUND:       cancel = act_feet_stuck_in_ground(m);       break;
         case ACT_PUTTING_ON_CAP:             cancel = act_putting_on_cap(m);             break;
         case ACT_CUSTOM_ANIM:                cancel = act_custom_anim(m);                break;
-        case ACT_CUSTOM_ANIM_TO_IDLE:        cancel = act_custom_anim_to_idle(m);        break;
+        case ACT_CUSTOM_ANIM_TO_ACTION:      cancel = act_custom_anim_to_action(m);      break;
     }
     /* clang-format on */
 

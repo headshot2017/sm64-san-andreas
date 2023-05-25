@@ -198,19 +198,19 @@ s32 act_picking_up(struct MarioState *m) {
     }
 
     if (m->actionState == 1) {
-        if (m->heldObj->oInteractionSubtype & INT_SUBTYPE_GRABS_MARIO) {
+        /*if (m->heldObj->oInteractionSubtype & INT_SUBTYPE_GRABS_MARIO) {
             m->marioBodyState->grabPos = GRAB_POS_HEAVY_OBJ;
             set_mario_animation(m, MARIO_ANIM_GRAB_HEAVY_OBJECT);
             if (is_anim_at_end(m)) {
                 set_mario_action(m, ACT_HOLD_HEAVY_IDLE, 0);
             }
-        } else {
+        } else {*/
             m->marioBodyState->grabPos = GRAB_POS_LIGHT_OBJ;
             set_mario_animation(m, MARIO_ANIM_PICK_UP_LIGHT_OBJ);
             if (is_anim_at_end(m)) {
                 set_mario_action(m, ACT_HOLD_IDLE, 0);
             }
-        }
+        //}
     }
 
     stationary_ground_step(m);

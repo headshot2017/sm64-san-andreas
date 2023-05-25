@@ -22,6 +22,30 @@
 extern "C" {
 #endif
 
+struct SM64Animation
+{
+    int16_t flags;
+    int16_t animYTransDivisor;
+    int16_t startFrame;
+    int16_t loopStart;
+    int16_t loopEnd;
+    int16_t unusedBoneCount;
+    int16_t *values;
+    uint16_t *index;
+    uint32_t length; // only used with Mario animations to determine how much to load. 0 otherwise.
+};
+
+struct SM64AnimInfo
+{
+    int16_t animID;
+    int16_t animYTrans;
+    struct SM64Animation *curAnim;
+    int16_t animFrame;
+    uint16_t animTimer;
+    int32_t animFrameAccelAssist;
+    int32_t animAccel;
+};
+
 struct SM64Surface
 {
     int16_t type;
@@ -71,6 +95,7 @@ struct SM64MarioState
     int16_t invincTimer;
     int32_t burnTimer;
     uint8_t hurtCounter;
+    struct SM64AnimInfo animInfo;
 };
 
 struct SM64MarioGeometryBuffers
@@ -182,6 +207,7 @@ extern SM64_LIB_FN void sm64_mario_delete( int32_t marioId );
 
 extern SM64_LIB_FN void sm64_set_mario_action(int32_t marioId, uint32_t action);
 extern SM64_LIB_FN void sm64_set_mario_action_arg(int32_t marioId, uint32_t action, uint32_t actionArg);
+extern SM64_LIB_FN void sm64_set_mario_action_arg2(int32_t marioId, uint32_t actionArg2);
 extern SM64_LIB_FN void sm64_set_mario_animation(int32_t marioId, int32_t animID);
 extern SM64_LIB_FN void sm64_set_mario_anim_frame(int32_t marioId, int16_t animFrame);
 extern SM64_LIB_FN void sm64_set_mario_state(int32_t marioId, uint32_t flags);

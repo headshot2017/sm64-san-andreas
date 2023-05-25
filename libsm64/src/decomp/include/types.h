@@ -327,6 +327,7 @@ struct MarioState
     u16 curTerrain; // libsm64: added field
     s32 gasLevel; // libsm64: added field
     s16 justHurt; // libsm64 GTA SA: added field
+    u32 actionArg2; // libsm64 GTA SA: added field
 };
 
 #endif // TYPES_H

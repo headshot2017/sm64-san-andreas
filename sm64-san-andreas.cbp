@@ -120,6 +120,8 @@
 			<Add after='cmd /c copy /Y &quot;$(TARGET_COMPILER_DIR)bin\libwinpthread-1.dll&quot; &quot;$(GTA_SA_DIR)\scripts\&quot;' />
 			<Add after='cmd /c copy /Y &quot;$(TARGET_COMPILER_DIR)bin\libgcc_s_dw2-1.dll&quot; &quot;$(GTA_SA_DIR)\scripts\&quot;' />
 		</ExtraCommands>
+		<Unit filename="CTaskComplexGoPickUpEntity.h" />
+		<Unit filename="CTaskSimpleHoldEntity2.h" />
 		<Unit filename="audio.cpp" />
 		<Unit filename="audio.h" />
 		<Unit filename="d3d9_funcs.cpp" />
@@ -130,11 +132,15 @@
 		<Unit filename="mario.h" />
 		<Unit filename="mario_custom_anims.cpp" />
 		<Unit filename="mario_custom_anims.h" />
+		<Unit filename="mario_ped_tasks.cpp" />
+		<Unit filename="mario_ped_tasks.h" />
 		<Unit filename="mario_render.cpp" />
 		<Unit filename="mario_render.h" />
 		<Unit filename="mario_shadow.raw.h" />
 		<Unit filename="raw/anim_close_car_door_left.raw.h" />
 		<Unit filename="raw/anim_close_car_door_right.raw.h" />
+		<Unit filename="raw/anim_pickup_slow.raw.h" />
+		<Unit filename="raw/anim_putdown_slow.raw.h" />
 		<Unit filename="raw/anim_test.raw.h" />
 		<Unit filename="raw/mario_shadow.raw.h" />
 		<Extensions>

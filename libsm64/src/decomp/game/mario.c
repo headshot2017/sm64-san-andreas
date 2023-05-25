@@ -1016,6 +1016,7 @@ u32 set_mario_action(struct MarioState *m, u32 action, u32 actionArg) {
     m->prevAction = m->action;
     m->action = action;
     m->actionArg = actionArg;
+    m->actionArg2 = 0;
     m->actionState = 0;
     m->actionTimer = 0;
 
