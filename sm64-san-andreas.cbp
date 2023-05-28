@@ -125,6 +125,8 @@
 		<Unit filename="TinySHA1.hpp" />
 		<Unit filename="audio.cpp" />
 		<Unit filename="audio.h" />
+		<Unit filename="config.cpp" />
+		<Unit filename="config.h" />
 		<Unit filename="d3d9_funcs.cpp" />
 		<Unit filename="d3d9_funcs.h" />
 		<Unit filename="main.cpp" />

@@ -9,6 +9,7 @@ extern "C" {
     #include <decomp/include/audio_defines.h>
 }
 
+#include "config.h"
 #include "audio.h"
 #include "d3d9_funcs.h"
 #include "mario.h"
@@ -27,6 +28,8 @@ public:
     {
         if (loaded) return;
 
+        loadConfig();
+
         std::ifstream file("sm64.us.z64", std::ios::ate | std::ios::binary);
 
         if (!file)
@@ -44,19 +47,22 @@ public:
         file.read((char*)romBuffer, romFileLength);
         romBuffer[romFileLength] = 0;
 
-        // check ROM SHA1 to avoid crash
-        sha1::SHA1 s;
-        char hexdigest[256];
-        uint32_t digest[5];
-        s.processBytes(romBuffer, romFileLength);
-        s.getDigest(digest);
-        sprintf(hexdigest, "%08x", digest[0]);
-        if (strcmp(hexdigest, "9bef1128"))
+        if (!config["skip_sha1_checksum"])
         {
-            char msg[128];
-            sprintf(msg, "Super Mario 64 US ROM checksum does not match!\nYou have the wrong ROM.\n\nExpected: 9bef1128\nYour copy: %s", hexdigest);
-            MessageBoxA(0, msg, "sm64-san-andreas", 0);
-            return;
+            // check ROM SHA1 to avoid crash
+            sha1::SHA1 s;
+            char hexdigest[256];
+            uint32_t digest[5];
+            s.processBytes(romBuffer, romFileLength);
+            s.getDigest(digest);
+            sprintf(hexdigest, "%08x", digest[0]);
+            if (strcmp(hexdigest, "9bef1128"))
+            {
+                char msg[128];
+                sprintf(msg, "Super Mario 64 US ROM checksum does not match!\nYou have the wrong ROM.\n\nExpected: 9bef1128\nYour copy: %s", hexdigest);
+                MessageBoxA(0, msg, "sm64-san-andreas", 0);
+                return;
+            }
         }
 
         // Mario texture is 704x64 RGBA
