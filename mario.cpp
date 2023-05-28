@@ -667,7 +667,7 @@ void marioTick(float dt)
     pad->bDisablePlayerDuck = 1;
     if (attackState > 1) attackState = 0; // fix bug where pressing jump makes attackState above 1
 
-    bool cjHasControl = (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle || hp <= 0 || safeTicks > 0);
+    bool cjHasControl = (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle || hp <= 0 || CEntryExitManager::mp_Active || safeTicks > 0);
     bool overrideWithCJPos = ((ped->m_nPedFlags.bInVehicle || hp <= 0) &&
                               !ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_ENTER_CAR_AS_DRIVER) &&
                               !ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_LEAVE_CAR) &&
@@ -692,9 +692,9 @@ void marioTick(float dt)
         ped->m_nPhysicalFlags.bApplyGravity = 0;
         ped->m_nPhysicalFlags.bCanBeCollidedWith = 0;
         ped->m_nPhysicalFlags.bCollidable = 0;
-        ped->m_nPhysicalFlags.bDisableMoveForce = !ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_GO_TO_POINT_AND_STAND_STILL);;
+        ped->m_nPhysicalFlags.bDisableMoveForce = 0;
         ped->m_nPhysicalFlags.bDisableTurnForce = !carDoor;
-        ped->m_nPhysicalFlags.bDontApplySpeed = ped->m_nPhysicalFlags.bDisableMoveForce;
+        ped->m_nPhysicalFlags.bDontApplySpeed = !ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_GO_TO_POINT_AND_STAND_STILL);
         ped->m_nAllowedAttackMoves = 0;
     }
 
