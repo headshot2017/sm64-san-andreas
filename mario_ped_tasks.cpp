@@ -84,6 +84,18 @@ void marioPedTasks(CPed* ped, const int& marioId)
                 marioSetPos(task->m_vTargetDoorPos - CVector(0,0,1), false);
                 sm64_set_mario_faceangle(marioId, targetAngle);
             }
+            else if (taskID == TASK_SIMPLE_CAR_OPEN_LOCKED_DOOR_FROM_OUTSIDE)
+            {
+                marioSetPos(startPos, false);
+                sm64_set_mario_faceangle(marioId, targetAngle);
+
+                if (marioState.action != ACT_CUSTOM_ANIM_TO_ACTION)
+                {
+                    sm64_set_mario_action_arg(marioId, ACT_CUSTOM_ANIM_TO_ACTION, 1);
+                    sm64_set_mario_action_arg2(marioId, ACT_IDLE);
+                    sm64_set_mario_animation(marioId, MARIO_ANIM_CUSTOM_CAR_LOCKED);
+                }
+            }
             else if (taskID == TASK_SIMPLE_CAR_OPEN_DOOR_FROM_OUTSIDE)
             {
                 if (marioState.action != ACT_ENTER_VEHICLE_OPENDOOR)
