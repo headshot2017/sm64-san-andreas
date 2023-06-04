@@ -692,9 +692,9 @@ void marioTick(float dt)
         ped->m_nPhysicalFlags.bApplyGravity = 0;
         ped->m_nPhysicalFlags.bCanBeCollidedWith = 0;
         ped->m_nPhysicalFlags.bCollidable = 0;
-        ped->m_nPhysicalFlags.bDisableMoveForce = 0;
+        ped->m_nPhysicalFlags.bDisableMoveForce = !ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_GO_TO_POINT_AND_STAND_STILL);
         ped->m_nPhysicalFlags.bDisableTurnForce = !carDoor;
-        ped->m_nPhysicalFlags.bDontApplySpeed = !ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_GO_TO_POINT_AND_STAND_STILL);
+        ped->m_nPhysicalFlags.bDontApplySpeed = ped->m_nPhysicalFlags.bDisableMoveForce;
         ped->m_nAllowedAttackMoves = 0;
     }
 
