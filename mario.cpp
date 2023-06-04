@@ -678,7 +678,7 @@ void marioTick(float dt)
 
     if (cjHasControl)
     {
-        if (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle || hp <= 0) safeTicks = 2;
+        if (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle || hp <= 0) safeTicks = 4;
         ped->m_nPhysicalFlags.bApplyGravity = 1;
         ped->m_nPhysicalFlags.bCanBeCollidedWith = 1;
         ped->m_nPhysicalFlags.bCollidable = 1;
