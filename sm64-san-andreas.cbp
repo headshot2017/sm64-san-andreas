@@ -113,6 +113,7 @@
 			<Add option="-static-libgcc" />
 			<Add library="SDL2" />
 			<Add library="sm64" />
+			<Add library="ole32" />
 			<Add directory="SDL2/lib" />
 		</Linker>
 		<ExtraCommands>
@@ -125,6 +126,10 @@
 		<Unit filename="TinySHA1.hpp" />
 		<Unit filename="audio.cpp" />
 		<Unit filename="audio.h" />
+		<Unit filename="audioApis/audio_sdl2.cpp" />
+		<Unit filename="audioApis/audio_sdl2.h" />
+		<Unit filename="audioApis/audio_wasapi.cpp" />
+		<Unit filename="audioApis/audio_wasapi.h" />
 		<Unit filename="config.cpp" />
 		<Unit filename="config.h" />
 		<Unit filename="d3d9_funcs.cpp" />

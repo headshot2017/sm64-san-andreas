@@ -23,6 +23,7 @@ set(SDL2_INCLUDE_DIR ${SDL2}/include)
 
 file(GLOB SM64_GTASA_SRC
 	*.cpp
+	audioApis/*.cpp
 )
 
 set(BUILD_GTAIII OFF CACHE BOOL "GTA III plugin")
