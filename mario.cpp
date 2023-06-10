@@ -632,6 +632,7 @@ void marioDestroy()
     {
         CPlayerPed* ped = FindPlayerPed();
         ped->GetPadFromPlayer()->bDisablePlayerDuck = 0;
+        ped->GetPadFromPlayer()->bDisablePlayerJump = 0;
         //ped->SetPosn(marioInterpPos + CVector(0, 0, 0.5f));
         ped->m_nPhysicalFlags.bApplyGravity = 1;
         ped->m_nPhysicalFlags.bCanBeCollidedWith = 1;
@@ -660,11 +661,13 @@ void marioTick(float dt)
 
     CPad* pad = ped->GetPadFromPlayer();
     pad->bDisablePlayerDuck = 0;
+    pad->bDisablePlayerJump = 0;
     int jumpState = pad->GetJump();
     int attackState = pad->GetMeleeAttack();
     int duckState = pad->GetDuck();
     int walkState = pad->NewState.m_bPedWalk;
     pad->bDisablePlayerDuck = 1;
+    pad->bDisablePlayerJump = 1;
     if (attackState > 1) attackState = 0; // fix bug where pressing jump makes attackState above 1
 
     bool cjHasControl = (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle || hp <= 0 || CEntryExitManager::mp_Active || safeTicks > 0);
@@ -692,9 +695,9 @@ void marioTick(float dt)
         ped->m_nPhysicalFlags.bApplyGravity = 0;
         ped->m_nPhysicalFlags.bCanBeCollidedWith = 0;
         ped->m_nPhysicalFlags.bCollidable = 0;
-        ped->m_nPhysicalFlags.bDisableMoveForce = !ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_GO_TO_POINT_AND_STAND_STILL);
+        ped->m_nPhysicalFlags.bDisableMoveForce = 0;
         ped->m_nPhysicalFlags.bDisableTurnForce = !carDoor;
-        ped->m_nPhysicalFlags.bDontApplySpeed = ped->m_nPhysicalFlags.bDisableMoveForce;
+        ped->m_nPhysicalFlags.bDontApplySpeed = 0;
         ped->m_nAllowedAttackMoves = 0;
     }
 
