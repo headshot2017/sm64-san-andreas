@@ -592,6 +592,19 @@ s32 act_vehicle_jacked(struct MarioState *m) {
     return FALSE;
 }
 
+s32 act_vomit(struct MarioState *m) {
+    if (m->marioObj->header.gfx.animInfo.animFrame < 109)
+        m->marioBodyState->eyeState = MARIO_EYES_HALF_CLOSED;
+    else if (m->marioObj->header.gfx.animInfo.animFrame < 123)
+        m->marioBodyState->eyeState = MARIO_EYES_OPEN;
+    else if (m->marioObj->header.gfx.animInfo.animFrame < 209)
+        m->marioBodyState->eyeState = MARIO_EYES_DEAD;
+    else if (m->marioObj->header.gfx.animInfo.animFrame >= m->animation->targetAnim->loopEnd-1)
+        return set_mario_action(m, ACT_IDLE, 0);
+
+    return FALSE;
+}
+
 s32 check_common_object_cancels(struct MarioState *m) {
     f32 waterSurface = m->waterLevel - 100;
     if (m->pos[1] < waterSurface) {
@@ -640,6 +653,7 @@ s32 mario_execute_object_action(struct MarioState *m) {
         case ACT_LEAVE_VEHICLE_JUMPOUT:    cancel = act_leave_vehicle_jumpout(m);    break;
         case ACT_LEAVE_VEHICLE_CLOSEDOOR:  cancel = act_leave_vehicle_closedoor(m);  break;
         case ACT_VEHICLE_JACKED:           cancel = act_vehicle_jacked(m);           break;
+        case ACT_VOMIT:                    cancel = act_vomit(m);                    break;
     }
     /* clang-format on */
 

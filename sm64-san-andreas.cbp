@@ -122,6 +122,8 @@
 			<Add after='cmd /c copy /Y &quot;$(TARGET_COMPILER_DIR)bin\libgcc_s_dw2-1.dll&quot; &quot;$(GTA_SA_DIR)\scripts\&quot;' />
 		</ExtraCommands>
 		<Unit filename="CTaskComplexGoPickUpEntity.h" />
+		<Unit filename="CTaskComplexSequence2.h" />
+		<Unit filename="CTaskComplexUseSequence.h" />
 		<Unit filename="CTaskSimpleHoldEntity2.h" />
 		<Unit filename="TinySHA1.hpp" />
 		<Unit filename="audio.cpp" />
@@ -148,9 +150,11 @@
 		<Unit filename="raw/anim_car_locked.raw.h" />
 		<Unit filename="raw/anim_close_car_door_left.raw.h" />
 		<Unit filename="raw/anim_close_car_door_right.raw.h" />
+		<Unit filename="raw/anim_eat.raw.h" />
 		<Unit filename="raw/anim_pickup_slow.raw.h" />
 		<Unit filename="raw/anim_putdown_slow.raw.h" />
 		<Unit filename="raw/anim_test.raw.h" />
+		<Unit filename="raw/anim_vomit.raw.h" />
 		<Unit filename="raw/mario_shadow.raw.h" />
 		<Extensions>
 			<lib_finder disable_auto="1" />
