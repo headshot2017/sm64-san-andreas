@@ -433,6 +433,54 @@ void marioPedTasks(CPlayerPed* ped, const int& marioId)
             sm64_set_mario_action_arg2(marioId, ACT_IDLE);
             sm64_set_mario_animation(marioId, MARIO_ANIM_CUSTOM_EAT);
         }
+        else if (!strcmp(task->m_animName, "CLO_IN"))
+        {
+            // entering dresser
+        }
+        else if (!strcmp(task->m_animName, "CLO_OUT"))
+        {
+            // leaving dresser
+        }
+        else if (!strcmp(task->m_animName, "CLO_POSE_IN"))
+        {
+            // leaving dresser to look in the mirror
+        }
+        else if (!strcmp(task->m_animName, "CLO_POSE_OUT"))
+        {
+            // re-entering dresser after looking in the mirror
+        }
+        else if (!strncmp(task->m_animName, "CLO_POSE", 8))
+        {
+            // posing around
+        }
+        else if (!strcmp(task->m_animName, "CLO_BUY"))
+        {
+            // confirmed clothes change
+        }
+        else if (!strcmp(task->m_animName, "BRB_SIT_IN"))
+        {
+            // sit in the barber chair
+        }
+        else if (!strcmp(task->m_animName, "BRB_SIT_LOOP"))
+        {
+            // sitting in barber chair
+        }
+        else if (!strcmp(task->m_animName, "BRB_SIT_OUT"))
+        {
+            // get off the barber chair
+        }
+        else if (!strcmp(task->m_animName, "TAT_SIT_IN_P"))
+        {
+            // sit in the tattoo chair
+        }
+        else if (!strcmp(task->m_animName, "TAT_SIT_LOOP_P"))
+        {
+            // sitting in the tattoo chair
+        }
+        else if (!strcmp(task->m_animName, "TAT_SIT_OUT_P"))
+        {
+            // get off the tattoo chair
+        }
     }
     else
     {
@@ -465,8 +513,7 @@ void marioPedTasks(CPlayerPed* ped, const int& marioId)
                 strcat(buf, a);
             }
         }
-        CHud::SetMessage(buf);
-        */
+        CHud::SetMessage(buf);*/
     }
 }
 
