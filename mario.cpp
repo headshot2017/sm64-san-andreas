@@ -681,7 +681,7 @@ void marioTick(float dt)
 
     if (cjHasControl)
     {
-        if (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle || hp <= 0) safeTicks = 4;
+        if (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle || hp <= 0 || CEntryExitManager::mp_Active) safeTicks = 4;
         ped->m_nPhysicalFlags.bApplyGravity = 1;
         ped->m_nPhysicalFlags.bCanBeCollidedWith = 1;
         ped->m_nPhysicalFlags.bCollidable = 1;
@@ -699,21 +699,6 @@ void marioTick(float dt)
         ped->m_nPhysicalFlags.bDisableTurnForce = !carDoor;
         ped->m_nPhysicalFlags.bDontApplySpeed = 0;
         ped->m_nAllowedAttackMoves = 0;
-    }
-
-    // handle entering/exiting buildings
-    static CEntryExit* entryexit = nullptr;
-    if (CEntryExitManager::mp_Active && !entryexit)
-    {
-        // entering/exiting a building
-        entryexit = CEntryExitManager::mp_Active;
-    }
-    else if (!CEntryExitManager::mp_Active && entryexit)
-    {
-        // entered/exited the building, teleport Mario to the destination
-        marioSetPos(entryexit->m_pLink->m_vecExitPos + CVector(0,0,-1));
-        sm64_set_mario_faceangle(marioId, entryexit->m_pLink->m_fExitAngle + M_PI);
-        entryexit = nullptr;
     }
 
     static bool lastCutsceneRunning = false;
