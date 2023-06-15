@@ -27,3 +27,7 @@ This is still under development!
 See the [Compiling the plugin](https://github.com/headshot2017/sm64-san-andreas/wiki/Compiling-the-plugin) wiki page for a complete tutorial for setting up CodeBlocks, mingw-w64, plugin-sdk, and this plugin.
 
 NOTE: The build targets for both projects must match! e.g. if libsm64 is built with the Release target, sm64-san-andreas must also be built with the GTASA Release target.
+
+## Known issues
+* Using this with the SkyGFX mod makes Mario extremely bright, and the textures in his face (eyes, moustache, hat logo...) don't render correctly.
+  * Disable "dualPass" in all the skygfx .ini files (change 1 to 0) to fix this issue.
