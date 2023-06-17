@@ -422,6 +422,7 @@ void marioPedTasks(CPlayerPed* ped, const int& marioId)
         //sprintf(buf, "%d '%s' '%s'", task->m_nAnimId, task->m_animName, task->m_animGroupName);
         //CHud::SetMessage(buf);
 
+        /// TODO: fix this stupid fucking spaghetti code into an std::map or something like that
         if (!strcmp(task->m_animName, "EAT_VOMIT_P") && marioState.action != ACT_CUSTOM_ANIM_TO_ACTION)
         {
             sm64_set_mario_action(marioId, ACT_VOMIT);
@@ -480,6 +481,74 @@ void marioPedTasks(CPlayerPed* ped, const int& marioId)
         else if (!strcmp(task->m_animName, "TAT_SIT_OUT_P"))
         {
             // get off the tattoo chair
+        }
+        else if (!strcmp(task->m_animName, "GYM_TREAD_GETON"))
+        {
+            // get on the treadmill
+        }
+        else if (!strcmp(task->m_animName, "GYM_TREAD_GETOFF") || !strcmp(task->m_animName, "GYM_WALK_FALLOFF"))
+        {
+            // get off the treadmill
+        }
+        else if (!strcmp(task->m_animName, "GYM_TREAD_WALK"))
+        {
+            // walking on treadmill
+        }
+        else if (!strcmp(task->m_animName, "GYM_TREAD_JOG"))
+        {
+            // jogging on treadmill
+        }
+        else if (!strcmp(task->m_animName, "GYM_TREAD_SPRINT"))
+        {
+            // sprinting on treadmill
+        }
+        else if (!strcmp(task->m_animName, "GYM_JOG_FALLOFF") || !strcmp(task->m_animName, "GYM_TREAD_FALLOFF"))
+        {
+            // fall off treadmill
+        }
+        else if (!strcmp(task->m_animName, "GYM_BP_GETON"))
+        {
+            // get on the benchpress
+        }
+        else if (!strcmp(task->m_animName, "GYM_BP_GETOF"))
+        {
+            // get off the benchpress
+        }
+        else if (!strncmp(task->m_animName, "GYM_BP_UP", 9))
+        {
+            // lifting benchpress weight
+        }
+        else if (!strcmp(task->m_animName, "GYM_BP_DOWN"))
+        {
+            // lifted benchpress weight
+        }
+        else if (!strcmp(task->m_animName, "GYM_FREE_PICKUP"))
+        {
+            // pick up the freeweights
+        }
+        else if (!strcmp(task->m_animName, "GYM_FREE_PUTDOWN"))
+        {
+            // pick up the freeweights
+        }
+        else if (!strcmp(task->m_animName, "GYM_FREE_UP_SMOOTH") || !strcmp(task->m_animName, "GYM_FREE_A"))
+        {
+            // lifting freeweights
+        }
+        else if (!strcmp(task->m_animName, "GYM_FREE_DOWN"))
+        {
+            // lifted freeweights
+        }
+        else if (!strcmp(task->m_animName, "GYM_BIKE_GETON") || !strcmp(task->m_animName, "GYM_BIKE_STILL"))
+        {
+            // idle on gym bike
+        }
+        else if (!strcmp(task->m_animName, "GYM_BIKE_SLOW"))
+        {
+            // slow speed on gym bike
+        }
+        else if (!strcmp(task->m_animName, "GYM_BIKE_FAST"))
+        {
+            // slow speed on gym bike
         }
     }
     else
