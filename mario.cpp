@@ -14,6 +14,7 @@
 #include "CGame.h"
 #include "CTaskSimpleIKLookAt.h"
 #include "CTaskSimpleIKManager.h"
+#include "CTaskComplexLeaveCar.h"
 #include "CEntryExitManager.h"
 #include "CCutsceneMgr.h"
 #include "ePedBones.h"
@@ -653,12 +654,6 @@ void marioTick(float dt)
     bool carDoor = ped->m_pIntelligence->IsPedGoingForCarDoor();
     float hp = ped->m_fHealth / ped->m_fMaxHealth;
 
-    /*
-    char bufsurface[64];
-    sprintf(bufsurface, "%d", ped->m_nContactSurface);
-    CHud::SetMessage(bufsurface);
-    */
-
     CPad* pad = ped->GetPadFromPlayer();
     pad->bDisablePlayerDuck = 0;
     pad->bDisablePlayerJump = 0;
@@ -670,10 +665,14 @@ void marioTick(float dt)
     pad->bDisablePlayerJump = 1;
     if (attackState > 1) attackState = 0; // fix bug where pressing jump makes attackState above 1
 
+    // bugfix for some cutscenes where mario appears to be floating in the air while sitting down and driving a car
+    CTaskComplexLeaveCar* leaveCarTask = (CTaskComplexLeaveCar*)ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_LEAVE_CAR);
+    bool leavingCar = (leaveCarTask && leaveCarTask->m_nNumGettingInSet);
+
     bool cjHasControl = (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle || hp <= 0 || CEntryExitManager::mp_Active || safeTicks > 0);
     bool overrideWithCJPos = ((ped->m_nPedFlags.bInVehicle || hp <= 0) &&
                               !ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_ENTER_CAR_AS_DRIVER) &&
-                              !ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_LEAVE_CAR) &&
+                              !leavingCar &&
                               !ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_CAR_SLOW_BE_DRAGGED_OUT));
     bool overrideWithCJAI = (cjHasControl || carDoor ||
                              ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_ACHIEVE_HEADING) ||
