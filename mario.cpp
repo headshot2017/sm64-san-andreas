@@ -709,6 +709,14 @@ void marioTick(float dt)
     else if (!CCutsceneMgr::ms_running && lastCutsceneRunning)
         lastCutsceneRunning = false;
 
+    static int lastFade = 0;
+    if (lastFade != TheCamera.GetScreenFadeStatus())
+    {
+        lastFade = TheCamera.GetScreenFadeStatus();
+        if (!CGame::CanSeeOutSideFromCurrArea())
+            loadCollisions(ped->GetPosition());
+    }
+
     ticks += dt;
     while (ticks >= 1.f/30)
     {
