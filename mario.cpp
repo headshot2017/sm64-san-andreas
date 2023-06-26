@@ -675,8 +675,13 @@ void marioTick(float dt)
                               !leavingCar &&
                               !ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_CAR_SLOW_BE_DRAGGED_OUT));
     bool overrideWithCJAI = (cjHasControl || carDoor ||
+                             TheCamera.m_aCams[TheCamera.m_nActiveCam].m_nMode == MODE_HELICANNON_1STPERSON ||
                              ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_ACHIEVE_HEADING) ||
                              ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_GO_TO_POINT_AND_STAND_STILL));
+
+    //char buff[256];
+    //sprintf(buff, "%d %d", TheCamera.m_nActiveCam, TheCamera.m_aCams[TheCamera.m_nActiveCam].m_nMode);
+    //CHud::SetMessage(buff);
 
     if (cjHasControl)
     {
@@ -774,6 +779,16 @@ void marioTick(float dt)
             {
                 // in a cutscene, or CJ walking towards a car
                 CVector2D spd(ped->m_vecMoveSpeed);
+                if (ped->m_pContactEntity && (ped->m_pContactEntity->m_nType == ENTITY_TYPE_OBJECT || ped->m_pContactEntity->m_nType == ENTITY_TYPE_VEHICLE))
+                {
+                    spd.x = (int)spd.x;
+                    spd.y = (int)spd.y;
+                    CVector2D spd2(((CObject*)ped->m_pContactEntity)->m_vecMoveSpeed);
+                    spd2.x = (int)spd2.x;
+                    spd2.y = (int)spd2.y;
+                    spd -= spd2;
+                }
+
                 float spdMag = (!carDoor || cjHasControl) ? spd.Magnitude()*17.5f : 0.9f;
                 if (spdMag >= 1) spdMag = 0.9f;
 
