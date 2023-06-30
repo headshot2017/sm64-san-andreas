@@ -492,11 +492,11 @@ void loadNonBuildings(const CVector& pos)
     }
 }
 
-void loadCollisions(const CVector& pos)
+void loadCollisions(const CVector& pos, bool waterLevel = true)
 {
     int width = 16384;
     SM64Surface surfaces[2];
-    CVector sm64pos(pos.x / MARIO_SCALE, -70 / MARIO_SCALE, -pos.y / MARIO_SCALE);
+    CVector sm64pos(pos.x / MARIO_SCALE, (waterLevel ? -70 : -105) / MARIO_SCALE, -pos.y / MARIO_SCALE);
 
     surfaces[0].vertices[0][0] = sm64pos.x + width;	surfaces[0].vertices[0][1] = sm64pos.y;	surfaces[0].vertices[0][2] = sm64pos.z + width;
     surfaces[0].vertices[1][0] = sm64pos.x - width;	surfaces[0].vertices[1][1] = sm64pos.y;	surfaces[0].vertices[1][2] = sm64pos.z - width;
@@ -560,10 +560,11 @@ void marioSpawn()
     // Mario model must also be unmirrored by making SM64 Z coordinate / GTA-SA Y coordinate negative
     // GTA SA -> SM64: divide scale
     // SM64 -> GTA SA: multiply scale
-    CVector pos = FindPlayerPed()->GetPosition();
+    CPlayerPed* ped = FindPlayerPed();
+    CVector pos = ped->GetPosition();
     pos.z -= 1;
 
-    loadCollisions(pos);
+    loadCollisions(pos, ped->m_nPhysicalFlags.bTouchingWater);
 
     CVector sm64pos(pos.x / MARIO_SCALE, pos.z / MARIO_SCALE, -pos.y / MARIO_SCALE);
     marioId = sm64_mario_create(sm64pos.x, sm64pos.y, sm64pos.z);
@@ -588,7 +589,6 @@ void marioSpawn()
     memset(&marioInput, 0, sizeof(marioInput));
     memset(headAngle, 0, sizeof(headAngle));
 
-    CPlayerPed* ped = FindPlayerPed();
     sm64_set_mario_faceangle(marioId, ped->GetHeading() + M_PI);
 
     CPad* pad = ped->GetPadFromPlayer();
@@ -669,7 +669,9 @@ void marioTick(float dt)
     CTaskComplexLeaveCar* leaveCarTask = (CTaskComplexLeaveCar*)ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_LEAVE_CAR);
     bool leavingCar = (leaveCarTask && leaveCarTask->m_nNumGettingInSet);
 
-    bool cjHasControl = (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle || hp <= 0 || CEntryExitManager::mp_Active || safeTicks > 0);
+    bool fallingToVoid = (ped->GetPosition().z <= -100);
+
+    bool cjHasControl = (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle || hp <= 0 || CEntryExitManager::mp_Active || fallingToVoid || safeTicks > 0);
     bool overrideWithCJPos = ((ped->m_nPedFlags.bInVehicle || hp <= 0) &&
                               !ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_ENTER_CAR_AS_DRIVER) &&
                               !leavingCar &&
@@ -685,7 +687,7 @@ void marioTick(float dt)
 
     if (cjHasControl)
     {
-        if (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle || hp <= 0 || CEntryExitManager::mp_Active) safeTicks = 4;
+        if (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle || hp <= 0 || CEntryExitManager::mp_Active || fallingToVoid) safeTicks = 4;
         ped->m_nPhysicalFlags.bApplyGravity = 1;
         ped->m_nPhysicalFlags.bCanBeCollidedWith = 1;
         ped->m_nPhysicalFlags.bCollidable = 1;
@@ -719,7 +721,7 @@ void marioTick(float dt)
     {
         lastFade = TheCamera.GetScreenFadeStatus();
         if (!CGame::CanSeeOutSideFromCurrArea())
-            loadCollisions(ped->GetPosition());
+            loadCollisions(ped->GetPosition(), ped->m_nPhysicalFlags.bTouchingWater);
     }
 
     ticks += dt;
@@ -1010,7 +1012,7 @@ void marioTick(float dt)
         }
 
         if (DistanceBetweenPoints(marioBlocksPos, marioCurrPos) > 64 || sm64_surface_find_floor_height(marioState.position[0], marioState.position[1], marioState.position[2]) == FLOOR_LOWER_LIMIT)
-            loadCollisions(marioCurrPos);
+            loadCollisions(marioCurrPos, ped->m_nPhysicalFlags.bTouchingWater);
         if (elapsedTicks % 30 == 0)
             loadNonBuildings(marioCurrPos);
     }
