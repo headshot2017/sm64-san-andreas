@@ -551,6 +551,10 @@ void marioPedTasks(CPlayerPed* ped, const int& marioId)
         {
             // slow speed on gym bike
         }
+        else if (!strcmp(task->m_animGroupName, "JST_BUISNESS"))
+        {
+            // Big Smoke talking to CJ before entering the building in Just Business
+        }
     }
     else if ((baseTask = ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_SWIM)))
     {
