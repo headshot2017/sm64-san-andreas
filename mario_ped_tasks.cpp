@@ -11,6 +11,7 @@
 #include "CTaskComplexUseSequence.h"
 #include "CTaskComplexSequence2.h"
 #include "CTaskSimpleRunNamedAnim.h"
+#include "CTaskSimpleSwim.h"
 #include "CModelInfo.h"
 extern "C" {
     #include <decomp/include/sm64shared.h>
@@ -549,6 +550,16 @@ void marioPedTasks(CPlayerPed* ped, const int& marioId)
         else if (!strcmp(task->m_animName, "GYM_BIKE_FAST"))
         {
             // slow speed on gym bike
+        }
+    }
+    else if ((baseTask = ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_SWIM)))
+    {
+        CTaskSimpleSwim* task = static_cast<CTaskSimpleSwim*>(baseTask);
+        if ((marioState.action & ACT_GROUP_MASK) == ACT_GROUP_SUBMERGED && marioState.velocity[1] < 0 && task->m_nSwimState < SWIM_SPRINTING)
+        {
+            // submerge CJ
+            task->m_nSwimState = SWIM_DIVE_UNDERWATER;
+            ped->m_pPlayerData->m_fMoveBlendRatio = 0;
         }
     }
     else
