@@ -19,6 +19,7 @@ extern "C" {
 
 #include "mario.h"
 #include "mario_custom_anims.h"
+#include "mario_cj_anims.h"
 
 void moveEntityToMarioHands(CTaskSimpleHoldEntity2* task, float pickupLerp=1.f)
 {
@@ -423,138 +424,7 @@ void marioPedTasks(CPlayerPed* ped, const int& marioId)
         //sprintf(buf, "%d '%s' '%s'", task->m_nAnimId, task->m_animName, task->m_animGroupName);
         //CHud::SetMessage(buf);
 
-        /// TODO: fix this stupid fucking spaghetti code into an std::map or something like that
-        if (!strcmp(task->m_animName, "EAT_VOMIT_P") && marioState.action != ACT_CUSTOM_ANIM_TO_ACTION)
-        {
-            sm64_set_mario_action(marioId, ACT_VOMIT);
-            sm64_set_mario_animation(marioId, MARIO_ANIM_CUSTOM_VOMIT);
-        }
-        else if (!strcmp(task->m_animGroupName, "FOOD") && marioState.action != ACT_CUSTOM_ANIM_TO_ACTION)
-        {
-            sm64_set_mario_action_arg(marioId, ACT_CUSTOM_ANIM_TO_ACTION, 1);
-            sm64_set_mario_action_arg2(marioId, ACT_IDLE);
-            sm64_set_mario_animation(marioId, MARIO_ANIM_CUSTOM_EAT);
-        }
-        else if (!strcmp(task->m_animName, "CLO_IN"))
-        {
-            // entering dresser
-        }
-        else if (!strcmp(task->m_animName, "CLO_OUT"))
-        {
-            // leaving dresser
-        }
-        else if (!strcmp(task->m_animName, "CLO_POSE_IN"))
-        {
-            // leaving dresser to look in the mirror
-        }
-        else if (!strcmp(task->m_animName, "CLO_POSE_OUT"))
-        {
-            // re-entering dresser after looking in the mirror
-        }
-        else if (!strncmp(task->m_animName, "CLO_POSE", 8))
-        {
-            // posing around
-        }
-        else if (!strcmp(task->m_animName, "CLO_BUY"))
-        {
-            // confirmed clothes change
-        }
-        else if (!strcmp(task->m_animName, "BRB_SIT_IN"))
-        {
-            // sit in the barber chair
-        }
-        else if (!strcmp(task->m_animName, "BRB_SIT_LOOP"))
-        {
-            // sitting in barber chair
-        }
-        else if (!strcmp(task->m_animName, "BRB_SIT_OUT"))
-        {
-            // get off the barber chair
-        }
-        else if (!strcmp(task->m_animName, "TAT_SIT_IN_P"))
-        {
-            // sit in the tattoo chair
-        }
-        else if (!strcmp(task->m_animName, "TAT_SIT_LOOP_P"))
-        {
-            // sitting in the tattoo chair
-        }
-        else if (!strcmp(task->m_animName, "TAT_SIT_OUT_P"))
-        {
-            // get off the tattoo chair
-        }
-        else if (!strcmp(task->m_animName, "GYM_TREAD_GETON"))
-        {
-            // get on the treadmill
-        }
-        else if (!strcmp(task->m_animName, "GYM_TREAD_GETOFF") || !strcmp(task->m_animName, "GYM_WALK_FALLOFF"))
-        {
-            // get off the treadmill
-        }
-        else if (!strcmp(task->m_animName, "GYM_TREAD_WALK"))
-        {
-            // walking on treadmill
-        }
-        else if (!strcmp(task->m_animName, "GYM_TREAD_JOG"))
-        {
-            // jogging on treadmill
-        }
-        else if (!strcmp(task->m_animName, "GYM_TREAD_SPRINT"))
-        {
-            // sprinting on treadmill
-        }
-        else if (!strcmp(task->m_animName, "GYM_JOG_FALLOFF") || !strcmp(task->m_animName, "GYM_TREAD_FALLOFF"))
-        {
-            // fall off treadmill
-        }
-        else if (!strcmp(task->m_animName, "GYM_BP_GETON"))
-        {
-            // get on the benchpress
-        }
-        else if (!strcmp(task->m_animName, "GYM_BP_GETOF"))
-        {
-            // get off the benchpress
-        }
-        else if (!strncmp(task->m_animName, "GYM_BP_UP", 9))
-        {
-            // lifting benchpress weight
-        }
-        else if (!strcmp(task->m_animName, "GYM_BP_DOWN"))
-        {
-            // lifted benchpress weight
-        }
-        else if (!strcmp(task->m_animName, "GYM_FREE_PICKUP"))
-        {
-            // pick up the freeweights
-        }
-        else if (!strcmp(task->m_animName, "GYM_FREE_PUTDOWN"))
-        {
-            // pick up the freeweights
-        }
-        else if (!strcmp(task->m_animName, "GYM_FREE_UP_SMOOTH") || !strcmp(task->m_animName, "GYM_FREE_A"))
-        {
-            // lifting freeweights
-        }
-        else if (!strcmp(task->m_animName, "GYM_FREE_DOWN"))
-        {
-            // lifted freeweights
-        }
-        else if (!strcmp(task->m_animName, "GYM_BIKE_GETON") || !strcmp(task->m_animName, "GYM_BIKE_STILL"))
-        {
-            // idle on gym bike
-        }
-        else if (!strcmp(task->m_animName, "GYM_BIKE_SLOW"))
-        {
-            // slow speed on gym bike
-        }
-        else if (!strcmp(task->m_animName, "GYM_BIKE_FAST"))
-        {
-            // slow speed on gym bike
-        }
-        else if (!strcmp(task->m_animGroupName, "JST_BUISNESS"))
-        {
-            // Big Smoke talking to CJ before entering the building in Just Business
-        }
+        runAnimKey(task, marioId);
     }
     else if ((baseTask = ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_SWIM)))
     {

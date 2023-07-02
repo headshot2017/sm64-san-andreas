@@ -140,6 +140,8 @@
 		<Unit filename="main.h" />
 		<Unit filename="mario.cpp" />
 		<Unit filename="mario.h" />
+		<Unit filename="mario_cj_anims.cpp" />
+		<Unit filename="mario_cj_anims.h" />
 		<Unit filename="mario_custom_anims.cpp" />
 		<Unit filename="mario_custom_anims.h" />
 		<Unit filename="mario_ped_tasks.cpp" />
