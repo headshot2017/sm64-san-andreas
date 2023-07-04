@@ -152,7 +152,10 @@
 		<Unit filename="raw/anim_car_locked.raw.h" />
 		<Unit filename="raw/anim_close_car_door_left.raw.h" />
 		<Unit filename="raw/anim_close_car_door_right.raw.h" />
+		<Unit filename="raw/anim_crib_use_switch.raw.h" />
 		<Unit filename="raw/anim_eat.raw.h" />
+		<Unit filename="raw/anim_facepalm.raw.h" />
+		<Unit filename="raw/anim_laugh01.raw.h" />
 		<Unit filename="raw/anim_pickup_slow.raw.h" />
 		<Unit filename="raw/anim_putdown_slow.raw.h" />
 		<Unit filename="raw/anim_test.raw.h" />

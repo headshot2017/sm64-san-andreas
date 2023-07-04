@@ -8,6 +8,9 @@
 #include "raw/anim_car_locked.raw.h"
 #include "raw/anim_eat.raw.h"
 #include "raw/anim_vomit.raw.h"
+#include "raw/anim_crib_use_switch.raw.h"
+#include "raw/anim_facepalm.raw.h"
+#include "raw/anim_laugh01.raw.h"
 
 extern "C" {
     #include <libsm64.h>
@@ -21,6 +24,9 @@ int MARIO_ANIM_CUSTOM_PUTDOWN_SLOW;
 int MARIO_ANIM_CUSTOM_CAR_LOCKED;
 int MARIO_ANIM_CUSTOM_EAT;
 int MARIO_ANIM_CUSTOM_VOMIT;
+int MARIO_ANIM_CUSTOM_CRIB_SWITCH;
+int MARIO_ANIM_CUSTOM_FACEPALM;
+int MARIO_ANIM_CUSTOM_LAUGH01;
 
 void marioInitCustomAnims()
 {
@@ -32,4 +38,7 @@ void marioInitCustomAnims()
     MARIO_ANIM_CUSTOM_CAR_LOCKED = sm64_custom_animation_init(marioAnimCarLockedRaw, marioAnimCarLockedRaw_length);
     MARIO_ANIM_CUSTOM_EAT = sm64_custom_animation_init(marioAnimEatRaw, marioAnimEatRaw_length);
     MARIO_ANIM_CUSTOM_VOMIT = sm64_custom_animation_init(marioAnimVomitRaw, marioAnimVomitRaw_length);
+    MARIO_ANIM_CUSTOM_CRIB_SWITCH = sm64_custom_animation_init(marioAnimCribUseSwitchRaw, marioAnimCribUseSwitchRaw_length);
+    MARIO_ANIM_CUSTOM_FACEPALM = sm64_custom_animation_init(marioAnimFacepalmRaw, marioAnimFacepalmRaw_length);
+    MARIO_ANIM_CUSTOM_LAUGH01 = sm64_custom_animation_init(marioAnimLaugh01Raw, marioAnimLaugh01Raw_length);
 }
