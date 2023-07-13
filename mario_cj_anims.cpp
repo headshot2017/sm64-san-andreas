@@ -228,6 +228,36 @@ void animLaugh01(const int& marioId)
     sm64_set_mario_animation(marioId, MARIO_ANIM_CUSTOM_LAUGH01);
 }
 
+void animDanceLoop(const int& marioId)
+{
+    sm64_set_mario_action_arg(marioId, ACT_CUSTOM_ANIM, 1);
+    sm64_set_mario_animation(marioId, MARIO_ANIM_CUSTOM_DANCE_LOOP);
+}
+
+void animDanceGood(const int& marioId)
+{
+    if (marioState.animInfo.animID == MARIO_ANIM_CUSTOM_DANCE_GOOD)
+        return;
+
+    int frame = (marioState.animInfo.animID != MARIO_ANIM_CUSTOM_DANCE_LOOP) ? marioState.animInfo.animFrame : 0;
+
+    sm64_set_mario_action_arg(marioId, ACT_CUSTOM_ANIM, 1);
+    sm64_set_mario_animation(marioId, MARIO_ANIM_CUSTOM_DANCE_GOOD);
+    sm64_set_mario_anim_frame(marioId, frame);
+}
+
+void animDanceBad(const int& marioId)
+{
+    if (marioState.animInfo.animID == MARIO_ANIM_CUSTOM_DANCE_BAD)
+        return;
+
+    int frame = (marioState.animInfo.animID != MARIO_ANIM_CUSTOM_DANCE_LOOP) ? (marioState.animInfo.animFrame % 80) : 0;
+
+    sm64_set_mario_action_arg(marioId, ACT_CUSTOM_ANIM, 1);
+    sm64_set_mario_animation(marioId, MARIO_ANIM_CUSTOM_DANCE_BAD);
+    sm64_set_mario_anim_frame(marioId, frame);
+}
+
 std::unordered_map<std::string, ConvertedAnim> cjAnimKeys =
 {
     {"EAT_VOMIT_P",         {animEatVomitP, false}},
@@ -280,4 +310,37 @@ std::unordered_map<std::string, ConvertedAnim> cjAnimKeys =
     {"CRIB_USE_SWITCH",     {animCribUseSwitch, false}},
     {"PLYR_SHKHEAD",        {animPlayerShakeHead, false}},
     {"LAUGH_01",            {animLaugh01, false}},
+    {"DANCE_LOOP",          {animDanceLoop, false}},
+    {"DANCE_G1",            {animDanceGood, false}},
+    {"DANCE_G2",            {animDanceGood, false}},
+    {"DANCE_G3",            {animDanceGood, false}},
+    {"DANCE_G4",            {animDanceGood, false}},
+    {"DANCE_G5",            {animDanceGood, false}},
+    {"DANCE_G6",            {animDanceGood, false}},
+    {"DANCE_G7",            {animDanceGood, false}},
+    {"DANCE_G8",            {animDanceGood, false}},
+    {"DANCE_G9",            {animDanceGood, false}},
+    {"DANCE_G10",           {animDanceGood, false}},
+    {"DANCE_G11",           {animDanceGood, false}},
+    {"DANCE_G12",           {animDanceGood, false}},
+    {"DANCE_G13",           {animDanceGood, false}},
+    {"DANCE_G14",           {animDanceGood, false}},
+    {"DANCE_G15",           {animDanceGood, false}},
+    {"DANCE_G16",           {animDanceGood, false}},
+    {"DANCE_B1",            {animDanceBad, false}},
+    {"DANCE_B2",            {animDanceBad, false}},
+    {"DANCE_B3",            {animDanceBad, false}},
+    {"DANCE_B4",            {animDanceBad, false}},
+    {"DANCE_B5",            {animDanceBad, false}},
+    {"DANCE_B6",            {animDanceBad, false}},
+    {"DANCE_B7",            {animDanceBad, false}},
+    {"DANCE_B8",            {animDanceBad, false}},
+    {"DANCE_B9",            {animDanceBad, false}},
+    {"DANCE_B10",           {animDanceBad, false}},
+    {"DANCE_B11",           {animDanceBad, false}},
+    {"DANCE_B12",           {animDanceBad, false}},
+    {"DANCE_B13",           {animDanceBad, false}},
+    {"DANCE_B14",           {animDanceBad, false}},
+    {"DANCE_B15",           {animDanceBad, false}},
+    {"DANCE_B16",           {animDanceBad, false}},
 };

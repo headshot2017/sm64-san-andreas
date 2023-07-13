@@ -698,6 +698,9 @@ void marioTick(float dt)
     }
     else
     {
+        if (marioState.animInfo.animID == MARIO_ANIM_CUSTOM_DANCE_LOOP)
+            sm64_set_mario_action(marioId, ACT_IDLE);
+
         ped->m_nPhysicalFlags.bApplyGravity = 0;
         ped->m_nPhysicalFlags.bCanBeCollidedWith = 0;
         ped->m_nPhysicalFlags.bCollidable = 0;
