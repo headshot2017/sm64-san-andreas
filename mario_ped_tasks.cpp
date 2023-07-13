@@ -420,9 +420,9 @@ void marioPedTasks(CPlayerPed* ped, const int& marioId)
     else if ((baseTask = ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_NAMED_ANIM)))
     {
         CTaskSimpleRunNamedAnim* task = static_cast<CTaskSimpleRunNamedAnim*>(baseTask);
-        char buf[256];
-        sprintf(buf, "%d '%s' '%s'", task->m_nAnimId, task->m_animName, task->m_animGroupName);
-        CHud::SetMessage(buf);
+        //char buf[256];
+        //sprintf(buf, "%d '%s' '%s'", task->m_nAnimId, task->m_animName, task->m_animGroupName);
+        //CHud::SetMessage(buf);
 
         runAnimKey(task, marioId);
     }
