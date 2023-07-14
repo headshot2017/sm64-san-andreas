@@ -320,16 +320,34 @@ void marioRender()
     // draw shadow on Mario
     if (!ped->m_nPedFlags.bInVehicle && g_fx.GetFxQuality() >= FXQUALITY_HIGH)
     {
-        float floorPos = sm64_surface_find_floor_height(marioState.position[0], marioState.position[1], marioState.position[2]);
-        RwUInt8 alpha = 255 - std::clamp((int)((marioState.position[1] - floorPos)/2.f), 0, 255);
+        float marioPos[3] = {
+            marioInterpPos.x / MARIO_SCALE,
+            marioInterpPos.z / MARIO_SCALE,
+            -marioInterpPos.y / MARIO_SCALE
+        };
+
+        float floorPos = sm64_surface_find_floor_height(marioPos[0], marioPos[1], marioPos[2]);
+        float floorPosInd[] = {
+            sm64_surface_find_floor_height(marioPos[0] - 0.8f/MARIO_SCALE, marioPos[1]+96, marioPos[2] + 0.8f/MARIO_SCALE),
+            sm64_surface_find_floor_height(marioPos[0] + 0.8f/MARIO_SCALE, marioPos[1]+96, marioPos[2] + 0.8f/MARIO_SCALE),
+            sm64_surface_find_floor_height(marioPos[0] - 0.8f/MARIO_SCALE, marioPos[1]+96, marioPos[2] - 0.8f/MARIO_SCALE),
+            sm64_surface_find_floor_height(marioPos[0] + 0.8f/MARIO_SCALE, marioPos[1]+96, marioPos[2] - 0.8f/MARIO_SCALE),
+        };
+
+        RwInt16 substract = (RwInt16)((marioPos[1] - floorPos)/2);
+        if (substract < 0) substract = 0;
+        RwUInt8 alpha = 255 - (RwUInt16)substract;
+
         RwIm3DVertexSetRGBA(&shadowVert[0], 255, 255, 255, alpha);
         RwIm3DVertexSetRGBA(&shadowVert[1], 255, 255, 255, alpha);
         RwIm3DVertexSetRGBA(&shadowVert[2], 255, 255, 255, alpha);
         RwIm3DVertexSetRGBA(&shadowVert[3], 255, 255, 255, alpha);
-        RwIm3DVertexSetPos(&shadowVert[0], marioInterpPos.x-0.8f, marioInterpPos.y-0.8f, (floorPos+3) * MARIO_SCALE);
-        RwIm3DVertexSetPos(&shadowVert[1], marioInterpPos.x+0.8f, marioInterpPos.y-0.8f, (floorPos+3) * MARIO_SCALE);
-        RwIm3DVertexSetPos(&shadowVert[2], marioInterpPos.x-0.8f, marioInterpPos.y+0.8f, (floorPos+3) * MARIO_SCALE);
-        RwIm3DVertexSetPos(&shadowVert[3], marioInterpPos.x+0.8f, marioInterpPos.y+0.8f, (floorPos+3) * MARIO_SCALE);
+
+        RwIm3DVertexSetPos(&shadowVert[0], marioInterpPos.x-0.8f, marioInterpPos.y-0.8f, (floorPosInd[0]+4) * MARIO_SCALE);
+        RwIm3DVertexSetPos(&shadowVert[1], marioInterpPos.x+0.8f, marioInterpPos.y-0.8f, (floorPosInd[1]+4) * MARIO_SCALE);
+        RwIm3DVertexSetPos(&shadowVert[2], marioInterpPos.x-0.8f, marioInterpPos.y+0.8f, (floorPosInd[2]+4) * MARIO_SCALE);
+        RwIm3DVertexSetPos(&shadowVert[3], marioInterpPos.x+0.8f, marioInterpPos.y+0.8f, (floorPosInd[3]+4) * MARIO_SCALE);
+
         if (RwIm3DTransform(shadowVert, 4, 0, rwIM3D_VERTEXXYZ | rwIM3D_VERTEXRGBA | rwIM3D_VERTEXUV))
         {
             immediateDrawn = true;
