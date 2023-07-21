@@ -679,7 +679,8 @@ void marioTick(float dt)
     bool overrideWithCJAI = (cjHasControl || carDoor ||
                              TheCamera.m_aCams[TheCamera.m_nActiveCam].m_nMode == MODE_HELICANNON_1STPERSON ||
                              ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_ACHIEVE_HEADING) ||
-                             ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_GO_TO_POINT_AND_STAND_STILL));
+                             ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_GO_TO_POINT_AND_STAND_STILL)) ||
+                             ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_USE_SEQUENCE);
 
     //char buff[256];
     //sprintf(buff, "%d %d", TheCamera.m_nActiveCam, TheCamera.m_aCams[TheCamera.m_nActiveCam].m_nMode);

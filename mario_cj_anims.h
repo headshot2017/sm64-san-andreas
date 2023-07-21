@@ -12,6 +12,9 @@
 #include "CTaskSimpleRunNamedAnim.h"
 
 bool animTaskExists(CPlayerPed* ped);
+
+void resetLastAnim();
+void runAnimKey(const std::string& name, const int& marioId);
 void runAnimKey(CTaskSimpleRunNamedAnim* task, const int& marioId);
 
 #endif // MARIO_CJ_ANIMS_H_INCLUDED

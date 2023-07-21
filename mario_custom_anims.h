@@ -15,6 +15,7 @@ extern int MARIO_ANIM_CUSTOM_LAUGH01;
 extern int MARIO_ANIM_CUSTOM_DANCE_LOOP;
 extern int MARIO_ANIM_CUSTOM_DANCE_BAD;
 extern int MARIO_ANIM_CUSTOM_DANCE_GOOD;
+extern int MARIO_ANIM_CUSTOM_VENDING_MACHINE;
 
 void marioInitCustomAnims();
 

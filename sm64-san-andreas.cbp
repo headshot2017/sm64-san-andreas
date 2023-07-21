@@ -162,6 +162,7 @@
 		<Unit filename="raw/anim_pickup_slow.raw.h" />
 		<Unit filename="raw/anim_putdown_slow.raw.h" />
 		<Unit filename="raw/anim_test.raw.h" />
+		<Unit filename="raw/anim_vending_machine.raw.h" />
 		<Unit filename="raw/anim_vomit.raw.h" />
 		<Unit filename="raw/mario_shadow.raw.h" />
 		<Extensions>

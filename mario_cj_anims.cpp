@@ -29,16 +29,31 @@ bool animTaskExists(CPlayerPed* ped)
     return task && animKeyExists(task);
 }
 
+
+void resetLastAnim()
+{
+    lastAnim.resize(0);
+}
+
+void runAnimKey(const std::string& name, const int& marioId)
+{
+    if (name.empty() || (!cjAnimKeys[name].repeat && lastAnim == name)) return;
+    lastAnim = name;
+
+    cjAnimKeys[name].callback(marioId);
+}
+
 void runAnimKey(CTaskSimpleRunNamedAnim* task, const int& marioId)
 {
     std::string key = (cjAnimKeys.count(task->m_animName)) ? task->m_animName :
                       (cjAnimKeys.count(task->m_animGroupName)) ? task->m_animGroupName :
                       "";
 
-    if (key.empty() || (!cjAnimKeys[key].repeat && lastAnim == key)) return;
-    lastAnim = key;
+    //char buf[256];
+    //sprintf(buf, "%d '%s' '%s'", task->m_nAnimId, task->m_animName, task->m_animGroupName);
+    //CHud::SetMessage(buf);
 
-    cjAnimKeys[key].callback(marioId);
+    runAnimKey(key, marioId);
 }
 
 
@@ -258,6 +273,14 @@ void animDanceBad(const int& marioId)
     sm64_set_mario_anim_frame(marioId, frame);
 }
 
+void animVendingMachine(const int& marioId)
+{
+    if (marioState.action == ACT_CUSTOM_ANIM_TO_ACTION) return;
+    sm64_set_mario_action_arg(marioId, ACT_CUSTOM_ANIM_TO_ACTION, 1);
+    sm64_set_mario_action_arg2(marioId, ACT_IDLE);
+    sm64_set_mario_animation(marioId, MARIO_ANIM_CUSTOM_VENDING_MACHINE);
+}
+
 std::unordered_map<std::string, ConvertedAnim> cjAnimKeys =
 {
     {"EAT_VOMIT_P",         {animEatVomitP, false}},
@@ -343,4 +366,5 @@ std::unordered_map<std::string, ConvertedAnim> cjAnimKeys =
     {"DANCE_B14",           {animDanceBad, false}},
     {"DANCE_B15",           {animDanceBad, false}},
     {"DANCE_B16",           {animDanceBad, false}},
+    {"VEND_USE",            {animVendingMachine, true}},
 };

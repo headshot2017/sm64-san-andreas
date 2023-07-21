@@ -14,6 +14,7 @@
 #include "raw/anim_dance_loop.raw.h"
 #include "raw/anim_dance_bad.raw.h"
 #include "raw/anim_dance_good.raw.h"
+#include "raw/anim_vending_machine.raw.h"
 
 extern "C" {
     #include <libsm64.h>
@@ -33,6 +34,7 @@ int MARIO_ANIM_CUSTOM_LAUGH01;
 int MARIO_ANIM_CUSTOM_DANCE_LOOP;
 int MARIO_ANIM_CUSTOM_DANCE_BAD;
 int MARIO_ANIM_CUSTOM_DANCE_GOOD;
+int MARIO_ANIM_CUSTOM_VENDING_MACHINE;
 
 void marioInitCustomAnims()
 {
@@ -50,4 +52,5 @@ void marioInitCustomAnims()
     MARIO_ANIM_CUSTOM_DANCE_LOOP = sm64_custom_animation_init(marioAnimDanceLoopRaw, marioAnimDanceLoopRaw_length);
     MARIO_ANIM_CUSTOM_DANCE_BAD = sm64_custom_animation_init(marioAnimDanceBadRaw, marioAnimDanceBadRaw_length);
     MARIO_ANIM_CUSTOM_DANCE_GOOD = sm64_custom_animation_init(marioAnimDanceGoodRaw, marioAnimDanceGoodRaw_length);
+    MARIO_ANIM_CUSTOM_VENDING_MACHINE = sm64_custom_animation_init(marioAnimVendingMachineRaw, marioAnimVendingMachineRaw_length);
 }

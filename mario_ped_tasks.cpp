@@ -25,6 +25,8 @@ void moveEntityToMarioHands(CTaskSimpleHoldEntity2* task, float pickupLerp=1.f)
 {
     if (pickupLerp < 0) pickupLerp = 0;
     task->m_vecPosition.z = -0.5f * pickupLerp;
+    if (marioState.animInfo.animID == MARIO_ANIM_CUSTOM_VENDING_MACHINE)
+        task->m_pEntityToHold->m_bIsVisible = 0;
 }
 
 void marioPedTasks(CPlayerPed* ped, const int& marioId)
@@ -392,38 +394,31 @@ void marioPedTasks(CPlayerPed* ped, const int& marioId)
                 sm64_set_mario_action_arg(marioId, ACT_HARD_FORWARD_AIR_KB, 1);
         }
     }
-    /*
     else if ((baseTask = ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_USE_SEQUENCE)))
     {
+        // primarily used for the vending machine animation
         CTaskComplexUseSequence* task = static_cast<CTaskComplexUseSequence*>(baseTask);
-        char buf[256] = {0};
-        char a[64];
-        sprintf(a, "%d - %d %d %d %d %x(%d)", task->m_nCurrentTaskIndex, task->m_nEndTaskIndex, task->m_nSequenceIndex, task->m_nSequenceRepeatedCount, task->m_pSubTask, (task->m_pSubTask) ? task->m_pSubTask->IsSimple() : 0);
-        strcat(buf, a);
         if (task->m_pSubTask)
         {
             CTaskComplex* sub = static_cast<CTaskComplex*>(task->m_pSubTask);
-            bool simple = ((eTaskType (__thiscall *)(CTask *))plugin::GetVMT(sub, 3))(sub);
-            eTaskType taskID = ((eTaskType (__thiscall *)(CTask *))plugin::GetVMT(sub, 4))(sub);
-            sprintf(a, " - %x(%d) %d", sub, taskID, simple);
-            strcat(buf, a);
-            if (taskID == TASK_COMPLEX_SEQUENCE)
+            eTaskType sub_taskID = ((eTaskType (__thiscall *)(CTask *))plugin::GetVMT(sub, 4))(sub);
+            if (sub_taskID == TASK_COMPLEX_SEQUENCE)
             {
-                CTaskComplexSequence2* sub2 = static_cast<CTaskComplexSequence2*>(sub->m_pSubTask);
-                sprintf(a, " - %x", (sub2) ? sub2->m_aTasks[0] : 0);
-                strcat(buf, a);
+                CTaskComplexSequence2* sub2 = static_cast<CTaskComplexSequence2*>(sub);
+                CTask* sub2_aTask = sub2->m_aTasks[sub2->m_nCurrentTaskIndex];
+                eTaskType aTaskID = ((eTaskType (__thiscall *)(CTask *))plugin::GetVMT(sub2_aTask, 4))(sub2_aTask);
+                if (aTaskID == TASK_SIMPLE_SLIDE_TO_COORD)
+                {
+                    // class CTaskSimpleSlideToCoord : public CTaskSimpleRunNamedAnim
+                    CTaskSimpleRunNamedAnim* animTask = static_cast<CTaskSimpleRunNamedAnim*>(sub2_aTask);
+                    runAnimKey(animTask, marioId);
+                }
             }
         }
-        CHud::SetMessage(buf);
     }
-    */
     else if ((baseTask = ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_NAMED_ANIM)))
     {
         CTaskSimpleRunNamedAnim* task = static_cast<CTaskSimpleRunNamedAnim*>(baseTask);
-        //char buf[256];
-        //sprintf(buf, "%d '%s' '%s'", task->m_nAnimId, task->m_animName, task->m_animGroupName);
-        //CHud::SetMessage(buf);
-
         runAnimKey(task, marioId);
     }
     else if ((baseTask = ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_SWIM)))
@@ -439,8 +434,10 @@ void marioPedTasks(CPlayerPed* ped, const int& marioId)
     else
     {
         _fallen = false;
+        resetLastAnim();
 
-        /*char buf[256] = {0};
+        /*
+        char buf[256] = {0};
         char a[32];
         for (int i=0; i<TASK_PRIMARY_MAX; i++)
         {
@@ -467,7 +464,8 @@ void marioPedTasks(CPlayerPed* ped, const int& marioId)
                 strcat(buf, a);
             }
         }
-        CHud::SetMessage(buf);*/
+        CHud::SetMessage(buf);
+        */
     }
 }
 
