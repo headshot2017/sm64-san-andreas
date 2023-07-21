@@ -671,7 +671,7 @@ void marioTick(float dt)
 
     bool fallingToVoid = (ped->GetPosition().z <= -100);
 
-    bool cjHasControl = (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle || hp <= 0 || CEntryExitManager::mp_Active || fallingToVoid || safeTicks > 0);
+    bool cjHasControl = (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle || hp <= 0 || CEntryExitManager::mp_Active || fallingToVoid || CCutsceneMgr::ms_running || safeTicks > 0);
     bool overrideWithCJPos = ((ped->m_nPedFlags.bInVehicle || hp <= 0) &&
                               !ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_ENTER_CAR_AS_DRIVER) &&
                               !leavingCar &&
@@ -688,7 +688,7 @@ void marioTick(float dt)
 
     if (cjHasControl)
     {
-        if (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle || hp <= 0 || CEntryExitManager::mp_Active || fallingToVoid) safeTicks = 4;
+        if (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle || hp <= 0 || CEntryExitManager::mp_Active || CCutsceneMgr::ms_running || fallingToVoid) safeTicks = 4;
         ped->m_nPhysicalFlags.bApplyGravity = 1;
         ped->m_nPhysicalFlags.bCanBeCollidedWith = 1;
         ped->m_nPhysicalFlags.bCollidable = 1;
