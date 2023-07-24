@@ -594,6 +594,7 @@ s32 act_vehicle_jacked(struct MarioState *m) {
 
 s32 act_vomit(struct MarioState *m) {
     if (m->marioObj->header.gfx.animInfo.animFrame < 109)
+
         m->marioBodyState->eyeState = MARIO_EYES_HALF_CLOSED;
     else if (m->marioObj->header.gfx.animInfo.animFrame < 123)
         m->marioBodyState->eyeState = MARIO_EYES_OPEN;

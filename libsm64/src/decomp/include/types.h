@@ -238,6 +238,9 @@ struct MarioBodyState
     /*0x12*/ Vec3s headAngle;
     /*0x18*/ Vec3f heldObjLastPosition; /// also known as HOLP
     u8 padding[4];
+
+    Vec3s leftArmAngle; // sm64-san-andreas: added field
+    Vec3s rightArmAngle; // sm64-san-andreas: added field
 };
 
 struct OffsetSizePair

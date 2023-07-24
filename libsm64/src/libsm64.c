@@ -472,6 +472,38 @@ SM64_LIB_FN void sm64_set_mario_torsoangle(int32_t marioId, float x, float y, fl
     gMarioState->marioBodyState->torsoAngle[2] = (int16_t)(z / 3.14159f * 32768.f);
 }
 
+SM64_LIB_FN void sm64_set_mario_leftarm_angle(int32_t marioId, float x, float y, float z)
+{
+    if( marioId >= s_mario_instance_pool.size || s_mario_instance_pool.objects[marioId] == NULL )
+    {
+        DEBUG_PRINT("Tried to use non-existant Mario with ID: %d", marioId);
+        return;
+    }
+
+    struct GlobalState *globalState = ((struct MarioInstance *)s_mario_instance_pool.objects[ marioId ])->globalState;
+    global_state_bind( globalState );
+
+    gMarioState->marioBodyState->leftArmAngle[0] = (int16_t)(x / 3.14159f * 32768.f);
+    gMarioState->marioBodyState->leftArmAngle[1] = (int16_t)(y / 3.14159f * 32768.f);
+    gMarioState->marioBodyState->leftArmAngle[2] = (int16_t)(z / 3.14159f * 32768.f);
+}
+
+SM64_LIB_FN void sm64_set_mario_rightarm_angle(int32_t marioId, float x, float y, float z)
+{
+    if( marioId >= s_mario_instance_pool.size || s_mario_instance_pool.objects[marioId] == NULL )
+    {
+        DEBUG_PRINT("Tried to use non-existant Mario with ID: %d", marioId);
+        return;
+    }
+
+    struct GlobalState *globalState = ((struct MarioInstance *)s_mario_instance_pool.objects[ marioId ])->globalState;
+    global_state_bind( globalState );
+
+    gMarioState->marioBodyState->rightArmAngle[0] = (int16_t)(x / 3.14159f * 32768.f);
+    gMarioState->marioBodyState->rightArmAngle[1] = (int16_t)(y / 3.14159f * 32768.f);
+    gMarioState->marioBodyState->rightArmAngle[2] = (int16_t)(z / 3.14159f * 32768.f);
+}
+
 SM64_LIB_FN void sm64_set_mario_velocity(int32_t marioId, float x, float y, float z)
 {
     if( marioId >= s_mario_instance_pool.size || s_mario_instance_pool.objects[marioId] == NULL )
