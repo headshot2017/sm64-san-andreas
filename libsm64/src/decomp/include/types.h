@@ -85,6 +85,13 @@ struct VblankHandler
 #define ANIM_FLAG_6          (1 << 6) // 0x40
 #define ANIM_FLAG_7          (1 << 7) // 0x80
 
+// sm64-san-andreas: added struct
+struct AnimOverride
+{
+    s16 current;
+    s16 wanted;
+};
+
 struct Animation {
     /*0x00*/ s16 flags;
     /*0x02*/ s16 animYTransDivisor;
@@ -117,6 +124,7 @@ struct AnimInfo
     /*0x0A 0x42*/ u16 animTimer;
     /*0x0C 0x44*/ s32 animFrameAccelAssist;
     /*0x10 0x48*/ s32 animAccel;
+    struct AnimOverride animOverride; // sm64-san-andreas: added field
 };
 
 struct GraphNodeObject

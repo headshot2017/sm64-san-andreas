@@ -489,7 +489,7 @@ s32 analog_stick_held_back(struct MarioState *m) {
 s32 check_ground_dive_or_punch(struct MarioState *m) {
     UNUSED s32 unused;
 
-    if (m->input & INPUT_B_PRESSED) {
+    if (m->input & INPUT_B_PRESSED && !m->marioObj->header.gfx.animInfo.animOverride.wanted) {
         //! Speed kick (shoutouts to SimpleFlips)
         if (m->forwardVel >= 29.0f && m->controller->stickMag > 48.0f) {
             m->vel[1] = 20.0f;
@@ -812,7 +812,7 @@ s32 act_walking(struct MarioState *m) {
         return set_mario_action(m, ACT_TURNING_AROUND, 0);
     }
 
-    if (m->input & INPUT_Z_PRESSED) {
+    if (m->input & INPUT_Z_PRESSED && !m->marioObj->header.gfx.animInfo.animOverride.wanted) {
         return set_mario_action(m, ACT_CROUCH_SLIDE, 0);
     }
 
@@ -1055,7 +1055,7 @@ s32 act_braking(struct MarioState *m) {
         return set_mario_action(m, ACT_BRAKING_STOP, 0);
     }
 
-    if (m->input & INPUT_B_PRESSED) {
+    if (m->input & INPUT_B_PRESSED && !m->marioObj->header.gfx.animInfo.animOverride.wanted) {
         return set_mario_action(m, ACT_MOVE_PUNCHING, 0);
     }
 
@@ -1100,7 +1100,7 @@ s32 act_decelerating(struct MarioState *m) {
             return set_mario_action(m, ACT_WALKING, 0);
         }
 
-        if (m->input & INPUT_Z_PRESSED) {
+        if (m->input & INPUT_Z_PRESSED && !m->marioObj->header.gfx.animInfo.animOverride.wanted) {
             return set_mario_action(m, ACT_CROUCH_SLIDE, 0);
         }
     }

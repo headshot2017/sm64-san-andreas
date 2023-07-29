@@ -1,11 +1,17 @@
 #include "mario_render.h"
 
+#define _USE_MATH_DEFINES
+#include <math.h>
+
 #include "plugin.h"
 #include "CCutsceneMgr.h"
 #include "CPlayerPed.h"
 #include "CPointLights.h"
 #include "CScene.h"
 #include "CTimeCycle.h"
+#include "CHud.h"
+#include "CWeapon.h"
+#include "CWeaponInfo.h"
 #include "Fx_c.h"
 
 #include "d3d9_funcs.h"
@@ -15,6 +21,7 @@
 bool inited = false;
 bool surfaceDebugger = false;
 int marioTexturedCount = 0;
+int triangles = 0;
 
 // Immediate Mode API
 RwIm3DVertex marioInterpGeo[SM64_GEO_MAX_TRIANGLES * 3];
@@ -30,6 +37,7 @@ RpClump* marioClump;
 RpAtomic* marioAtomic;
 //RwFrame* marioFrameClump;
 RwFrame* marioFrameAtomic;
+RwObject* weaponObj;
 
 
 void marioRenderToggleDebug()
@@ -41,6 +49,7 @@ void marioRenderInit()
 {
     if (inited) return;
     inited = true;
+    triangles = SM64_GEO_MAX_TRIANGLES;
 
     memset(&marioTextureIndices, 0, sizeof(marioTextureIndices));
     memset(&marioOriginalColor, 0, sizeof(marioOriginalColor));
@@ -54,6 +63,8 @@ void marioRenderInit()
     RwIm3DVertexSetU(&shadowVert[3], 1.f); RwIm3DVertexSetV(&shadowVert[3], 1.f);
 
     // Retained Mode API
+    weaponObj = nullptr;
+
     // create Mario RenderWare clump.
     // steps from RenderWare's "geometry" example
     RwRGBA noColor = {0,0,0,255};
@@ -168,7 +179,7 @@ void marioRenderUpdateGeometry(const SM64MarioGeometryBuffers& marioGeometry)
     RpTriangle* tlist = marioAtomic->geometry->triangles;
     memset(tlist, 0, sizeof(RpTriangle) * SM64_GEO_MAX_TRIANGLES);
 
-    for (uint16_t i=0; i<marioGeometry.numTrianglesUsed*3; i++)
+    for (uint16_t i=0; i<marioGeometry.numTrianglesUsed*3 && i<triangles*3; i++)
     {
         bool hasTexture = (marioGeometry.uv[i*2+0] != 1 && marioGeometry.uv[i*2+1] != 1);
 
@@ -242,7 +253,7 @@ void marioRenderInterpolate(const SM64MarioGeometryBuffers& marioGeometry, float
     RpGeometryLock(marioAtomic->geometry, rpGEOMETRYLOCKVERTICES);
     RpMorphTarget* morphTarget = marioAtomic->geometry->morphTarget;
     RwV3d* vlist = morphTarget->verts;
-    for (int i=0; i<marioGeometry.numTrianglesUsed*3; i++)
+    for (int i=0; i<marioGeometry.numTrianglesUsed*3 && i<triangles*3; i++)
     {
         marioInterpGeo[i].objVertex.x = lerp(marioLastGeoPos[i].objVertex.x, marioCurrGeoPos[i].objVertex.x, ticks / (1.f/30));
         marioInterpGeo[i].objVertex.y = lerp(marioLastGeoPos[i].objVertex.y, marioCurrGeoPos[i].objVertex.y, ticks / (1.f/30));
@@ -466,4 +477,98 @@ void marioRenderPedReset(CPed* ped)
         ped->m_pRwClump = pedClump;
     else if (RwObjectGetType(ped->m_pRwObject) == rpATOMIC)
         ped->m_pRwAtomic = pedAtomic;
+}
+
+void marioRenderWeapon()
+{
+    if (!marioSpawned() || !FindPlayerPed()) return;
+    CPlayerPed* ped = FindPlayerPed();
+
+    RwRenderStateSet(rwRENDERSTATEZTESTENABLE,          RWRSTATE(TRUE));
+    RwRenderStateSet(rwRENDERSTATEZWRITEENABLE,         RWRSTATE(TRUE));
+    RwRenderStateSet(rwRENDERSTATEFOGENABLE,            RWRSTATE(TRUE));
+    RwRenderStateSet(rwRENDERSTATESRCBLEND,             RWRSTATE(rwBLENDSRCALPHA));
+    RwRenderStateSet(rwRENDERSTATEDESTBLEND,            RWRSTATE(rwBLENDINVSRCALPHA));
+    RwRenderStateSet(rwRENDERSTATEALPHATESTFUNCTIONREF, RWRSTATE(20));
+    SetAmbientColours();
+    ActivateDirectional();
+
+    float div = 45*3+1;
+
+    if (weaponObj)
+    {
+        RpClump* weaponClump = (RpClump*)weaponObj;
+        RwFrame* weaponFrame = (RwFrame*)weaponClump->object.parent;
+        const CWeapon& activeWeapon = ped->m_aWeapons[ped->m_nActiveWeaponSlot];
+        CWeaponInfo* info = CWeaponInfo::GetWeaponInfo(activeWeapon.m_eWeaponType, ped->GetWeaponSkill());
+        bool aiming = (marioState.rightArmAngle[0] != 0); // kinda hacky
+        bool cantAim = (aiming && marioState.rightArmAngle[1] == 0); // kinda hacky
+
+        RwV3d yawAxis = {0,0,1};
+        RwV3d pitchAxisRw = {0, 1, 0};
+        RwV3d rollAxisRw = {1, 0, 0};
+
+        // mario geo triangle indexes:
+        // 445 to 490: left hand
+        // 555 to 600: right hand
+        // multiply by 3 to get the individiual triangle's 3 vertices in marioInterpGeo
+
+        // set position to center of mario's right hand
+        RwV3d rwpos = {0};
+        for (int i=555*3; i<=600*3; i++)
+        {
+            rwpos.x += marioInterpGeo[i].objVertex.x;
+            rwpos.y += marioInterpGeo[i].objVertex.y;
+            rwpos.z += marioInterpGeo[i].objVertex.z;
+        }
+        rwpos.x /= div;
+        rwpos.y /= div;
+        rwpos.z /= div;
+
+        if (!info->m_nFlags.bAimWithArm)
+            RwFrameRotate(weaponFrame, &yawAxis, (marioState.angle[1])/M_PI*180 - 90, rwCOMBINEREPLACE);
+        else
+        {
+            RwFrameRotate(weaponFrame, &yawAxis, (marioState.angle[1] + marioState.rightArmAngle[2])/M_PI*180 - 90, rwCOMBINEREPLACE);
+            if (aiming)
+            {
+                if (!cantAim) RwFrameRotate(weaponFrame, &yawAxis, 25, rwCOMBINEPRECONCAT);
+                RwFrameRotate(weaponFrame, &pitchAxisRw, (cantAim) ? -90 : (-marioState.rightArmAngle[0]/M_PI*180 - 90), rwCOMBINEPRECONCAT);
+            }
+            else
+                RwFrameRotate(weaponFrame, &pitchAxisRw, 90, rwCOMBINEPRECONCAT);
+            RwFrameRotate(weaponFrame, &rollAxisRw, -90, rwCOMBINEPRECONCAT);
+        }
+        RwFrameTranslate(weaponFrame, &rwpos, rwCOMBINEPOSTCONCAT);
+        RpClumpRender(weaponClump);
+
+        if (info->m_nFlags.bTwinPistol)
+        {
+            // render weapon on left hand
+
+            // set position to center of mario's left hand
+            memset(&rwpos, 0, sizeof(RwV3d));
+            for (int i=445*3; i<=490*3; i++)
+            {
+                rwpos.x += marioInterpGeo[i].objVertex.x;
+                rwpos.y += marioInterpGeo[i].objVertex.y;
+                rwpos.z += marioInterpGeo[i].objVertex.z;
+            }
+            rwpos.x /= div;
+            rwpos.y /= div;
+            rwpos.z /= div;
+
+            RwFrameRotate(weaponFrame, &yawAxis, (marioState.angle[1] + marioState.leftArmAngle[2])/M_PI*180 - 90, rwCOMBINEREPLACE);
+            if (aiming)
+            {
+                if (!cantAim) RwFrameRotate(weaponFrame, &yawAxis, -25, rwCOMBINEPRECONCAT);
+                RwFrameRotate(weaponFrame, &pitchAxisRw, (cantAim) ? 90 : (-marioState.leftArmAngle[0]/M_PI*180 - 90), rwCOMBINEPRECONCAT);
+            }
+            else
+                RwFrameRotate(weaponFrame, &pitchAxisRw, 90, rwCOMBINEPRECONCAT);
+            RwFrameRotate(weaponFrame, &rollAxisRw, 90, rwCOMBINEPRECONCAT);
+            RwFrameTranslate(weaponFrame, &rwpos, rwCOMBINEPOSTCONCAT);
+            RpClumpRender(weaponClump);
+        }
+    }
 }

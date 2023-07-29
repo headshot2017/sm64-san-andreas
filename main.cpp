@@ -22,6 +22,10 @@ bool loaded;
 uint8_t* marioTexture;
 RwImVertexIndex marioIndices[SM64_GEO_MAX_TRIANGLES * 3];
 
+CdeclEvent<AddressList<0x53eac4, H_CALL,
+                       0x705322, H_CALL,
+                       0x7271e3, H_CALL>, PRIORITY_AFTER, ArgPickNone, void()> pedRenderWeaponsEvent;
+
 class sm64_san_andreas {
 public:
     static void init()
@@ -143,6 +147,24 @@ public:
                 keyPressTime = CTimer::m_snTimeInMilliseconds;
                 marioTestAnim();
             }
+            /*
+            else if (KeyPressed(VK_NUMPAD9))
+            {
+                keyPressTime = CTimer::m_snTimeInMilliseconds - (KeyPressed(VK_NUMPAD0) ? 800 : 975);
+                if (triangles < SM64_GEO_MAX_TRIANGLES) triangles++;
+                char msg[32];
+                sprintf(msg, "%d", triangles);
+                CHud::SetHelpMessage(msg, 0,0,0);
+            }
+            else if (KeyPressed(VK_NUMPAD6))
+            {
+                keyPressTime = CTimer::m_snTimeInMilliseconds - (KeyPressed(VK_NUMPAD0) ? 800 : 975);
+                if (triangles > 0) triangles--;
+                char msg[32];
+                sprintf(msg, "%d", triangles);
+                CHud::SetHelpMessage(msg, 0,0,0);
+            }
+            */
         }
 
         marioTick((CTimer::m_snTimeInMilliseconds - CTimer::m_snPreviousTimeInMilliseconds) / 1000.f);
@@ -164,5 +186,7 @@ public:
 
         Events::pedRenderEvent.before.Add(marioRenderPed);
         Events::pedRenderEvent.after.Add(marioRenderPedReset);
+
+        pedRenderWeaponsEvent.before.Add(marioRenderWeapon);
     }
 } _sm64_san_andreas;

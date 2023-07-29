@@ -35,6 +35,12 @@ struct SM64Animation
     uint32_t length; // only used with Mario animations to determine how much to load. 0 otherwise.
 };
 
+struct SM64AnimOverride
+{
+    int16_t current;
+    int16_t wanted;
+};
+
 struct SM64AnimInfo
 {
     int16_t animID;
@@ -44,6 +50,7 @@ struct SM64AnimInfo
     uint16_t animTimer;
     int32_t animFrameAccelAssist;
     int32_t animAccel;
+    struct SM64AnimOverride animOverride;
 };
 
 struct SM64Surface
@@ -86,6 +93,9 @@ struct SM64MarioState
     float position[3];
     float velocity[3];
     float angle[3];
+    float headAngle[3];
+    float leftArmAngle[3];
+    float rightArmAngle[3];
     int16_t health;
     uint32_t action;
     uint32_t actionState;
@@ -209,6 +219,7 @@ extern SM64_LIB_FN void sm64_set_mario_action(int32_t marioId, uint32_t action);
 extern SM64_LIB_FN void sm64_set_mario_action_arg(int32_t marioId, uint32_t action, uint32_t actionArg);
 extern SM64_LIB_FN void sm64_set_mario_action_arg2(int32_t marioId, uint32_t actionArg2);
 extern SM64_LIB_FN void sm64_set_mario_animation(int32_t marioId, int32_t animID);
+extern SM64_LIB_FN void sm64_set_mario_anim_override(int32_t marioId, int32_t animID);
 extern SM64_LIB_FN void sm64_set_mario_anim_frame(int32_t marioId, int16_t animFrame);
 extern SM64_LIB_FN void sm64_set_mario_state(int32_t marioId, uint32_t flags);
 extern SM64_LIB_FN void sm64_set_mario_position(int32_t marioId, float x, float y, float z);

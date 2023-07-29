@@ -55,11 +55,11 @@ s32 check_common_idle_cancels(struct MarioState *m) {
         return set_mario_action(m, ACT_WALKING, 0);
     }
 
-    if (m->input & INPUT_B_PRESSED) {
+    if (m->input & INPUT_B_PRESSED && !m->marioObj->header.gfx.animInfo.animOverride.wanted) {
         return set_mario_action(m, ACT_PUNCHING, 0);
     }
 
-    if (m->input & INPUT_Z_DOWN) {
+    if (m->input & INPUT_Z_DOWN && !m->marioObj->header.gfx.animInfo.animOverride.wanted) {
         return set_mario_action(m, ACT_START_CROUCHING, 0);
     }
 
@@ -123,7 +123,7 @@ s32 act_idle(struct MarioState *m) {
         return set_mario_action(m, ACT_COUGHING, 0);
     }
 
-    if (!(m->actionArg & 1) && m->health < 0x300) {
+    if (!(m->actionArg & 1) && m->health < 0x300 && !m->marioObj->header.gfx.animInfo.animOverride.wanted) {
         return set_mario_action(m, ACT_PANTING, 0);
     }
 
@@ -166,7 +166,7 @@ s32 act_idle(struct MarioState *m) {
             // actionTimer is used to track how many cycles have passed.
             if (++m->actionState == 3) {
                 f32 deltaYOfFloorBehindMario = m->pos[1] - find_floor_height_relative_polar(m, -0x8000, 60.0f);
-                if (deltaYOfFloorBehindMario < -24.0f || 24.0f < deltaYOfFloorBehindMario || m->floor->flags & SURFACE_FLAG_DYNAMIC) {
+                if (deltaYOfFloorBehindMario < -24.0f || 24.0f < deltaYOfFloorBehindMario || m->floor->flags & SURFACE_FLAG_DYNAMIC || m->marioObj->header.gfx.animInfo.animOverride.wanted) {
                     m->actionState = 0;
                 } else {
                     // If Mario hasn't turned his head 10 times yet, stay idle instead of going to sleep.
@@ -558,7 +558,7 @@ s32 act_crouching(struct MarioState *m) {
         return set_mario_action(m, ACT_STOP_CROUCHING, 0);
     }
 
-    if (!(m->input & INPUT_Z_DOWN)) {
+    if (!(m->input & INPUT_Z_DOWN) || m->marioObj->header.gfx.animInfo.animOverride.wanted) {
         return set_mario_action(m, ACT_STOP_CROUCHING, 0);
     }
 
@@ -580,7 +580,7 @@ s32 act_panting(struct MarioState *m) {
         return set_mario_action(m, ACT_SHOCKWAVE_BOUNCE, 0);
     }
 
-    if (m->health >= 0x500) {
+    if (m->health >= 0x500 || m->marioObj->header.gfx.animInfo.animOverride.wanted) {
         return set_mario_action(m, ACT_IDLE, 0);
     }
 
@@ -638,7 +638,7 @@ s32 act_braking_stop(struct MarioState *m) {
         return set_mario_action(m, ACT_FREEFALL, 0);
     }
 
-    if (m->input & INPUT_B_PRESSED) {
+    if (m->input & INPUT_B_PRESSED && !m->marioObj->header.gfx.animInfo.animOverride.wanted) {
         return set_mario_action(m, ACT_PUNCHING, 0);
     }
 
@@ -869,7 +869,7 @@ s32 check_common_landing_cancels(struct MarioState *m, u32 action) {
         return check_common_action_exits(m);
     }
 
-    if (m->input & INPUT_B_PRESSED) {
+    if (m->input & INPUT_B_PRESSED && !m->marioObj->header.gfx.animInfo.animOverride.wanted) {
         return set_mario_action(m, ACT_PUNCHING, 0);
     }
 

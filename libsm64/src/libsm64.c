@@ -276,6 +276,15 @@ SM64_LIB_FN void sm64_mario_tick( int32_t marioId, const struct SM64MarioInputs 
     outState->angle[0] = (float)gMarioState->faceAngle[0] / 32768.0f * 3.14159f;
     outState->angle[1] = (float)gMarioState->faceAngle[1] / 32768.0f * 3.14159f;
     outState->angle[2] = (float)gMarioState->faceAngle[2] / 32768.0f * 3.14159f;
+    outState->headAngle[0] = (float)gMarioState->marioBodyState->headAngle[0] / 32768.0f * 3.14159f;
+    outState->headAngle[1] = (float)gMarioState->marioBodyState->headAngle[1] / 32768.0f * 3.14159f;
+    outState->headAngle[2] = (float)gMarioState->marioBodyState->headAngle[2] / 32768.0f * 3.14159f;
+    outState->leftArmAngle[0] = (float)gMarioState->marioBodyState->leftArmAngle[0] / 32768.0f * 3.14159f;
+    outState->leftArmAngle[1] = (float)gMarioState->marioBodyState->leftArmAngle[1] / 32768.0f * 3.14159f;
+    outState->leftArmAngle[2] = (float)gMarioState->marioBodyState->leftArmAngle[2] / 32768.0f * 3.14159f;
+    outState->rightArmAngle[0] = (float)gMarioState->marioBodyState->rightArmAngle[0] / 32768.0f * 3.14159f;
+    outState->rightArmAngle[1] = (float)gMarioState->marioBodyState->rightArmAngle[1] / 32768.0f * 3.14159f;
+    outState->rightArmAngle[2] = (float)gMarioState->marioBodyState->rightArmAngle[2] / 32768.0f * 3.14159f;
     outState->action = gMarioState->action;
     outState->actionState = gMarioState->actionState;
     outState->actionTimer = gMarioState->actionTimer;
@@ -363,6 +372,20 @@ SM64_LIB_FN void sm64_set_mario_animation(int32_t marioId, int32_t animID)
     global_state_bind( globalState );
 
     set_mario_animation(gMarioState, animID);
+}
+
+SM64_LIB_FN void sm64_set_mario_anim_override(int32_t marioId, int32_t animID)
+{
+    if( marioId >= s_mario_instance_pool.size || s_mario_instance_pool.objects[marioId] == NULL )
+    {
+        DEBUG_PRINT("Tried to use non-existant Mario with ID: %d", marioId);
+        return;
+    }
+
+    struct GlobalState *globalState = ((struct MarioInstance *)s_mario_instance_pool.objects[ marioId ])->globalState;
+    global_state_bind( globalState );
+
+    gMarioState->marioObj->header.gfx.animInfo.animOverride.wanted = animID;
 }
 
 SM64_LIB_FN void sm64_set_mario_anim_frame(int32_t marioId, int16_t animFrame)

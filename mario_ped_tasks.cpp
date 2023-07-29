@@ -12,6 +12,7 @@
 #include "CTaskComplexSequence2.h"
 #include "CTaskSimpleRunNamedAnim.h"
 #include "CTaskSimpleSwim.h"
+#include "CTaskSimpleUseGun.h"
 #include "CModelInfo.h"
 extern "C" {
     #include <decomp/include/sm64shared.h>
@@ -522,5 +523,65 @@ void marioPedTasksMaxFPS(CPlayerPed* ped, const int& marioId)
     {
         CTaskSimpleHoldEntity2* task = static_cast<CTaskSimpleHoldEntity2*>(baseTask);
         moveEntityToMarioHands(task);
+    }
+    else if ((baseTask = ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_USE_GUN)))
+    {
+        CTaskSimpleUseGun* task = static_cast<CTaskSimpleUseGun*>(baseTask);
+        char buf[128];
+        sprintf(buf, "%d %d %d", task->m_ArmIKInUse, task->m_bSkipAim, task->m_LookIKInUse);
+        CHud::SetMessage(buf);
+
+        if (task->m_pWeaponInfo->m_nFlags.bAimWithArm)
+        {
+            // used with normal pistol, sawed-off shotgun and uzi/tec9
+            bool reloading = !task->m_ArmIKInUse && !task->m_bSkipAim && !task->m_LookIKInUse;
+            if (!reloading && gunAnimOverrideTable.count(marioState.animInfo.animOverride.current))
+            {
+                sm64_set_mario_anim_override(marioId, gunAnimOverrideTable[marioState.animInfo.animOverride.current]);
+
+                // get rotations for arms...
+                static float rightArmShoot = 0;
+                static float leftArmShoot = 0;
+                if (task->bRightHand) rightArmShoot = (task->m_nFireGunThisFrame * task->bRightHand) / 1.0f;
+                if (task->bLefttHand) leftArmShoot = (task->m_nFireGunThisFrame * task->bLefttHand) / 2.f;
+                rightArmShoot /= 1.5f;
+                leftArmShoot /= 2.f;
+
+                float updown = (marioState.headAngle[0] >= 0) ? 16 : -8; // if looking up or down
+                float rightarm[] = {
+                    (task->m_ArmIKInUse) ? -(float)M_PI_2-marioState.headAngle[0]*4.f : -(float)M_PI,
+                    (task->m_ArmIKInUse) ? (float)M_PI_2+marioState.headAngle[0]*updown : 0,
+                    ( (task->m_ArmIKInUse) ? marioState.headAngle[1]-0.45f : 0 ) - rightArmShoot
+                };
+                float leftarm[] = {
+                    (task->m_ArmIKInUse) ? -(float)M_PI_2-marioState.headAngle[0]*4.f : 0,
+                    (task->m_ArmIKInUse) ? -(float)M_PI_2-marioState.headAngle[0]*updown : 0,
+                    ( (task->m_ArmIKInUse) ? marioState.headAngle[1]+0.45f : 0 ) + leftArmShoot
+                };
+                sm64_set_mario_rightarm_angle(marioId, rightarm[0], rightarm[1], rightarm[2]);
+                if (task->m_pWeaponInfo->m_nFlags.bTwinPistol)
+                    sm64_set_mario_leftarm_angle(marioId, leftarm[0], leftarm[1], leftarm[2]);
+            }
+            else
+            {
+                // no animation or is reloading gun
+                sm64_set_mario_anim_override(marioId, 0);
+                sm64_set_mario_rightarm_angle(marioId, 0, 0, 0);
+                sm64_set_mario_leftarm_angle(marioId, 0, 0, 0);
+            }
+        }
+        else
+        {
+            // heavier weapon (deagle, shotgun, mp5, rifles...)
+            sm64_set_mario_anim_override(marioId, 0);
+            sm64_set_mario_rightarm_angle(marioId, 0, 0, 0);
+            sm64_set_mario_leftarm_angle(marioId, 0, 0, 0);
+        }
+    }
+    else
+    {
+        sm64_set_mario_anim_override(marioId, 0);
+        sm64_set_mario_rightarm_angle(marioId, 0, 0, 0);
+        sm64_set_mario_leftarm_angle(marioId, 0, 0, 0);
     }
 }

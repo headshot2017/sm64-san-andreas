@@ -71,6 +71,11 @@ s32 is_anim_past_end(struct MarioState *m) {
  */
 s16 set_mario_animation(struct MarioState *m, s32 targetAnimID) {
     struct Object *o = m->marioObj;
+    if (targetAnimID < MARIO_ANIM_CUSTOM_START)
+        o->header.gfx.animInfo.animOverride.current = targetAnimID;
+    if (o->header.gfx.animInfo.animOverride.wanted)
+        targetAnimID = o->header.gfx.animInfo.animOverride.wanted;
+
     load_mario_animation(m->animation, targetAnimID);
 
     struct Animation *targetAnim = m->animation->targetAnim;
@@ -105,6 +110,10 @@ s16 set_mario_animation(struct MarioState *m, s32 targetAnimID) {
  */
 s16 set_mario_anim_with_accel(struct MarioState *m, s32 targetAnimID, s32 accel) {
     struct Object *o = m->marioObj;
+    if (targetAnimID < MARIO_ANIM_CUSTOM_START)
+        o->header.gfx.animInfo.animOverride.current = targetAnimID;
+    if (o->header.gfx.animInfo.animOverride.wanted)
+        targetAnimID = o->header.gfx.animInfo.animOverride.wanted;
 
     load_mario_animation(m->animation, targetAnimID);
     struct Animation *targetAnim = m->animation->targetAnim;

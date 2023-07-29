@@ -108,7 +108,7 @@ s32 check_fall_damage(struct MarioState *m, u32 hardFallAction) {
 }
 
 s32 check_kick_or_dive_in_air(struct MarioState *m) {
-    if (m->input & INPUT_B_PRESSED) {
+    if (m->input & INPUT_B_PRESSED && !m->marioObj->header.gfx.animInfo.animOverride.wanted) {
         return set_mario_action(m, m->forwardVel > 28.0f ? ACT_DIVE : ACT_JUMP_KICK, 0);
     }
     return FALSE;
@@ -483,7 +483,7 @@ s32 act_triple_jump(struct MarioState *m) {
         return set_mario_action(m, ACT_SPECIAL_TRIPLE_JUMP, 0);
     }
 
-    if (m->input & INPUT_B_PRESSED) {
+    if (m->input & INPUT_B_PRESSED && !m->marioObj->header.gfx.animInfo.animOverride.wanted) {
         return set_mario_action(m, ACT_DIVE, 0);
     }
 
@@ -526,7 +526,7 @@ s32 act_backflip(struct MarioState *m) {
 s32 act_freefall(struct MarioState *m) {
     s32 animation;
 
-    if (m->input & INPUT_B_PRESSED) {
+    if (m->input & INPUT_B_PRESSED && !m->marioObj->header.gfx.animInfo.animOverride.wanted) {
         return set_mario_action(m, ACT_DIVE, 0);
     }
 
@@ -594,7 +594,7 @@ s32 act_hold_freefall(struct MarioState *m) {
 }
 
 s32 act_side_flip(struct MarioState *m) {
-    if (m->input & INPUT_B_PRESSED) {
+    if (m->input & INPUT_B_PRESSED && !m->marioObj->header.gfx.animInfo.animOverride.wanted) {
         return set_mario_action(m, ACT_DIVE, 0);
     }
 
@@ -617,7 +617,7 @@ s32 act_side_flip(struct MarioState *m) {
 }
 
 s32 act_wall_kick_air(struct MarioState *m) {
-    if (m->input & INPUT_B_PRESSED) {
+    if (m->input & INPUT_B_PRESSED && !m->marioObj->header.gfx.animInfo.animOverride.wanted) {
         return set_mario_action(m, ACT_DIVE, 0);
     }
 
@@ -884,7 +884,7 @@ s32 act_hold_water_jump(struct MarioState *m) {
 }
 
 s32 act_steep_jump(struct MarioState *m) {
-    if (m->input & INPUT_B_PRESSED) {
+    if (m->input & INPUT_B_PRESSED && !m->marioObj->header.gfx.animInfo.animOverride.wanted) {
         return set_mario_action(m, ACT_DIVE, 0);
     }
 

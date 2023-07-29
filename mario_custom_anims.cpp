@@ -15,9 +15,18 @@
 #include "raw/anim_dance_bad.raw.h"
 #include "raw/anim_dance_good.raw.h"
 #include "raw/anim_vending_machine.raw.h"
+#include "raw/anim_gunpoint.raw.h"
+#include "raw/anim_gunpoint_walk_start.raw.h"
+#include "raw/anim_gunpoint_tiptoe.raw.h"
+#include "raw/anim_gunpoint_walk.raw.h"
+#include "raw/anim_gunpoint_run.raw.h"
+#include "raw/anim_gunpoint_skid.raw.h"
+#include "raw/anim_gunpoint_skid_stop.raw.h"
+#include "raw/anim_gunpoint_skid_turn.raw.h"
 
 extern "C" {
     #include <libsm64.h>
+    #include <decomp/include/mario_animation_ids.h>
 }
 
 int MARIO_ANIM_CUSTOM_TEST;
@@ -35,6 +44,16 @@ int MARIO_ANIM_CUSTOM_DANCE_LOOP;
 int MARIO_ANIM_CUSTOM_DANCE_BAD;
 int MARIO_ANIM_CUSTOM_DANCE_GOOD;
 int MARIO_ANIM_CUSTOM_VENDING_MACHINE;
+int MARIO_ANIM_CUSTOM_GUNPOINT;
+int MARIO_ANIM_CUSTOM_GUNPOINT_WALK_START;
+int MARIO_ANIM_CUSTOM_GUNPOINT_TIPTOE;
+int MARIO_ANIM_CUSTOM_GUNPOINT_WALK;
+int MARIO_ANIM_CUSTOM_GUNPOINT_RUN;
+int MARIO_ANIM_CUSTOM_GUNPOINT_SKID;
+int MARIO_ANIM_CUSTOM_GUNPOINT_SKID_STOP;
+int MARIO_ANIM_CUSTOM_GUNPOINT_SKID_TURN;
+
+std::unordered_map<int, int> gunAnimOverrideTable;
 
 void marioInitCustomAnims()
 {
@@ -53,4 +72,30 @@ void marioInitCustomAnims()
     MARIO_ANIM_CUSTOM_DANCE_BAD = sm64_custom_animation_init(marioAnimDanceBadRaw, marioAnimDanceBadRaw_length);
     MARIO_ANIM_CUSTOM_DANCE_GOOD = sm64_custom_animation_init(marioAnimDanceGoodRaw, marioAnimDanceGoodRaw_length);
     MARIO_ANIM_CUSTOM_VENDING_MACHINE = sm64_custom_animation_init(marioAnimVendingMachineRaw, marioAnimVendingMachineRaw_length);
+    MARIO_ANIM_CUSTOM_GUNPOINT = sm64_custom_animation_init(marioAnimGunpointRaw, marioAnimGunpointRaw_length);
+    MARIO_ANIM_CUSTOM_GUNPOINT_WALK_START = sm64_custom_animation_init(marioAnimGunpointWalkStartRaw, marioAnimGunpointWalkStartRaw_length);
+    MARIO_ANIM_CUSTOM_GUNPOINT_TIPTOE = sm64_custom_animation_init(marioAnimGunpointTiptoeRaw, marioAnimGunpointTiptoeRaw_length);
+    MARIO_ANIM_CUSTOM_GUNPOINT_WALK = sm64_custom_animation_init(marioAnimGunpointWalkRaw, marioAnimGunpointWalkRaw_length);
+    MARIO_ANIM_CUSTOM_GUNPOINT_RUN = sm64_custom_animation_init(marioAnimGunpointRunRaw, marioAnimGunpointRunRaw_length);
+    MARIO_ANIM_CUSTOM_GUNPOINT_SKID = sm64_custom_animation_init(marioAnimGunpointSkidRaw, marioAnimGunpointSkidRaw_length);
+    MARIO_ANIM_CUSTOM_GUNPOINT_SKID_STOP = sm64_custom_animation_init(marioAnimGunpointSkidStopRaw, marioAnimGunpointSkidStopRaw_length);
+    MARIO_ANIM_CUSTOM_GUNPOINT_SKID_TURN = sm64_custom_animation_init(marioAnimGunpointSkidTurnRaw, marioAnimGunpointSkidTurnRaw_length);
+
+    gunAnimOverrideTable = {
+        {MARIO_ANIM_IDLE_HEAD_CENTER,   MARIO_ANIM_CUSTOM_GUNPOINT},
+        {MARIO_ANIM_IDLE_HEAD_LEFT,     MARIO_ANIM_CUSTOM_GUNPOINT},
+        {MARIO_ANIM_IDLE_HEAD_RIGHT,    MARIO_ANIM_CUSTOM_GUNPOINT},
+        {MARIO_ANIM_FIRST_PERSON,       MARIO_ANIM_CUSTOM_GUNPOINT},
+        {MARIO_ANIM_CROUCHING,          MARIO_ANIM_CUSTOM_GUNPOINT},
+        {MARIO_ANIM_STOP_CROUCHING,     MARIO_ANIM_CUSTOM_GUNPOINT},
+        {MARIO_ANIM_WALK_PANTING,       MARIO_ANIM_CUSTOM_GUNPOINT},
+        {MARIO_ANIM_START_TIPTOE,       MARIO_ANIM_CUSTOM_GUNPOINT_WALK_START},
+        {MARIO_ANIM_TIPTOE,             MARIO_ANIM_CUSTOM_GUNPOINT_TIPTOE},
+        {MARIO_ANIM_WALKING,            MARIO_ANIM_CUSTOM_GUNPOINT_WALK},
+        {MARIO_ANIM_RUNNING,            MARIO_ANIM_CUSTOM_GUNPOINT_RUN},
+        {MARIO_ANIM_SKID_ON_GROUND,     MARIO_ANIM_CUSTOM_GUNPOINT_SKID},
+        {MARIO_ANIM_STOP_SKID,          MARIO_ANIM_CUSTOM_GUNPOINT_SKID_STOP},
+        {MARIO_ANIM_TURNING_PART1,      MARIO_ANIM_CUSTOM_GUNPOINT_SKID},
+        {MARIO_ANIM_TURNING_PART2,      MARIO_ANIM_CUSTOM_GUNPOINT_SKID_TURN},
+    };
 }

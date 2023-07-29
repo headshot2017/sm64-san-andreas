@@ -158,6 +158,14 @@
 		<Unit filename="raw/anim_dance_loop.raw.h" />
 		<Unit filename="raw/anim_eat.raw.h" />
 		<Unit filename="raw/anim_facepalm.raw.h" />
+		<Unit filename="raw/anim_gunpoint.raw.h" />
+		<Unit filename="raw/anim_gunpoint_run.raw.h" />
+		<Unit filename="raw/anim_gunpoint_skid.raw.h" />
+		<Unit filename="raw/anim_gunpoint_skid_stop.raw.h" />
+		<Unit filename="raw/anim_gunpoint_skid_turn.raw.h" />
+		<Unit filename="raw/anim_gunpoint_tiptoe.raw.h" />
+		<Unit filename="raw/anim_gunpoint_walk.raw.h" />
+		<Unit filename="raw/anim_gunpoint_walk_start.raw.h" />
 		<Unit filename="raw/anim_laugh01.raw.h" />
 		<Unit filename="raw/anim_pickup_slow.raw.h" />
 		<Unit filename="raw/anim_putdown_slow.raw.h" />

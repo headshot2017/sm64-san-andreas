@@ -4,6 +4,9 @@
 #include "mario.h"
 #include "CPed.h"
 
+extern RwObject* weaponObj;
+extern int triangles;
+
 void marioRenderToggleDebug();
 
 void marioRenderInit();
@@ -14,5 +17,7 @@ void marioRenderInterpolate(const SM64MarioGeometryBuffers& marioGeometry, float
 void marioRender();
 void marioRenderPed(CPed* ped);
 void marioRenderPedReset(CPed* ped);
+
+void marioRenderWeapon();
 
 #endif // MARIORENDER_H_INCLUDED

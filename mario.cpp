@@ -643,6 +643,12 @@ void marioDestroy()
         ped->m_nPhysicalFlags.bDisableTurnForce = 0;
         ped->m_nPhysicalFlags.bDontApplySpeed = 0;
         ped->m_nAllowedAttackMoves = 5;
+
+        if (weaponObj)
+        {
+            ped->m_pWeaponObject = weaponObj;
+            weaponObj = nullptr;
+        }
     }
 }
 
@@ -650,7 +656,14 @@ void marioTick(float dt)
 {
     if (!marioSpawned() || !FindPlayerPed()) return;
     CPlayerPed* ped = FindPlayerPed();
+
+    if (ped->m_pWeaponObject || ped->m_aWeapons[ped->m_nActiveWeaponSlot].m_eWeaponType == WEAPON_UNARMED)
+    {
+        weaponObj = ped->m_pWeaponObject;
+        ped->m_pWeaponObject = nullptr;
+    }
     ped->m_pShadowData = nullptr;
+
     bool carDoor = ped->m_pIntelligence->IsPedGoingForCarDoor();
     float hp = ped->m_fHealth / ped->m_fMaxHealth;
 
