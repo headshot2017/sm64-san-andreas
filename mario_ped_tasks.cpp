@@ -527,9 +527,6 @@ void marioPedTasksMaxFPS(CPlayerPed* ped, const int& marioId)
     else if ((baseTask = ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_USE_GUN)))
     {
         CTaskSimpleUseGun* task = static_cast<CTaskSimpleUseGun*>(baseTask);
-        char buf[128];
-        sprintf(buf, "%d %d %d", task->m_ArmIKInUse, task->m_bSkipAim, task->m_LookIKInUse);
-        CHud::SetMessage(buf);
 
         if (task->m_pWeaponInfo->m_nFlags.bAimWithArm)
         {
