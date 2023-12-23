@@ -16,7 +16,7 @@ Once you are ingame, press the M key to switch between Mario and CJ.
 
 This is still under development!
 
-## Downloading a pre-release build from GitHub Actions (NEW)
+## How to download
 **This requires you to be logged in to your GitHub account.**
 * Go to the [Actions](https://github.com/headshot2017/sm64-san-andreas/actions) page
 * Click the first item that appears in the "workflow runs" list
