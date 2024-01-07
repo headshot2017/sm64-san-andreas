@@ -501,7 +501,7 @@ void marioRenderWeapon()
         RwFrame* weaponFrame = (RwFrame*)weaponClump->object.parent;
         const CWeapon& activeWeapon = ped->m_aWeapons[ped->m_nActiveWeaponSlot];
         CWeaponInfo* info = CWeaponInfo::GetWeaponInfo(activeWeapon.m_eWeaponType, ped->GetWeaponSkill());
-        bool aiming = (marioState.rightArmAngle[0] != 0); // kinda hacky
+        bool aiming = !!(ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_USE_GUN)); // kinda hacky
         bool cantAim = (aiming && marioState.rightArmAngle[1] == 0); // kinda hacky
 
         RwV3d yawAxis = {0,0,1};
@@ -525,8 +525,37 @@ void marioRenderWeapon()
         rwpos.y /= div;
         rwpos.z /= div;
 
+        /*char abuf[256];
+        sprintf(abuf, "%d %d %d %d %d %d %d %d %d %d",
+				info->m_nFlags.bAimWithArm, info->m_nFlags.bTwinPistol, info->m_nFlags.b1stPerson, info->m_nFlags.bCanAim, info->m_nFlags.bContinuosFire, info->m_nFlags.bHeavy, info->m_nFlags.bExpands, info->m_nFlags.bLongReload, info->m_nFlags.bMoveAim, info->m_nFlags.bMoveFire);
+		CHud::SetMessage(abuf);*/
+
         if (!info->m_nFlags.bAimWithArm)
-            RwFrameRotate(weaponFrame, &yawAxis, (marioState.angle[1])/M_PI*180 - 90, rwCOMBINEREPLACE);
+		{
+			// heavy weapon
+			if (sideAnimWeaponIDs.count(activeWeapon.m_eWeaponType))
+			{
+				// weapon facing to the side
+				RwV3d a = {-0.035f * cosf(marioState.angle[1] + (M_PI/2.f)), -0.035f * sinf(marioState.angle[1] + (M_PI/2.f)), 0.001f};
+				RwFrameRotate(weaponFrame, &yawAxis, (marioState.angle[1])/M_PI*180 - (aiming ? 85 : 18), rwCOMBINEREPLACE);
+				RwFrameRotate(weaponFrame, &pitchAxisRw, 6 + (marioState.rightArmAngle[1]/M_PI*90) + (marioState.torsoAngle[2]/M_PI*90), rwCOMBINEPRECONCAT);
+				if (aiming) RwFrameTranslate(weaponFrame, &a, rwCOMBINEPOSTCONCAT);
+			}
+			else if (shoulderWeaponIDs.count(activeWeapon.m_eWeaponType))
+			{
+				// rocket launcher pointing downwards/propped on shoulder
+				RwFrameRotate(weaponFrame, &yawAxis, (marioState.angle[1])/M_PI*180 - 90, rwCOMBINEREPLACE);
+				if (!aiming) RwFrameRotate(weaponFrame, &pitchAxisRw, 20, rwCOMBINEPRECONCAT);
+			}
+			else if (heavyWeaponIDs.count(activeWeapon.m_eWeaponType))
+			{
+				// minigun, flamethrower, extinguisher
+				RwFrameRotate(weaponFrame, &yawAxis, (marioState.angle[1])/M_PI*180 - 90, rwCOMBINEREPLACE);
+				if (aiming) RwFrameRotate(weaponFrame, &pitchAxisRw, 30, rwCOMBINEPRECONCAT);
+			}
+			else
+				RwFrameRotate(weaponFrame, &yawAxis, (marioState.angle[1])/M_PI*180 - 90, rwCOMBINEREPLACE);
+		}
         else
         {
             RwFrameRotate(weaponFrame, &yawAxis, (marioState.angle[1] + marioState.rightArmAngle[2])/M_PI*180 - 90, rwCOMBINEREPLACE);

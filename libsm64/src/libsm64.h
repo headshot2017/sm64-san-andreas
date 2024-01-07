@@ -96,6 +96,7 @@ struct SM64MarioState
     float headAngle[3];
     float leftArmAngle[3];
     float rightArmAngle[3];
+    float torsoAngle[3];
     int16_t health;
     uint32_t action;
     uint32_t actionState;

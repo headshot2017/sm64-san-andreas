@@ -14,6 +14,7 @@
 #include "CGame.h"
 #include "CTaskSimpleIKLookAt.h"
 #include "CTaskSimpleIKManager.h"
+#include "CTaskSimpleUseGun.h"
 #include "CTaskComplexLeaveCar.h"
 #include "CEntryExitManager.h"
 #include "CCutsceneMgr.h"
@@ -58,6 +59,42 @@ struct LoadedPed
 LoadedSurface loadedBuildings[MAX_OBJS];
 LoadedSurface loadedObjects[MAX_OBJS];
 LoadedPed loadedPeds[MAX_OBJS];
+
+std::unordered_set<eWeaponType> sideAnimWeaponIDs = {
+	WEAPON_SHOTGUN,
+	WEAPON_SPAS12,
+	WEAPON_AK47,
+	WEAPON_M4,
+	WEAPON_COUNTRYRIFLE,
+	WEAPON_SNIPERRIFLE
+};
+std::unordered_set<eWeaponType> shoulderWeaponIDs = {
+	WEAPON_RLAUNCHER,
+	WEAPON_RLAUNCHER_HS
+};
+std::unordered_set<eWeaponType> heavyWeaponIDs = {
+	WEAPON_MINIGUN,
+	WEAPON_FTHROWER,
+	WEAPON_EXTINGUISHER,
+	WEAPON_CHAINSAW
+};
+std::unordered_set<eWeaponType> lightWeaponIDs = {
+	WEAPON_PISTOL_SILENCED,
+	WEAPON_DESERT_EAGLE,
+	WEAPON_MP5,
+	WEAPON_SPRAYCAN,
+	WEAPON_CAMERA
+};
+std::unordered_map<eWeaponType, std::pair<float, float> > weaponKnockbacks = {
+	// first value = arms knockback, second value = torso knockback
+	{WEAPON_SHOTGUN, {2.5f, 0.5f}},
+	{WEAPON_SPAS12, {2.f, 0.35f}},
+	{WEAPON_AK47, {0.4f, 0.2f}},
+	{WEAPON_M4, {0.4f, 0.2f}},
+	{WEAPON_MP5, {0.2f, 0.25f}},
+	{WEAPON_DESERT_EAGLE, {0.75f, 0.5f}},
+	{WEAPON_PISTOL_SILENCED, {0.5f, 0.2f}},
+};
 
 SM64MarioState marioState;
 SM64MarioInputs marioInput;
@@ -682,6 +719,9 @@ void marioTick(float dt)
     CTaskComplexLeaveCar* leaveCarTask = (CTaskComplexLeaveCar*)ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_LEAVE_CAR);
     bool leavingCar = (leaveCarTask && leaveCarTask->m_nNumGettingInSet);
 
+    CTaskSimpleUseGun* useGunTask = (CTaskSimpleUseGun*)ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_USE_GUN);
+	bool aimingHeavyGun = (useGunTask && !useGunTask->m_pWeaponInfo->m_nFlags.bAimWithArm);
+
     bool fallingToVoid = (ped->GetPosition().z <= -100);
 
     bool cjHasControl = (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle || hp <= 0 || CEntryExitManager::mp_Active || fallingToVoid || CCutsceneMgr::ms_running || safeTicks > 0);
@@ -689,15 +729,11 @@ void marioTick(float dt)
                               !ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_ENTER_CAR_AS_DRIVER) &&
                               !leavingCar &&
                               !ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_CAR_SLOW_BE_DRAGGED_OUT));
-    bool overrideWithCJAI = (cjHasControl || carDoor ||
+    bool overrideWithCJAI = (cjHasControl || carDoor || aimingHeavyGun ||
                              TheCamera.m_aCams[TheCamera.m_nActiveCam].m_nMode == MODE_HELICANNON_1STPERSON ||
                              ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_ACHIEVE_HEADING) ||
-                             ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_GO_TO_POINT_AND_STAND_STILL)) ||
-                             ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_USE_SEQUENCE);
-
-    //char buff[256];
-    //sprintf(buff, "%d %d", TheCamera.m_nActiveCam, TheCamera.m_aCams[TheCamera.m_nActiveCam].m_nMode);
-    //CHud::SetMessage(buff);
+                             ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_GO_TO_POINT_AND_STAND_STILL) ||
+                             ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_USE_SEQUENCE));
 
     if (cjHasControl)
     {
@@ -1042,7 +1078,11 @@ void marioTick(float dt)
     if (!cjHasControl)
     {
         TheCamera.SetPosn(TheCamera.GetPosition() - CVector(0,0, 0.5f));
-        ped->SetPosn(marioInterpPos + CVector(0, 0, 1.f));
+        if (!overrideWithCJAI ||
+			ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_ENTER_CAR_AS_DRIVER) ||
+			ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_ENTER_CAR_AS_PASSENGER)
+		)
+			ped->SetPosn(marioInterpPos + CVector(0, 0, 1.f));
     }
     else if (overrideWithCJPos)
     {

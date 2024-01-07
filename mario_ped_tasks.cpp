@@ -378,6 +378,7 @@ void marioPedTasks(CPlayerPed* ped, const int& marioId)
     }
     else if (ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_FALL_AND_GET_UP))
     {
+    	sm64_set_mario_anim_override(marioId, 0);
         if (!_fallen)
         {
             float _angle1 = (ped->m_pVehicle && ped->m_pVehicle->m_vecMoveSpeed.Magnitude2D()) ? atan2(ped->m_pVehicle->m_vecMoveSpeed.y, ped->m_pVehicle->m_vecMoveSpeed.x) : -1;
@@ -475,10 +476,12 @@ void marioPedTasksMaxFPS(CPlayerPed* ped, const int& marioId)
     CTask* baseTask;
     int16_t animFrame = marioState.animInfo.animFrame;
     int16_t loopEnd = (marioState.animInfo.curAnim) ? marioState.animInfo.curAnim->loopEnd : 0;
+    const CWeapon& activeWeapon = ped->m_aWeapons[ped->m_nActiveWeaponSlot];
 
     if ((baseTask = ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_GO_PICKUP_ENTITY)))
     {
         CTaskComplexGoPickUpEntity* task = static_cast<CTaskComplexGoPickUpEntity*>(baseTask);
+        sm64_set_mario_anim_override(marioId, 0);
 
         if (task->m_pSubTask)
         {
@@ -512,6 +515,7 @@ void marioPedTasksMaxFPS(CPlayerPed* ped, const int& marioId)
     {
         CTaskSimpleHoldEntity2* task = static_cast<CTaskSimpleHoldEntity2*>(baseTask);
         moveEntityToMarioHands(task, (float)(loopEnd - animFrame - 10)/(float)(loopEnd-10));
+        sm64_set_mario_anim_override(marioId, 0);
         if (marioState.action != ACT_CUSTOM_ANIM_TO_ACTION && task->m_pEntityToHold)
         {
             sm64_set_mario_action_arg(marioId, ACT_CUSTOM_ANIM_TO_ACTION, 1);
@@ -523,10 +527,14 @@ void marioPedTasksMaxFPS(CPlayerPed* ped, const int& marioId)
     {
         CTaskSimpleHoldEntity2* task = static_cast<CTaskSimpleHoldEntity2*>(baseTask);
         moveEntityToMarioHands(task);
+    	sm64_set_mario_anim_override(marioId, 0);
     }
     else if ((baseTask = ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_USE_GUN)))
     {
         CTaskSimpleUseGun* task = static_cast<CTaskSimpleUseGun*>(baseTask);
+        bool moving = (ped->m_vecMoveSpeed.x || ped->m_vecMoveSpeed.y);
+        static float armsShoot = 0;
+		static float torsoShoot = 0;
 
         if (task->m_pWeaponInfo->m_nFlags.bAimWithArm)
         {
@@ -567,18 +575,85 @@ void marioPedTasksMaxFPS(CPlayerPed* ped, const int& marioId)
                 sm64_set_mario_leftarm_angle(marioId, 0, 0, 0);
             }
         }
-        else
+        else if (sideAnimWeaponIDs.count(activeWeapon.m_eWeaponType))
         {
             // heavier weapon (deagle, shotgun, mp5, rifles...)
-            sm64_set_mario_anim_override(marioId, 0);
-            sm64_set_mario_rightarm_angle(marioId, 0, 0, 0);
-            sm64_set_mario_leftarm_angle(marioId, 0, 0, 0);
+            sm64_set_mario_anim_override(marioId, (moving) ? MARIO_ANIM_CUSTOM_RIFLE_AIM_WALK : MARIO_ANIM_CUSTOM_RIFLE_AIM);
+
+            if (task->m_nFireGunThisFrame && weaponKnockbacks.count(activeWeapon.m_eWeaponType))
+			{
+				armsShoot = weaponKnockbacks[activeWeapon.m_eWeaponType].first;
+				torsoShoot = weaponKnockbacks[activeWeapon.m_eWeaponType].second;
+			}
+            armsShoot /= 1.1f;
+            torsoShoot /= 1.1f;
+
+            sm64_set_mario_rightarm_angle(marioId, 0, -armsShoot, 0);
+            sm64_set_mario_leftarm_angle(marioId, 0, -armsShoot, 0);
+            sm64_set_mario_torsoangle(marioId, -torsoShoot/2.75f, 0, torsoShoot);
         }
+        else if (shoulderWeaponIDs.count(activeWeapon.m_eWeaponType))
+		{
+			// rocket launcher
+			sm64_set_mario_anim_override(marioId, (moving) ? MARIO_ANIM_CUSTOM_RIFLE_AIM_WALK : MARIO_ANIM_CUSTOM_RIFLE_AIM);
+			sm64_set_mario_rightarm_angle(marioId, 0, 0, 0);
+			sm64_set_mario_leftarm_angle(marioId, 0, 0, 0);
+		}
+		else if (heavyWeaponIDs.count(activeWeapon.m_eWeaponType))
+		{
+			// minigun, flamethrower, extinguisher
+			sm64_set_mario_anim_override(marioId, (moving) ? MARIO_ANIM_CUSTOM_GUNHEAVY_AIM_WALK : MARIO_ANIM_CUSTOM_GUNHEAVY_AIM);
+			sm64_set_mario_rightarm_angle(marioId, 0, 0, 0);
+			sm64_set_mario_leftarm_angle(marioId, 0, 0, 0);
+		}
+		else if (lightWeaponIDs.count(activeWeapon.m_eWeaponType))
+		{
+			sm64_set_mario_anim_override(marioId, (moving) ? MARIO_ANIM_CUSTOM_GUNLIGHT_AIM_WALK : MARIO_ANIM_CUSTOM_GUNLIGHT_AIM);
+
+			if (weaponKnockbacks.count(activeWeapon.m_eWeaponType))
+			{
+				if (task->m_nFireGunThisFrame)
+				{
+					armsShoot = weaponKnockbacks[activeWeapon.m_eWeaponType].first;
+					torsoShoot = weaponKnockbacks[activeWeapon.m_eWeaponType].second;
+				}
+
+				armsShoot /= 1.1f;
+				torsoShoot /= 1.1f;
+
+				sm64_set_mario_rightarm_angle(marioId, -armsShoot, 0, 0);
+				sm64_set_mario_torsoangle(marioId, -torsoShoot, 0, 0);
+			}
+			else if (task->m_nFireGunThisFrame && activeWeapon.m_eWeaponType == WEAPON_SPRAYCAN)
+				sm64_set_mario_rightarm_angle(marioId, sinf(CTimer::m_snTimeInMilliseconds/300.f) / 1.5f, 0, (sinf(CTimer::m_snTimeInMilliseconds/150.f)) / 3.5f);
+			else
+				sm64_set_mario_rightarm_angle(marioId, 0, 0, 0);
+		}
+        else
+		{
+			sm64_set_mario_anim_override(marioId, 0);
+			sm64_set_mario_rightarm_angle(marioId, 0, 0, 0);
+			sm64_set_mario_leftarm_angle(marioId, 0, 0, 0);
+		}
     }
     else
     {
-        sm64_set_mario_anim_override(marioId, 0);
         sm64_set_mario_rightarm_angle(marioId, 0, 0, 0);
         sm64_set_mario_leftarm_angle(marioId, 0, 0, 0);
+
+		CWeaponInfo* info = CWeaponInfo::GetWeaponInfo(activeWeapon.m_eWeaponType, ped->GetWeaponSkill());
+
+        if (sideAnimWeaponIDs.count(activeWeapon.m_eWeaponType) && gunSideAnimOverrideTable.count(marioState.animInfo.animOverride.current))
+			sm64_set_mario_anim_override(marioId, gunSideAnimOverrideTable[marioState.animInfo.animOverride.current]);
+		else if (shoulderWeaponIDs.count(activeWeapon.m_eWeaponType) && gunShoulderAnimOverrideTable.count(marioState.animInfo.animOverride.current))
+			sm64_set_mario_anim_override(marioId, gunShoulderAnimOverrideTable[marioState.animInfo.animOverride.current]);
+		else if (heavyWeaponIDs.count(activeWeapon.m_eWeaponType) && gunHeavyAnimOverrideTable.count(marioState.animInfo.animOverride.current) && activeWeapon.m_eWeaponType != WEAPON_EXTINGUISHER)
+			sm64_set_mario_anim_override(marioId, gunHeavyAnimOverrideTable[marioState.animInfo.animOverride.current]);
+		else
+			sm64_set_mario_anim_override(marioId, 0);
     }
+
+	//char buf[32];
+	//sprintf(buf, "%d %d %d", marioState.animInfo.animOverride.current, marioState.actionState, marioState.animInfo.animFrame);
+	//CHud::SetMessage(buf);
 }

@@ -715,7 +715,7 @@ void push_or_sidle_wall(struct MarioState *m, Vec3f startPos) {
 void tilt_body_walking(struct MarioState *m, s16 startYaw) {
     struct MarioBodyState *val0C = m->marioBodyState;
     UNUSED struct Object *marioObj = m->marioObj;
-    s16 animID = m->marioObj->header.gfx.animInfo.animID;
+    s16 animID = m->marioObj->header.gfx.animInfo.animOverride.current;
     s16 dYaw;
     s16 val02;
     s16 val00;

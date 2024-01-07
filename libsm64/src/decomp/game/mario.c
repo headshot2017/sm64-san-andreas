@@ -1539,6 +1539,7 @@ void update_mario_health(struct MarioState *m) {
  */
 void update_mario_info_for_cam(struct MarioState *m) {
     m->marioBodyState->action = m->action;
+    m->marioBodyState->animOverrideWanted = m->marioObj->header.gfx.animInfo.animOverride.wanted;
 //  m->statusForCamera->action = m->action;
 
 //  vec3s_copy(m->statusForCamera->faceAngle, m->faceAngle);

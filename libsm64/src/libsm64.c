@@ -273,18 +273,14 @@ SM64_LIB_FN void sm64_mario_tick( int32_t marioId, const struct SM64MarioInputs 
     outState->health = gMarioState->health;
     vec3f_copy( outState->position, gMarioState->pos );
     vec3f_copy( outState->velocity, gMarioState->vel );
-    outState->angle[0] = (float)gMarioState->faceAngle[0] / 32768.0f * 3.14159f;
-    outState->angle[1] = (float)gMarioState->faceAngle[1] / 32768.0f * 3.14159f;
-    outState->angle[2] = (float)gMarioState->faceAngle[2] / 32768.0f * 3.14159f;
-    outState->headAngle[0] = (float)gMarioState->marioBodyState->headAngle[0] / 32768.0f * 3.14159f;
-    outState->headAngle[1] = (float)gMarioState->marioBodyState->headAngle[1] / 32768.0f * 3.14159f;
-    outState->headAngle[2] = (float)gMarioState->marioBodyState->headAngle[2] / 32768.0f * 3.14159f;
-    outState->leftArmAngle[0] = (float)gMarioState->marioBodyState->leftArmAngle[0] / 32768.0f * 3.14159f;
-    outState->leftArmAngle[1] = (float)gMarioState->marioBodyState->leftArmAngle[1] / 32768.0f * 3.14159f;
-    outState->leftArmAngle[2] = (float)gMarioState->marioBodyState->leftArmAngle[2] / 32768.0f * 3.14159f;
-    outState->rightArmAngle[0] = (float)gMarioState->marioBodyState->rightArmAngle[0] / 32768.0f * 3.14159f;
-    outState->rightArmAngle[1] = (float)gMarioState->marioBodyState->rightArmAngle[1] / 32768.0f * 3.14159f;
-    outState->rightArmAngle[2] = (float)gMarioState->marioBodyState->rightArmAngle[2] / 32768.0f * 3.14159f;
+    for (int i=0; i<3; i++)
+	{
+		outState->angle[i] = (float)gMarioState->faceAngle[i] / 32768.0f * 3.14159f;
+		outState->headAngle[i] = (float)gMarioState->marioBodyState->headAngle[i] / 32768.0f * 3.14159f;
+		outState->leftArmAngle[i] = (float)gMarioState->marioBodyState->leftArmAngle[i] / 32768.0f * 3.14159f;
+		outState->rightArmAngle[i] = (float)gMarioState->marioBodyState->rightArmAngle[i] / 32768.0f * 3.14159f;
+		outState->torsoAngle[i] = (float)gMarioState->marioBodyState->torsoAngle[i] / 32768.0f * 3.14159f;
+	}
     outState->action = gMarioState->action;
     outState->actionState = gMarioState->actionState;
     outState->actionTimer = gMarioState->actionTimer;

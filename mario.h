@@ -6,12 +6,21 @@
 #define sign(a) (a>0 ? 1 : a<0 ? -1 : 0)
 
 #include <stdint.h>
+#include <unordered_set>
+#include <unordered_map>
 
 #include <RenderWare.h>
 #include "CVector.h"
 #include "CEntity.h"
+#include "eWeaponType.h"
 
 #include <libsm64.h>
+
+extern std::unordered_set<eWeaponType> sideAnimWeaponIDs;
+extern std::unordered_set<eWeaponType> shoulderWeaponIDs;
+extern std::unordered_set<eWeaponType> heavyWeaponIDs;
+extern std::unordered_set<eWeaponType> lightWeaponIDs;
+extern std::unordered_map<eWeaponType, std::pair<float, float> > weaponKnockbacks;
 
 extern SM64MarioState marioState;
 extern SM64MarioGeometryBuffers marioGeometry;

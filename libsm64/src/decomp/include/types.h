@@ -249,6 +249,7 @@ struct MarioBodyState
 
     Vec3s leftArmAngle; // sm64-san-andreas: added field
     Vec3s rightArmAngle; // sm64-san-andreas: added field
+    s16 animOverrideWanted; // sm64-san-andreas: added field
 };
 
 struct OffsetSizePair
