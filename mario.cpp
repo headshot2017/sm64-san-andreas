@@ -804,8 +804,8 @@ void marioTick(float dt)
             marioInput.buttonA = jumpState;
             marioInput.buttonB = attackState;
             marioInput.buttonZ = duckState;
-            marioInput.camLookX = TheCamera.GetPosition().x/MARIO_SCALE - marioState.position[0];
-            marioInput.camLookZ = -TheCamera.GetPosition().y/MARIO_SCALE - marioState.position[2];
+            marioInput.camLookX = TheCamera.m_fCamFrontXNorm * (pad->GetLookBehindForPed() ? 1 : -1);
+            marioInput.camLookZ = TheCamera.m_fCamFrontYNorm * (pad->GetLookBehindForPed() ? -1 : 1);
 
             if (marioState.action == ACT_DRIVING_VEHICLE) sm64_set_mario_action(marioId, ACT_FREEFALL);
         }
