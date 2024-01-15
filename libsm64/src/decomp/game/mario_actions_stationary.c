@@ -744,6 +744,7 @@ s32 act_stop_crouching(struct MarioState *m) {
         return set_mario_action(m, ACT_BEGIN_SLIDING, 0);
     }
 
+    m->marioObj->header.gfx.animInfo.animOverride.wanted = 0;
     stationary_ground_step(m);
     set_mario_animation(m, MARIO_ANIM_STOP_CROUCHING);
     if (is_anim_past_end(m)) {
