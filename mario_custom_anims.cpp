@@ -58,8 +58,8 @@
 #include "raw/anim_gunlight_aim_walk.raw.h"
 
 extern "C" {
-    #include <libsm64.h>
-    #include <decomp/include/mario_animation_ids.h>
+	#include <libsm64.h>
+	#include <decomp/include/mario_animation_ids.h>
 }
 
 int MARIO_ANIM_CUSTOM_TEST;
@@ -126,33 +126,33 @@ std::unordered_map<int, int> gunHeavyAnimOverrideTable;
 
 void marioInitCustomAnims()
 {
-    MARIO_ANIM_CUSTOM_TEST = sm64_custom_animation_init(marioAnimTestRaw, marioAnimTestRaw_length);
-    MARIO_ANIM_CUSTOM_CLOSE_CAR_DOOR_LEFT = sm64_custom_animation_init(marioAnimCloseCarDoorLeftRaw, marioAnimCloseCarDoorLeftRaw_length);
-    MARIO_ANIM_CUSTOM_CLOSE_CAR_DOOR_RIGHT = sm64_custom_animation_init(marioAnimCloseCarDoorRightRaw, marioAnimCloseCarDoorRightRaw_length);
-    MARIO_ANIM_CUSTOM_PICKUP_SLOW = sm64_custom_animation_init(marioAnimPickupSlowRaw, marioAnimPickupSlowRaw_length);
-    MARIO_ANIM_CUSTOM_PUTDOWN_SLOW = sm64_custom_animation_init(marioAnimPutdownSlowRaw, marioAnimPutdownSlowRaw_length);
-    MARIO_ANIM_CUSTOM_CAR_LOCKED = sm64_custom_animation_init(marioAnimCarLockedRaw, marioAnimCarLockedRaw_length);
-    MARIO_ANIM_CUSTOM_EAT = sm64_custom_animation_init(marioAnimEatRaw, marioAnimEatRaw_length);
-    MARIO_ANIM_CUSTOM_VOMIT = sm64_custom_animation_init(marioAnimVomitRaw, marioAnimVomitRaw_length);
-    MARIO_ANIM_CUSTOM_CRIB_SWITCH = sm64_custom_animation_init(marioAnimCribUseSwitchRaw, marioAnimCribUseSwitchRaw_length);
-    MARIO_ANIM_CUSTOM_FACEPALM = sm64_custom_animation_init(marioAnimFacepalmRaw, marioAnimFacepalmRaw_length);
-    MARIO_ANIM_CUSTOM_LAUGH01 = sm64_custom_animation_init(marioAnimLaugh01Raw, marioAnimLaugh01Raw_length);
-    MARIO_ANIM_CUSTOM_DANCE_LOOP = sm64_custom_animation_init(marioAnimDanceLoopRaw, marioAnimDanceLoopRaw_length);
-    MARIO_ANIM_CUSTOM_DANCE_BAD = sm64_custom_animation_init(marioAnimDanceBadRaw, marioAnimDanceBadRaw_length);
-    MARIO_ANIM_CUSTOM_DANCE_GOOD = sm64_custom_animation_init(marioAnimDanceGoodRaw, marioAnimDanceGoodRaw_length);
-    MARIO_ANIM_CUSTOM_VENDING_MACHINE = sm64_custom_animation_init(marioAnimVendingMachineRaw, marioAnimVendingMachineRaw_length);
+	MARIO_ANIM_CUSTOM_TEST = sm64_custom_animation_init(marioAnimTestRaw, marioAnimTestRaw_length);
+	MARIO_ANIM_CUSTOM_CLOSE_CAR_DOOR_LEFT = sm64_custom_animation_init(marioAnimCloseCarDoorLeftRaw, marioAnimCloseCarDoorLeftRaw_length);
+	MARIO_ANIM_CUSTOM_CLOSE_CAR_DOOR_RIGHT = sm64_custom_animation_init(marioAnimCloseCarDoorRightRaw, marioAnimCloseCarDoorRightRaw_length);
+	MARIO_ANIM_CUSTOM_PICKUP_SLOW = sm64_custom_animation_init(marioAnimPickupSlowRaw, marioAnimPickupSlowRaw_length);
+	MARIO_ANIM_CUSTOM_PUTDOWN_SLOW = sm64_custom_animation_init(marioAnimPutdownSlowRaw, marioAnimPutdownSlowRaw_length);
+	MARIO_ANIM_CUSTOM_CAR_LOCKED = sm64_custom_animation_init(marioAnimCarLockedRaw, marioAnimCarLockedRaw_length);
+	MARIO_ANIM_CUSTOM_EAT = sm64_custom_animation_init(marioAnimEatRaw, marioAnimEatRaw_length);
+	MARIO_ANIM_CUSTOM_VOMIT = sm64_custom_animation_init(marioAnimVomitRaw, marioAnimVomitRaw_length);
+	MARIO_ANIM_CUSTOM_CRIB_SWITCH = sm64_custom_animation_init(marioAnimCribUseSwitchRaw, marioAnimCribUseSwitchRaw_length);
+	MARIO_ANIM_CUSTOM_FACEPALM = sm64_custom_animation_init(marioAnimFacepalmRaw, marioAnimFacepalmRaw_length);
+	MARIO_ANIM_CUSTOM_LAUGH01 = sm64_custom_animation_init(marioAnimLaugh01Raw, marioAnimLaugh01Raw_length);
+	MARIO_ANIM_CUSTOM_DANCE_LOOP = sm64_custom_animation_init(marioAnimDanceLoopRaw, marioAnimDanceLoopRaw_length);
+	MARIO_ANIM_CUSTOM_DANCE_BAD = sm64_custom_animation_init(marioAnimDanceBadRaw, marioAnimDanceBadRaw_length);
+	MARIO_ANIM_CUSTOM_DANCE_GOOD = sm64_custom_animation_init(marioAnimDanceGoodRaw, marioAnimDanceGoodRaw_length);
+	MARIO_ANIM_CUSTOM_VENDING_MACHINE = sm64_custom_animation_init(marioAnimVendingMachineRaw, marioAnimVendingMachineRaw_length);
 
-    MARIO_ANIM_CUSTOM_GUNPOINT = sm64_custom_animation_init(marioAnimGunpointRaw, marioAnimGunpointRaw_length);
-    MARIO_ANIM_CUSTOM_GUNPOINT_WALK_START = sm64_custom_animation_init(marioAnimGunpointWalkStartRaw, marioAnimGunpointWalkStartRaw_length);
-    MARIO_ANIM_CUSTOM_GUNPOINT_TIPTOE = sm64_custom_animation_init(marioAnimGunpointTiptoeRaw, marioAnimGunpointTiptoeRaw_length);
-    MARIO_ANIM_CUSTOM_GUNPOINT_WALK = sm64_custom_animation_init(marioAnimGunpointWalkRaw, marioAnimGunpointWalkRaw_length);
-    MARIO_ANIM_CUSTOM_GUNPOINT_RUN = sm64_custom_animation_init(marioAnimGunpointRunRaw, marioAnimGunpointRunRaw_length);
-    MARIO_ANIM_CUSTOM_GUNPOINT_SKID = sm64_custom_animation_init(marioAnimGunpointSkidRaw, marioAnimGunpointSkidRaw_length);
-    MARIO_ANIM_CUSTOM_GUNPOINT_SKID_STOP = sm64_custom_animation_init(marioAnimGunpointSkidStopRaw, marioAnimGunpointSkidStopRaw_length);
-    MARIO_ANIM_CUSTOM_GUNPOINT_SKID_TURN = sm64_custom_animation_init(marioAnimGunpointSkidTurnRaw, marioAnimGunpointSkidTurnRaw_length);
+	MARIO_ANIM_CUSTOM_GUNPOINT = sm64_custom_animation_init(marioAnimGunpointRaw, marioAnimGunpointRaw_length);
+	MARIO_ANIM_CUSTOM_GUNPOINT_WALK_START = sm64_custom_animation_init(marioAnimGunpointWalkStartRaw, marioAnimGunpointWalkStartRaw_length);
+	MARIO_ANIM_CUSTOM_GUNPOINT_TIPTOE = sm64_custom_animation_init(marioAnimGunpointTiptoeRaw, marioAnimGunpointTiptoeRaw_length);
+	MARIO_ANIM_CUSTOM_GUNPOINT_WALK = sm64_custom_animation_init(marioAnimGunpointWalkRaw, marioAnimGunpointWalkRaw_length);
+	MARIO_ANIM_CUSTOM_GUNPOINT_RUN = sm64_custom_animation_init(marioAnimGunpointRunRaw, marioAnimGunpointRunRaw_length);
+	MARIO_ANIM_CUSTOM_GUNPOINT_SKID = sm64_custom_animation_init(marioAnimGunpointSkidRaw, marioAnimGunpointSkidRaw_length);
+	MARIO_ANIM_CUSTOM_GUNPOINT_SKID_STOP = sm64_custom_animation_init(marioAnimGunpointSkidStopRaw, marioAnimGunpointSkidStopRaw_length);
+	MARIO_ANIM_CUSTOM_GUNPOINT_SKID_TURN = sm64_custom_animation_init(marioAnimGunpointSkidTurnRaw, marioAnimGunpointSkidTurnRaw_length);
 
-    MARIO_ANIM_CUSTOM_GUNSIDE_IDLE = sm64_custom_animation_init(marioAnimGunsideIdleRaw, marioAnimGunsideIdleRaw_length);
-    MARIO_ANIM_CUSTOM_GUNSIDE_IDLE_ALT = sm64_custom_animation_init(marioAnimGunsideIdleAltRaw, marioAnimGunsideIdleAltRaw_length);
+	MARIO_ANIM_CUSTOM_GUNSIDE_IDLE = sm64_custom_animation_init(marioAnimGunsideIdleRaw, marioAnimGunsideIdleRaw_length);
+	MARIO_ANIM_CUSTOM_GUNSIDE_IDLE_ALT = sm64_custom_animation_init(marioAnimGunsideIdleAltRaw, marioAnimGunsideIdleAltRaw_length);
 	MARIO_ANIM_CUSTOM_GUNSIDE_WALK_START = sm64_custom_animation_init(marioAnimGunsideWalkStartRaw, marioAnimGunsideWalkStartRaw_length);
 	MARIO_ANIM_CUSTOM_GUNSIDE_TIPTOE = sm64_custom_animation_init(marioAnimGunsideTiptoeRaw, marioAnimGunsideTiptoeRaw_length);
 	MARIO_ANIM_CUSTOM_GUNSIDE_WALK = sm64_custom_animation_init(marioAnimGunsideWalkRaw, marioAnimGunsideWalkRaw_length);
@@ -161,9 +161,9 @@ void marioInitCustomAnims()
 	MARIO_ANIM_CUSTOM_GUNSIDE_SKID_STOP = sm64_custom_animation_init(marioAnimGunsideSkidStopRaw, marioAnimGunsideSkidStopRaw_length);
 	MARIO_ANIM_CUSTOM_GUNSIDE_SKID_TURN = sm64_custom_animation_init(marioAnimGunsideSkidTurnRaw, marioAnimGunsideSkidTurnRaw_length);
 
-    MARIO_ANIM_CUSTOM_RPG_IDLE = sm64_custom_animation_init(marioAnimRpgIdleRaw, marioAnimRpgIdleRaw_length);
-    MARIO_ANIM_CUSTOM_RPG_IDLE_ALT = sm64_custom_animation_init(marioAnimRpgIdleAltRaw, marioAnimRpgIdleAltRaw_length);
-    MARIO_ANIM_CUSTOM_RPG_WALK_START = sm64_custom_animation_init(marioAnimRpgWalkStartRaw, marioAnimRpgWalkStartRaw_length);
+	MARIO_ANIM_CUSTOM_RPG_IDLE = sm64_custom_animation_init(marioAnimRpgIdleRaw, marioAnimRpgIdleRaw_length);
+	MARIO_ANIM_CUSTOM_RPG_IDLE_ALT = sm64_custom_animation_init(marioAnimRpgIdleAltRaw, marioAnimRpgIdleAltRaw_length);
+	MARIO_ANIM_CUSTOM_RPG_WALK_START = sm64_custom_animation_init(marioAnimRpgWalkStartRaw, marioAnimRpgWalkStartRaw_length);
 	MARIO_ANIM_CUSTOM_RPG_TIPTOE = sm64_custom_animation_init(marioAnimRpgTiptoeRaw, marioAnimRpgTiptoeRaw_length);
 	MARIO_ANIM_CUSTOM_RPG_WALK = sm64_custom_animation_init(marioAnimRpgWalkRaw, marioAnimRpgWalkRaw_length);
 	MARIO_ANIM_CUSTOM_RPG_RUN = sm64_custom_animation_init(marioAnimRpgRunRaw, marioAnimRpgRunRaw_length);
@@ -171,9 +171,9 @@ void marioInitCustomAnims()
 	MARIO_ANIM_CUSTOM_RPG_SKID_STOP = sm64_custom_animation_init(marioAnimRpgSkidStopRaw, marioAnimRpgSkidStopRaw_length);
 	MARIO_ANIM_CUSTOM_RPG_SKID_TURN = sm64_custom_animation_init(marioAnimRpgSkidTurnRaw, marioAnimRpgSkidTurnRaw_length);
 
-    MARIO_ANIM_CUSTOM_GUNHEAVY_IDLE = sm64_custom_animation_init(marioAnimGunheavyIdleRaw, marioAnimGunheavyIdleRaw_length);
-    MARIO_ANIM_CUSTOM_GUNHEAVY_IDLE_ALT = sm64_custom_animation_init(marioAnimGunheavyIdleAltRaw, marioAnimGunheavyIdleAltRaw_length);
-    MARIO_ANIM_CUSTOM_GUNHEAVY_WALK_START = sm64_custom_animation_init(marioAnimGunheavyWalkStartRaw, marioAnimGunheavyWalkStartRaw_length);
+	MARIO_ANIM_CUSTOM_GUNHEAVY_IDLE = sm64_custom_animation_init(marioAnimGunheavyIdleRaw, marioAnimGunheavyIdleRaw_length);
+	MARIO_ANIM_CUSTOM_GUNHEAVY_IDLE_ALT = sm64_custom_animation_init(marioAnimGunheavyIdleAltRaw, marioAnimGunheavyIdleAltRaw_length);
+	MARIO_ANIM_CUSTOM_GUNHEAVY_WALK_START = sm64_custom_animation_init(marioAnimGunheavyWalkStartRaw, marioAnimGunheavyWalkStartRaw_length);
 	MARIO_ANIM_CUSTOM_GUNHEAVY_TIPTOE = sm64_custom_animation_init(marioAnimGunheavyTiptoeRaw, marioAnimGunheavyTiptoeRaw_length);
 	MARIO_ANIM_CUSTOM_GUNHEAVY_WALK = sm64_custom_animation_init(marioAnimGunheavyWalkRaw, marioAnimGunheavyWalkRaw_length);
 	MARIO_ANIM_CUSTOM_GUNHEAVY_RUN = sm64_custom_animation_init(marioAnimGunheavyRunRaw, marioAnimGunheavyRunRaw_length);
@@ -181,85 +181,81 @@ void marioInitCustomAnims()
 	MARIO_ANIM_CUSTOM_GUNHEAVY_SKID_STOP = sm64_custom_animation_init(marioAnimGunheavySkidStopRaw, marioAnimGunheavySkidStopRaw_length);
 	MARIO_ANIM_CUSTOM_GUNHEAVY_SKID_TURN = sm64_custom_animation_init(marioAnimGunheavySkidTurnRaw, marioAnimGunheavySkidTurnRaw_length);
 
-    MARIO_ANIM_CUSTOM_RIFLE_AIM = sm64_custom_animation_init(marioAnimRifleAimRaw, marioAnimRifleAimRaw_length);
-    MARIO_ANIM_CUSTOM_RIFLE_AIM_WALK = sm64_custom_animation_init(marioAnimRifleAimWalkRaw, marioAnimRifleAimWalkRaw_length);
+	MARIO_ANIM_CUSTOM_RIFLE_AIM = sm64_custom_animation_init(marioAnimRifleAimRaw, marioAnimRifleAimRaw_length);
+	MARIO_ANIM_CUSTOM_RIFLE_AIM_WALK = sm64_custom_animation_init(marioAnimRifleAimWalkRaw, marioAnimRifleAimWalkRaw_length);
 
-    MARIO_ANIM_CUSTOM_GUNHEAVY_AIM = sm64_custom_animation_init(marioAnimGunheavyAimRaw, marioAnimGunheavyAimRaw_length);
-    MARIO_ANIM_CUSTOM_GUNHEAVY_AIM_WALK = sm64_custom_animation_init(marioAnimGunheavyAimWalkRaw, marioAnimGunheavyAimWalkRaw_length);
+	MARIO_ANIM_CUSTOM_GUNHEAVY_AIM = sm64_custom_animation_init(marioAnimGunheavyAimRaw, marioAnimGunheavyAimRaw_length);
+	MARIO_ANIM_CUSTOM_GUNHEAVY_AIM_WALK = sm64_custom_animation_init(marioAnimGunheavyAimWalkRaw, marioAnimGunheavyAimWalkRaw_length);
 
-    MARIO_ANIM_CUSTOM_GUNLIGHT_AIM = sm64_custom_animation_init(marioAnimGunlightAimRaw, marioAnimGunlightAimRaw_length);
-    MARIO_ANIM_CUSTOM_GUNLIGHT_AIM_WALK = sm64_custom_animation_init(marioAnimGunlightAimWalkRaw, marioAnimGunlightAimWalkRaw_length);
+	MARIO_ANIM_CUSTOM_GUNLIGHT_AIM = sm64_custom_animation_init(marioAnimGunlightAimRaw, marioAnimGunlightAimRaw_length);
+	MARIO_ANIM_CUSTOM_GUNLIGHT_AIM_WALK = sm64_custom_animation_init(marioAnimGunlightAimWalkRaw, marioAnimGunlightAimWalkRaw_length);
 
 
-    gunAnimOverrideTable = {
-        {MARIO_ANIM_IDLE_HEAD_CENTER,   MARIO_ANIM_CUSTOM_GUNPOINT},
-        {MARIO_ANIM_IDLE_HEAD_LEFT,     MARIO_ANIM_CUSTOM_GUNPOINT},
-        {MARIO_ANIM_IDLE_HEAD_RIGHT,    MARIO_ANIM_CUSTOM_GUNPOINT},
-        {MARIO_ANIM_FIRST_PERSON,       MARIO_ANIM_CUSTOM_GUNPOINT},
-        {MARIO_ANIM_CROUCHING,          MARIO_ANIM_CUSTOM_GUNPOINT},
-        {MARIO_ANIM_STOP_CROUCHING,     MARIO_ANIM_CUSTOM_GUNPOINT},
-        {MARIO_ANIM_WALK_PANTING,       MARIO_ANIM_CUSTOM_GUNPOINT},
-        {MARIO_ANIM_START_TIPTOE,       MARIO_ANIM_CUSTOM_GUNPOINT_WALK_START},
-        {MARIO_ANIM_TIPTOE,             MARIO_ANIM_CUSTOM_GUNPOINT_TIPTOE},
-        {MARIO_ANIM_WALKING,            MARIO_ANIM_CUSTOM_GUNPOINT_WALK},
-        {MARIO_ANIM_RUNNING,            MARIO_ANIM_CUSTOM_GUNPOINT_RUN},
-        {MARIO_ANIM_SKID_ON_GROUND,     MARIO_ANIM_CUSTOM_GUNPOINT_SKID},
-        {MARIO_ANIM_STOP_SKID,          MARIO_ANIM_CUSTOM_GUNPOINT_SKID_STOP},
-        {MARIO_ANIM_TURNING_PART1,      MARIO_ANIM_CUSTOM_GUNPOINT_SKID},
-        {MARIO_ANIM_TURNING_PART2,      MARIO_ANIM_CUSTOM_GUNPOINT_SKID_TURN},
-    };
+	gunAnimOverrideTable = {
+		{MARIO_ANIM_IDLE_HEAD_CENTER,   MARIO_ANIM_CUSTOM_GUNPOINT},
+		{MARIO_ANIM_IDLE_HEAD_LEFT,     MARIO_ANIM_CUSTOM_GUNPOINT},
+		{MARIO_ANIM_IDLE_HEAD_RIGHT,    MARIO_ANIM_CUSTOM_GUNPOINT},
+		{MARIO_ANIM_FIRST_PERSON,       MARIO_ANIM_CUSTOM_GUNPOINT},
+		{MARIO_ANIM_CROUCHING,          MARIO_ANIM_CUSTOM_GUNPOINT},
+		{MARIO_ANIM_WALK_PANTING,       MARIO_ANIM_CUSTOM_GUNPOINT},
+		{MARIO_ANIM_START_TIPTOE,       MARIO_ANIM_CUSTOM_GUNPOINT_WALK_START},
+		{MARIO_ANIM_TIPTOE,             MARIO_ANIM_CUSTOM_GUNPOINT_TIPTOE},
+		{MARIO_ANIM_WALKING,            MARIO_ANIM_CUSTOM_GUNPOINT_WALK},
+		{MARIO_ANIM_RUNNING,            MARIO_ANIM_CUSTOM_GUNPOINT_RUN},
+		{MARIO_ANIM_SKID_ON_GROUND,     MARIO_ANIM_CUSTOM_GUNPOINT_SKID},
+		{MARIO_ANIM_STOP_SKID,          MARIO_ANIM_CUSTOM_GUNPOINT_SKID_STOP},
+		{MARIO_ANIM_TURNING_PART1,      MARIO_ANIM_CUSTOM_GUNPOINT_SKID},
+		{MARIO_ANIM_TURNING_PART2,      MARIO_ANIM_CUSTOM_GUNPOINT_SKID_TURN},
+	};
 
-    gunSideAnimOverrideTable = {
+	gunSideAnimOverrideTable = {
 		{MARIO_ANIM_IDLE_HEAD_LEFT,     MARIO_ANIM_CUSTOM_GUNSIDE_IDLE},
 		{MARIO_ANIM_IDLE_HEAD_RIGHT,    MARIO_ANIM_CUSTOM_GUNSIDE_IDLE},
 		{MARIO_ANIM_IDLE_HEAD_CENTER,   MARIO_ANIM_CUSTOM_GUNSIDE_IDLE},
 		{MARIO_ANIM_FIRST_PERSON,       MARIO_ANIM_CUSTOM_GUNSIDE_IDLE_ALT},
 		{MARIO_ANIM_CROUCHING,          MARIO_ANIM_CUSTOM_GUNSIDE_IDLE},
-        {MARIO_ANIM_STOP_CROUCHING,     MARIO_ANIM_CUSTOM_GUNSIDE_IDLE},
-        {MARIO_ANIM_WALK_PANTING,       MARIO_ANIM_CUSTOM_GUNSIDE_IDLE},
-        {MARIO_ANIM_START_TIPTOE,       MARIO_ANIM_CUSTOM_GUNSIDE_WALK_START},
-        {MARIO_ANIM_TIPTOE,             MARIO_ANIM_CUSTOM_GUNSIDE_TIPTOE},
-        {MARIO_ANIM_WALKING,            MARIO_ANIM_CUSTOM_GUNSIDE_WALK},
-        {MARIO_ANIM_RUNNING,            MARIO_ANIM_CUSTOM_GUNSIDE_RUN},
-        {MARIO_ANIM_SKID_ON_GROUND,     MARIO_ANIM_CUSTOM_GUNSIDE_SKID},
-        {MARIO_ANIM_STOP_SKID,          MARIO_ANIM_CUSTOM_GUNSIDE_SKID_STOP},
-        {MARIO_ANIM_TURNING_PART1,      MARIO_ANIM_CUSTOM_GUNSIDE_SKID},
-        {MARIO_ANIM_TURNING_PART2,      MARIO_ANIM_CUSTOM_GUNSIDE_SKID_TURN},
-    };
+		{MARIO_ANIM_WALK_PANTING,       MARIO_ANIM_CUSTOM_GUNSIDE_IDLE},
+		{MARIO_ANIM_START_TIPTOE,       MARIO_ANIM_CUSTOM_GUNSIDE_WALK_START},
+		{MARIO_ANIM_TIPTOE,             MARIO_ANIM_CUSTOM_GUNSIDE_TIPTOE},
+		{MARIO_ANIM_WALKING,            MARIO_ANIM_CUSTOM_GUNSIDE_WALK},
+		{MARIO_ANIM_RUNNING,            MARIO_ANIM_CUSTOM_GUNSIDE_RUN},
+		{MARIO_ANIM_SKID_ON_GROUND,     MARIO_ANIM_CUSTOM_GUNSIDE_SKID},
+		{MARIO_ANIM_STOP_SKID,          MARIO_ANIM_CUSTOM_GUNSIDE_SKID_STOP},
+		{MARIO_ANIM_TURNING_PART1,      MARIO_ANIM_CUSTOM_GUNSIDE_SKID},
+		{MARIO_ANIM_TURNING_PART2,      MARIO_ANIM_CUSTOM_GUNSIDE_SKID_TURN},
+	};
 
-    gunShoulderAnimOverrideTable = {
+	gunShoulderAnimOverrideTable = {
 		{MARIO_ANIM_IDLE_HEAD_LEFT,     MARIO_ANIM_CUSTOM_RPG_IDLE},
 		{MARIO_ANIM_IDLE_HEAD_RIGHT,    MARIO_ANIM_CUSTOM_RPG_IDLE},
 		{MARIO_ANIM_IDLE_HEAD_CENTER,   MARIO_ANIM_CUSTOM_RPG_IDLE},
 		{MARIO_ANIM_FIRST_PERSON,       MARIO_ANIM_CUSTOM_RPG_IDLE_ALT},
 		{MARIO_ANIM_CROUCHING,          MARIO_ANIM_CUSTOM_RPG_IDLE},
-        {MARIO_ANIM_STOP_CROUCHING,     MARIO_ANIM_CUSTOM_RPG_IDLE},
-        {MARIO_ANIM_WALK_PANTING,       MARIO_ANIM_CUSTOM_RPG_IDLE},
-        {MARIO_ANIM_START_TIPTOE,       MARIO_ANIM_CUSTOM_RPG_WALK_START},
-        {MARIO_ANIM_TIPTOE,             MARIO_ANIM_CUSTOM_RPG_TIPTOE},
-        {MARIO_ANIM_WALKING,            MARIO_ANIM_CUSTOM_RPG_WALK},
-        {MARIO_ANIM_RUNNING,            MARIO_ANIM_CUSTOM_RPG_RUN},
-        {MARIO_ANIM_SKID_ON_GROUND,     MARIO_ANIM_CUSTOM_RPG_SKID},
-        {MARIO_ANIM_STOP_SKID,          MARIO_ANIM_CUSTOM_RPG_SKID_STOP},
-        {MARIO_ANIM_TURNING_PART1,      MARIO_ANIM_CUSTOM_RPG_SKID},
-        {MARIO_ANIM_TURNING_PART2,      MARIO_ANIM_CUSTOM_RPG_SKID_TURN},
-    };
+		{MARIO_ANIM_WALK_PANTING,       MARIO_ANIM_CUSTOM_RPG_IDLE},
+		{MARIO_ANIM_START_TIPTOE,       MARIO_ANIM_CUSTOM_RPG_WALK_START},
+		{MARIO_ANIM_TIPTOE,             MARIO_ANIM_CUSTOM_RPG_TIPTOE},
+		{MARIO_ANIM_WALKING,            MARIO_ANIM_CUSTOM_RPG_WALK},
+		{MARIO_ANIM_RUNNING,            MARIO_ANIM_CUSTOM_RPG_RUN},
+		{MARIO_ANIM_SKID_ON_GROUND,     MARIO_ANIM_CUSTOM_RPG_SKID},
+		{MARIO_ANIM_STOP_SKID,          MARIO_ANIM_CUSTOM_RPG_SKID_STOP},
+		{MARIO_ANIM_TURNING_PART1,      MARIO_ANIM_CUSTOM_RPG_SKID},
+		{MARIO_ANIM_TURNING_PART2,      MARIO_ANIM_CUSTOM_RPG_SKID_TURN},
+	};
 
-    gunHeavyAnimOverrideTable = {
+	gunHeavyAnimOverrideTable = {
 		{MARIO_ANIM_IDLE_HEAD_LEFT,     MARIO_ANIM_CUSTOM_GUNHEAVY_IDLE},
 		{MARIO_ANIM_IDLE_HEAD_RIGHT,    MARIO_ANIM_CUSTOM_GUNHEAVY_IDLE},
 		{MARIO_ANIM_IDLE_HEAD_CENTER,   MARIO_ANIM_CUSTOM_GUNHEAVY_IDLE},
 		{MARIO_ANIM_FIRST_PERSON,       MARIO_ANIM_CUSTOM_GUNHEAVY_IDLE_ALT},
 		{MARIO_ANIM_CROUCHING,          MARIO_ANIM_CUSTOM_GUNHEAVY_IDLE},
-        {MARIO_ANIM_STOP_CROUCHING,     MARIO_ANIM_CUSTOM_GUNHEAVY_IDLE},
-        {MARIO_ANIM_WALK_PANTING,       MARIO_ANIM_CUSTOM_GUNHEAVY_IDLE},
-        {MARIO_ANIM_START_TIPTOE,       MARIO_ANIM_CUSTOM_GUNHEAVY_WALK_START},
-        {MARIO_ANIM_TIPTOE,             MARIO_ANIM_CUSTOM_GUNHEAVY_TIPTOE},
-        {MARIO_ANIM_WALKING,            MARIO_ANIM_CUSTOM_GUNHEAVY_WALK},
-        {MARIO_ANIM_RUNNING,            MARIO_ANIM_CUSTOM_GUNHEAVY_RUN},
-        {MARIO_ANIM_SKID_ON_GROUND,     MARIO_ANIM_CUSTOM_GUNHEAVY_SKID},
-        {MARIO_ANIM_STOP_SKID,          MARIO_ANIM_CUSTOM_GUNHEAVY_SKID_STOP},
-        {MARIO_ANIM_TURNING_PART1,      MARIO_ANIM_CUSTOM_GUNHEAVY_SKID},
-        {MARIO_ANIM_TURNING_PART2,      MARIO_ANIM_CUSTOM_GUNHEAVY_SKID_TURN},
-    };
+		{MARIO_ANIM_WALK_PANTING,       MARIO_ANIM_CUSTOM_GUNHEAVY_IDLE},
+		{MARIO_ANIM_START_TIPTOE,       MARIO_ANIM_CUSTOM_GUNHEAVY_WALK_START},
+		{MARIO_ANIM_TIPTOE,             MARIO_ANIM_CUSTOM_GUNHEAVY_TIPTOE},
+		{MARIO_ANIM_WALKING,            MARIO_ANIM_CUSTOM_GUNHEAVY_WALK},
+		{MARIO_ANIM_RUNNING,            MARIO_ANIM_CUSTOM_GUNHEAVY_RUN},
+		{MARIO_ANIM_SKID_ON_GROUND,     MARIO_ANIM_CUSTOM_GUNHEAVY_SKID},
+		{MARIO_ANIM_STOP_SKID,          MARIO_ANIM_CUSTOM_GUNHEAVY_SKID_STOP},
+		{MARIO_ANIM_TURNING_PART1,      MARIO_ANIM_CUSTOM_GUNHEAVY_SKID},
+		{MARIO_ANIM_TURNING_PART2,      MARIO_ANIM_CUSTOM_GUNHEAVY_SKID_TURN},
+	};
 }
