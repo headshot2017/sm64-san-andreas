@@ -150,6 +150,7 @@
 		<Unit filename="mario_render.h" />
 		<Unit filename="mario_shadow.raw.h" />
 		<Unit filename="raw/anim_car_locked.raw.h" />
+		<Unit filename="raw/anim_climb_cj.raw.h" />
 		<Unit filename="raw/anim_close_car_door_left.raw.h" />
 		<Unit filename="raw/anim_close_car_door_right.raw.h" />
 		<Unit filename="raw/anim_crib_use_switch.raw.h" />

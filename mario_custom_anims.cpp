@@ -15,6 +15,7 @@
 #include "raw/anim_dance_bad.raw.h"
 #include "raw/anim_dance_good.raw.h"
 #include "raw/anim_vending_machine.raw.h"
+#include "raw/anim_climb_cj.raw.h"
 #include "raw/anim_gunpoint.raw.h"
 #include "raw/anim_gunpoint_walk_start.raw.h"
 #include "raw/anim_gunpoint_tiptoe.raw.h"
@@ -77,6 +78,7 @@ int MARIO_ANIM_CUSTOM_DANCE_LOOP;
 int MARIO_ANIM_CUSTOM_DANCE_BAD;
 int MARIO_ANIM_CUSTOM_DANCE_GOOD;
 int MARIO_ANIM_CUSTOM_VENDING_MACHINE;
+int MARIO_ANIM_CUSTOM_CLIMB_CJ;
 int MARIO_ANIM_CUSTOM_GUNPOINT;
 int MARIO_ANIM_CUSTOM_GUNPOINT_WALK_START;
 int MARIO_ANIM_CUSTOM_GUNPOINT_TIPTOE;
@@ -141,6 +143,7 @@ void marioInitCustomAnims()
     MARIO_ANIM_CUSTOM_DANCE_BAD = sm64_custom_animation_init(marioAnimDanceBadRaw, marioAnimDanceBadRaw_length);
     MARIO_ANIM_CUSTOM_DANCE_GOOD = sm64_custom_animation_init(marioAnimDanceGoodRaw, marioAnimDanceGoodRaw_length);
     MARIO_ANIM_CUSTOM_VENDING_MACHINE = sm64_custom_animation_init(marioAnimVendingMachineRaw, marioAnimVendingMachineRaw_length);
+    MARIO_ANIM_CUSTOM_CLIMB_CJ = sm64_custom_animation_init(marioAnimClimbCjRaw, marioAnimClimbCjRaw_length);
 
     MARIO_ANIM_CUSTOM_GUNPOINT = sm64_custom_animation_init(marioAnimGunpointRaw, marioAnimGunpointRaw_length);
     MARIO_ANIM_CUSTOM_GUNPOINT_WALK_START = sm64_custom_animation_init(marioAnimGunpointWalkStartRaw, marioAnimGunpointWalkStartRaw_length);

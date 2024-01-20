@@ -49,10 +49,6 @@ void runAnimKey(CTaskSimpleRunNamedAnim* task, const int& marioId)
                       (cjAnimKeys.count(task->m_animGroupName)) ? task->m_animGroupName :
                       "";
 
-    //char buf[256];
-    //sprintf(buf, "%d '%s' '%s'", task->m_nAnimId, task->m_animName, task->m_animGroupName);
-    //CHud::SetMessage(buf);
-
     runAnimKey(key, marioId);
 }
 

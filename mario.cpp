@@ -933,7 +933,7 @@ void marioTick(float dt)
 
         // mario damage -> CJ
         static uint8_t lastHurtCounter = 0;
-        if (marioState.hurtCounter && !lastHurtCounter)
+        if (marioState.hurtCounter && !lastHurtCounter && !overrideWithCJAI)
         {
             lastHurtCounter = marioState.hurtCounter;
             // 64 is 0x40, 2176 is 0x880 (full mario HP), from libsm64 decomp/game/mario.c

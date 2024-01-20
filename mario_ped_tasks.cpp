@@ -13,9 +13,11 @@
 #include "CTaskSimpleRunNamedAnim.h"
 #include "CTaskSimpleSwim.h"
 #include "CTaskSimpleUseGun.h"
+#include "CTaskSimpleClimb.h"
 #include "CModelInfo.h"
 extern "C" {
     #include <decomp/include/sm64shared.h>
+    #include <decomp/include/mario_animation_ids.h>
 }
 
 #include "mario.h"
@@ -399,6 +401,11 @@ void marioPedTasks(CPlayerPed* ped, const int& marioId)
     else if ((baseTask = ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_NAMED_ANIM)))
     {
         CTaskSimpleRunNamedAnim* task = static_cast<CTaskSimpleRunNamedAnim*>(baseTask);
+
+        //char buf[256];
+        //sprintf(buf, "%d '%s' '%s'", task->m_nAnimId, task->m_animName, task->m_animGroupName);
+        //CHud::SetMessage(buf);
+
         runAnimKey(task, marioId);
     }
     else if ((baseTask = ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_USE_SEQUENCE)))
@@ -422,6 +429,14 @@ void marioPedTasks(CPlayerPed* ped, const int& marioId)
                 }
             }
         }
+    }
+    else if ((baseTask = ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_CLIMB)))
+    {
+        // only happens in Catalyst when getting into the train
+        CTaskSimpleClimb* task = static_cast<CTaskSimpleClimb*>(baseTask);
+        sm64_set_mario_action_arg(marioId, ACT_CUSTOM_ANIM_TO_ACTION, 1);
+        sm64_set_mario_action_arg2(marioId, ACT_IDLE);
+        sm64_set_mario_animation(marioId, MARIO_ANIM_CUSTOM_CLIMB_CJ);
     }
     else if ((baseTask = ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_SWIM)))
     {
