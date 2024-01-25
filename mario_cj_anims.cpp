@@ -210,6 +210,15 @@ void animGymBikeFast(const int& marioId)
     // gym bike fast speed
 }
 
+void animStompBelly(const int& marioId)
+{
+    // CJ fight animation where he stomps a ped lying in the ground
+    // Mario will only use this animation on the missions "Cleaning the Hood" and "High Noon"
+    sm64_set_mario_action_arg(marioId, ACT_CUSTOM_ANIM_TO_ACTION, 1);
+    sm64_set_mario_action_arg2(marioId, ACT_IDLE);
+    sm64_set_mario_animation(marioId, MARIO_ANIM_CUSTOM_STOMP_BELLY);
+}
+
 void animJustBusiness(const int& marioId)
 {
     // Big Smoke talking to CJ before entering the building in Just Business
@@ -321,6 +330,9 @@ std::unordered_map<std::string, ConvertedAnim> cjAnimKeys =
     {"GYM_BIKE_STILL",      {animGymBikeStill, true}},
     {"GYM_BIKE_SLOW",       {animGymBikeSlow, true}},
     {"GYM_BIKE_FAST",       {animGymBikeFast, true}},
+
+    // certain combat animations
+    {"FIGHTA_G",            {animStompBelly, false}},
 
     // missions
     {"JST_BUISNESS",        {animJustBusiness, false}},
