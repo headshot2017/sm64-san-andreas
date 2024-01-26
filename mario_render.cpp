@@ -497,6 +497,7 @@ void marioRenderWeapon()
 
     if (weaponObj)
     {
+        ped->SetupLighting();
         RpClump* weaponClump = (RpClump*)weaponObj;
         RwFrame* weaponFrame = (RwFrame*)weaponClump->object.parent;
         const CWeapon& activeWeapon = ped->m_aWeapons[ped->m_nActiveWeaponSlot];
@@ -569,6 +570,9 @@ void marioRenderWeapon()
             RwFrameRotate(weaponFrame, &rollAxisRw, -90, rwCOMBINEPRECONCAT);
         }
         RwFrameTranslate(weaponFrame, &rwpos, rwCOMBINEPOSTCONCAT);
+
+        ped->SetGunFlashAlpha(false);
+        RwFrameUpdateObjects(weaponFrame);
         RpClumpRender(weaponClump);
 
         if (info->m_nFlags.bTwinPistol)
@@ -597,7 +601,12 @@ void marioRenderWeapon()
                 RwFrameRotate(weaponFrame, &pitchAxisRw, 90, rwCOMBINEPRECONCAT);
             RwFrameRotate(weaponFrame, &rollAxisRw, 90, rwCOMBINEPRECONCAT);
             RwFrameTranslate(weaponFrame, &rwpos, rwCOMBINEPOSTCONCAT);
+
+            ped->SetGunFlashAlpha(true);
+            RwFrameUpdateObjects(weaponFrame);
             RpClumpRender(weaponClump);
         }
+
+        ped->ResetGunFlashAlpha();
     }
 }
