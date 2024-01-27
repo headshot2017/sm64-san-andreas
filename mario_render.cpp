@@ -490,8 +490,6 @@ void marioRenderWeapon()
     RwRenderStateSet(rwRENDERSTATESRCBLEND,             RWRSTATE(rwBLENDSRCALPHA));
     RwRenderStateSet(rwRENDERSTATEDESTBLEND,            RWRSTATE(rwBLENDINVSRCALPHA));
     RwRenderStateSet(rwRENDERSTATEALPHATESTFUNCTIONREF, RWRSTATE(20));
-    SetAmbientColours();
-    ActivateDirectional();
 
     float div = 45*3+1;
 
