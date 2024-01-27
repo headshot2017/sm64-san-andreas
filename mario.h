@@ -16,6 +16,9 @@
 
 #include <libsm64.h>
 
+class CPlayerPed;
+
+
 extern std::unordered_set<eWeaponType> sideAnimWeaponIDs;
 extern std::unordered_set<eWeaponType> shoulderWeaponIDs;
 extern std::unordered_set<eWeaponType> heavyWeaponIDs;
@@ -37,6 +40,7 @@ void marioSpawn();
 void marioDestroy();
 void marioTick(float dt);
 
+void marioProcessWeapon(CPlayerPed* player);
 void marioTestAnim();
 
 #endif // MARIO_H_INCLUDED

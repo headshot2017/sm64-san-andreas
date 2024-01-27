@@ -1099,6 +1099,44 @@ void marioTick(float dt)
 
     ////// handle CJ ped tasks that require not being inside the 1.f/30 loop //////
     marioPedTasksMaxFPS(ped, marioId);
+
+    ////// process weapon (stealth, etc)
+    marioProcessWeapon(ped);
+}
+
+void marioProcessWeapon(CPlayerPed* player)
+{
+    if (!marioSpawned()) return;
+
+    CPlayerData* playerData = player->m_pPlayerData;
+    CPedIntelligence* intelligence = player->m_pIntelligence;
+    CTaskManager* taskManager = &intelligence->m_TaskMgr;
+    CPad* pad = player->GetPadFromPlayer();
+
+    CWeaponInfo* weaponInfo = CWeaponInfo::GetWeaponInfo(player->m_aWeapons[player->m_nActiveWeaponSlot].m_eWeaponType, player->GetWeaponSkill());
+
+    CPed* targetEntity = nullptr;
+    if (!player->m_pTargetedObject) {
+        if (TheCamera.m_bUseMouse3rdPerson && player->m_pPlayerTargettedPed) {
+            targetEntity = player->m_pPlayerTargettedPed;
+        }
+    } else {
+        if (player->m_pTargetedObject->m_nType == ENTITY_TYPE_PED) {
+            targetEntity = reinterpret_cast<CPed*>(player->m_pTargetedObject);
+        }
+    }
+
+    static float rightArmAngle = 0;
+    float targetAngle = 0;
+    unsigned int animGroupID = weaponInfo->m_nAnimToPlay;
+    if (targetEntity && pad->GetTarget() && playerData->m_fMoveBlendRatio < 1.9f && player->m_nMoveState != PEDMOVE_SPRINT &&
+        !taskManager->GetTaskSecondary(TASK_SECONDARY_ATTACK) && animGroupID != ANIM_GROUP_DEFAULT && intelligence->TestForStealthKill(targetEntity, false))
+    {
+        targetAngle = -M_PI/1.5f;
+    }
+
+    rightArmAngle += (targetAngle - rightArmAngle) / 5.f;
+    sm64_set_mario_rightarm_angle(marioId, rightArmAngle, 0, 0);
 }
 
 void marioTestAnim()
