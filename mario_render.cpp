@@ -38,6 +38,8 @@ RpAtomic* marioAtomic;
 //RwFrame* marioFrameClump;
 RwFrame* marioFrameAtomic;
 RwObject* weaponObj;
+RpMaterial* marioMaterialTextured;
+RpMaterial* marioMaterial;
 
 
 void marioRenderToggleDebug()
@@ -72,8 +74,8 @@ void marioRenderInit()
     RwTexCoords noTexCoord = {1.f, 1.f};
 
     // create materials
-    RpMaterial* marioMaterialTextured = RpMaterialCreate();
-    RpMaterial* marioMaterial = RpMaterialCreate();
+    marioMaterialTextured = RpMaterialCreate();
+    marioMaterial = RpMaterialCreate();
     RpMaterialSetTexture(marioMaterialTextured, marioTextureRW);
 
     // create geometry, and get the vertices, normals, tex coords, triangle indexes list and colors
@@ -89,10 +91,6 @@ void marioRenderInit()
     // the geometry will have two materials
     // one for textured triangles (mario's face, buttons on his overalls, etc),
     // and one for solid-color triangles
-    marioRpGeometry->matList.numMaterials = 2;
-    marioRpGeometry->matList.materials = (RpMaterial**)malloc(sizeof(RpMaterial*) * marioRpGeometry->matList.numMaterials);
-    marioRpGeometry->matList.materials[0] = RpMaterialClone(marioMaterialTextured);
-    marioRpGeometry->matList.materials[1] = RpMaterialClone(marioMaterial);
 
     // initialize the geometry with default values
     for (int i=0; i<SM64_GEO_MAX_TRIANGLES*3; i++)
@@ -104,9 +102,10 @@ void marioRenderInit()
 
         if (i < SM64_GEO_MAX_TRIANGLES)
         {
-            tlist->matIndex = 0;
-            for (int j=0; j<3; j++) tlist->vertIndex[j] = i*3+j;
-            *tlist++;
+            //for (int j=0; j<3; j++) tlist->vertIndex[j] = i*3+j;
+            RpGeometryTriangleSetVertexIndices(marioRpGeometry, tlist, i*3+0, i*3+1, i*3+2);
+            RpGeometryTriangleSetMaterial(marioRpGeometry, tlist++, (i > 0) ? marioMaterial : marioMaterialTextured);
+            //*tlist++;
         }
     }
 
@@ -132,10 +131,8 @@ void marioRenderInit()
     RpAtomicSetGeometry(marioAtomic, marioRpGeometry, 0);
     RpClumpAddAtomic(marioClump, marioAtomic);
 
-    // we can now delete the geometry and the materials
+    // we can now delete the geometry
     RpGeometryDestroy(marioRpGeometry);
-    RpMaterialDestroy(marioMaterialTextured);
-    RpMaterialDestroy(marioMaterial);
 
     // finally, add clump to world
     RpWorldAddClump(Scene.m_pRpWorld, marioClump);
@@ -148,17 +145,13 @@ void marioRenderDestroy()
 
     // Retained Mode API only
 
-    // remove clump from world, and remove atomic from clump
     RpWorldRemoveClump(Scene.m_pRpWorld, marioClump);
     RpClumpRemoveAtomic(marioClump, marioAtomic);
-    RpAtomicSetFrame(marioAtomic, nullptr);
-
-    //RwFrameDestroy(marioFrameClump);
-    RwFrameDestroy(marioFrameAtomic);
-
-    // destroy them
-    RpClumpDestroy(marioClump);
     RpAtomicDestroy(marioAtomic);
+    RpClumpDestroy(marioClump);
+
+    RpMaterialDestroy(marioMaterialTextured);
+    RpMaterialDestroy(marioMaterial);
 }
 
 void marioRenderUpdateGeometry(const SM64MarioGeometryBuffers& marioGeometry)
@@ -213,8 +206,8 @@ void marioRenderUpdateGeometry(const SM64MarioGeometryBuffers& marioGeometry)
         *colors++ = marioColor;
         if (i < marioGeometry.numTrianglesUsed)
         {
+            RpGeometryTriangleSetVertexIndices(marioAtomic->geometry, tlist, i*3+0, i*3+1, i*3+2);
             tlist->matIndex = 1;
-            for (int j=0; j<3; j++) tlist->vertIndex[j] = i*3+j;
             *tlist++;
         }
     }
@@ -231,15 +224,16 @@ void marioRenderUpdateGeometry(const SM64MarioGeometryBuffers& marioGeometry)
         *texCoord++ = texCoords1;
         *texCoord++ = texCoords2;
         *texCoord++ = texCoords3;
-        tlist->matIndex = 0;
         for (int j=0; j<3; j++)
         {
             *vlist++ = marioCurrGeoPos[marioTextureIndices[i+j]].objVertex;
             *nlist++ = marioCurrGeoPos[marioTextureIndices[i+j]].objNormal;
             *colors++ = white;
-            tlist->vertIndex[j] = texInd++;
         }
+        RpGeometryTriangleSetVertexIndices(marioAtomic->geometry, tlist, texInd, texInd+1, texInd+2);
+        tlist->matIndex = 0;
         *tlist++;
+        texInd += 3;
     }
     RpGeometryUnlock(marioAtomic->geometry);
 
@@ -317,10 +311,10 @@ void marioRender()
     };
 
     // apply changes
-    RpMaterialSetColor(marioAtomic->geometry->matList.materials[0], &newColor);
-    RpMaterialSetColor(marioAtomic->geometry->matList.materials[1], &newColor);
-    RpMaterialSetSurfaceProperties(marioAtomic->geometry->matList.materials[0], &surfProp);
-    RpMaterialSetSurfaceProperties(marioAtomic->geometry->matList.materials[1], &surfProp);
+    RpMaterialSetColor(marioMaterialTextured, &newColor);
+    RpMaterialSetColor(marioMaterial, &newColor);
+    RpMaterialSetSurfaceProperties(marioMaterialTextured, &surfProp);
+    RpMaterialSetSurfaceProperties(marioMaterial, &surfProp);
 
     // Mario model is rendered by changing the CJ ped's RW atomic, clump and RWobject values below in marioRenderPed()
 
