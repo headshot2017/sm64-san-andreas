@@ -14,6 +14,7 @@
 #include "CTaskSimpleSwim.h"
 #include "CTaskSimpleUseGun.h"
 #include "CTaskSimpleClimb.h"
+#include "CTaskSimpleStealthKill.h"
 #include "CModelInfo.h"
 extern "C" {
     #include <decomp/include/sm64shared.h>
@@ -543,6 +544,18 @@ void marioPedTasksMaxFPS(CPlayerPed* ped, const int& marioId)
         CTaskSimpleHoldEntity2* task = static_cast<CTaskSimpleHoldEntity2*>(baseTask);
         moveEntityToMarioHands(task);
     	sm64_set_mario_anim_override(marioId, 0);
+    }
+    else if ((baseTask = ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_STEALTH_KILL)))
+    {
+        CTaskSimpleStealthKill* task = static_cast<CTaskSimpleStealthKill*>(baseTask);
+
+        char buf[256];
+        sprintf(buf, "stealth %d %d %d %d", task->b_bIsAborting, task->b_bIsFinished, task->m_bKeepTargetAlive, task->m_nTime);
+        CHud::SetMessage(buf);
+
+        sm64_set_mario_anim_override(marioId, 0);
+        sm64_set_mario_rightarm_angle(marioId, 0, 0, 0);
+        sm64_set_mario_leftarm_angle(marioId, 0, 0, 0);
     }
     else if ((baseTask = ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_USE_GUN)))
     {
