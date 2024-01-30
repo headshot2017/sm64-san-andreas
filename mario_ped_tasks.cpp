@@ -549,9 +549,9 @@ void marioPedTasksMaxFPS(CPlayerPed* ped, const int& marioId)
     {
         CTaskSimpleStealthKill* task = static_cast<CTaskSimpleStealthKill*>(baseTask);
 
-        char buf[256];
-        sprintf(buf, "stealth %d %d %d %d", task->b_bIsAborting, task->b_bIsFinished, task->m_bKeepTargetAlive, task->m_nTime);
-        CHud::SetMessage(buf);
+        //char buf[256];
+        //sprintf(buf, "stealth %d %d %d %d", task->b_bIsAborting, task->b_bIsFinished, task->m_bKeepTargetAlive, task->m_nTime);
+        //CHud::SetMessage(buf);
 
         sm64_set_mario_anim_override(marioId, 0);
         sm64_set_mario_rightarm_angle(marioId, 0, 0, 0);
