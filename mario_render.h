@@ -4,8 +4,6 @@
 #include "mario.h"
 #include "CPed.h"
 
-class CRealTimeShadowManager;
-
 extern RwObject* weaponObj;
 extern int triangles;
 

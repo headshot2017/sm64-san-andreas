@@ -12,7 +12,6 @@
 #include "CHud.h"
 #include "CWeapon.h"
 #include "CWeaponInfo.h"
-#include "CRealTimeShadowManager.h"
 #include "Fx_c.h"
 
 #include "d3d9_funcs.h"
