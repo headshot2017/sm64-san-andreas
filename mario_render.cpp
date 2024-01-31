@@ -12,6 +12,7 @@
 #include "CHud.h"
 #include "CWeapon.h"
 #include "CWeaponInfo.h"
+#include "CRealTimeShadowManager.h"
 #include "Fx_c.h"
 
 #include "d3d9_funcs.h"
@@ -421,6 +422,22 @@ void marioRenderPedReset(CPed* ped)
         ped->m_pRwClump = pedClump;
     else if (RwObjectGetType(ped->m_pRwObject) == rpATOMIC)
         ped->m_pRwAtomic = pedAtomic;
+}
+
+FxQuality_e oldQuality;
+void marioPreRender(CPed* ped)
+{
+    if (!marioSpawned() || !ped->IsPlayer()) return;
+
+    oldQuality = g_fx.GetFxQuality();
+    g_fx.SetFxQuality(FXQUALITY_LOW);
+}
+
+void marioPreRenderReset(CPed* ped)
+{
+    if (!marioSpawned() || !ped->IsPlayer()) return;
+
+    g_fx.SetFxQuality(oldQuality);
 }
 
 void marioRenderWeapon()

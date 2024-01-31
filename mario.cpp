@@ -699,7 +699,7 @@ void marioTick(float dt)
         weaponObj = ped->m_pWeaponObject;
         ped->m_pWeaponObject = nullptr;
     }
-    ped->m_pShadowData = nullptr;
+    //ped->m_pShadowData = nullptr;
 
     bool carDoor = ped->m_pIntelligence->IsPedGoingForCarDoor();
     float hp = ped->m_fHealth / ped->m_fMaxHealth;

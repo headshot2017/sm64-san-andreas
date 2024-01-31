@@ -33,6 +33,9 @@ CdeclEvent<AddressList<0x53eac4, H_CALL,
                        0x705322, H_CALL,
                        0x7271e3, H_CALL>, PRIORITY_AFTER, ArgPickNone, void()> pedRenderWeaponsEvent;
 CdeclEvent<AddressList<0x5e6900, H_CALL>, PRIORITY_AFTER, ArgPick7N<CPed*, 0, float, 1, float, 2, float, 3, float, 4, float, 5, float, 6>, void(CPed*, float, float, float, float, float, float)> pedStoreShadowsEvent;
+ThiscallEvent<AddressList<0x5e8a29, H_JUMP,
+                          0x6d3dc7, H_CALL,
+                          0x6d3de6, H_CALL>, PRIORITY_BEFORE, ArgPickN<CPed*, 0>, void(CPed*)> pedPreRenderAfterTestEvent;
 
 uint16_t CalculateShadowStrength(float currDist, float maxDist, uint16_t maxStrength) {
     assert(maxDist >= currDist); // Otherwise integer underflow will occur
@@ -191,30 +194,29 @@ public:
 
     static void marioSetupShadow(CPed* ped, float displacementX, float displacementY, float frontX, float frontY, float sideX, float sideY)
     {
-        if (marioSpawned() && ped == FindPlayerPed())
-        {
-            if (CShadows::ShadowsStoredToBeRendered)
-                CShadows::ShadowsStoredToBeRendered--; // this makes it so that CJ's shadow index is replaced with an entry for Mario
+        if (!marioSpawned() || !ped->IsPlayer()) return;
 
-            const auto& camPos = TheCamera.GetPosition();
-            const auto pedToCamDist2DSq = (marioInterpPos - camPos).Magnitude2D();
-            const auto strength = (uint8_t)CalculateShadowStrength(std::sqrt(pedToCamDist2DSq), MAX_DISTANCE_PED_SHADOWS, CTimeCycle::m_CurrentColours.m_nShadowStrength);
-            const auto pos = marioInterpPos + CVector{displacementX, displacementY, 0.15f};
-            CShadows::StoreShadowToBeRendered(
-                (uint8_t)SHADOW_DEFAULT,
-                gpShadowPedTex,
-                &pos,
-                frontX, frontY,
-                sideX, sideY,
-                (int16_t)strength,
-                strength, strength, strength,
-                4.f,
-                false,
-                1.f,
-                nullptr,
-                g_fx.GetFxQuality() >= FXQUALITY_VERY_HIGH
-            );
-        }
+        if (CShadows::ShadowsStoredToBeRendered)
+            CShadows::ShadowsStoredToBeRendered--; // this makes it so that CJ's shadow index is replaced with an entry for Mario
+
+        const auto& camPos = TheCamera.GetPosition();
+        const auto pedToCamDist2DSq = (marioInterpPos - camPos).Magnitude2D();
+        const auto strength = (uint8_t)CalculateShadowStrength(std::sqrt(pedToCamDist2DSq), MAX_DISTANCE_PED_SHADOWS, CTimeCycle::m_CurrentColours.m_nShadowStrength);
+        const auto pos = marioInterpPos + CVector{displacementX, displacementY, 0.15f};
+        CShadows::StoreShadowToBeRendered(
+            (uint8_t)SHADOW_DEFAULT,
+            gpShadowPedTex,
+            &pos,
+            frontX, frontY,
+            sideX, sideY,
+            (int16_t)strength,
+            strength, strength, strength,
+            4.f,
+            false,
+            1.f,
+            nullptr,
+            g_fx.GetFxQuality() >= FXQUALITY_VERY_HIGH
+        );
     }
 
     sm64_san_andreas() {
@@ -236,5 +238,7 @@ public:
 
         pedRenderWeaponsEvent.before.Add(marioRenderWeapon);
         pedStoreShadowsEvent.after.Add(marioSetupShadow);
+        pedPreRenderAfterTestEvent.before.Add(marioPreRender);
+        pedPreRenderAfterTestEvent.after.Add(marioPreRenderReset);
     }
 } _sm64_san_andreas;
