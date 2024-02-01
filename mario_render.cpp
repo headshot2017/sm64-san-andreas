@@ -514,6 +514,9 @@ void marioRenderWeapon()
 			}
 			else
 				RwFrameRotate(weaponFrame, &yawAxis, (marioState.angle[1])/M_PI*180 - 90, rwCOMBINEREPLACE);
+
+            if (ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_STEALTH_KILL))
+                RwFrameRotate(weaponFrame, &rollAxisRw, -90-45, rwCOMBINEPRECONCAT);
 		}
         else
         {

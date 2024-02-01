@@ -553,9 +553,9 @@ void marioPedTasksMaxFPS(CPlayerPed* ped, const int& marioId)
         //sprintf(buf, "stealth %d %d %d %d", task->b_bIsAborting, task->b_bIsFinished, task->m_bKeepTargetAlive, task->m_nTime);
         //CHud::SetMessage(buf);
 
-        sm64_set_mario_anim_override(marioId, 0);
-        sm64_set_mario_rightarm_angle(marioId, 0, 0, 0);
-        sm64_set_mario_leftarm_angle(marioId, 0, 0, 0);
+        sm64_set_mario_action_arg(marioId, ACT_CUSTOM_ANIM_TO_ACTION, 1);
+        sm64_set_mario_action_arg2(marioId, ACT_IDLE);
+        sm64_set_mario_animation(marioId, MARIO_ANIM_CUSTOM_STEALTH_KILL);
     }
     else if ((baseTask = ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_USE_GUN)))
     {

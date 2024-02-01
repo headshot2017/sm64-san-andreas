@@ -206,6 +206,7 @@
 		<Unit filename="raw/anim_rpg_tiptoe.raw.h" />
 		<Unit filename="raw/anim_rpg_walk.raw.h" />
 		<Unit filename="raw/anim_rpg_walk_start.raw.h" />
+		<Unit filename="raw/anim_stealth_kill.raw.h" />
 		<Unit filename="raw/anim_stomp_belly.raw.h" />
 		<Unit filename="raw/anim_test.raw.h" />
 		<Unit filename="raw/anim_vending_machine.raw.h" />
