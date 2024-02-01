@@ -38,7 +38,9 @@ ThiscallEvent<AddressList<0x5e8a29, H_JUMP,
                           0x6d3de6, H_CALL>, PRIORITY_BEFORE, ArgPickN<CPed*, 0>, void(CPed*)> pedPreRenderAfterTestEvent;
 
 uint16_t CalculateShadowStrength(float currDist, float maxDist, uint16_t maxStrength) {
-    assert(maxDist >= currDist); // Otherwise integer underflow will occur
+    //assert(maxDist >= currDist); // Otherwise integer underflow will occur
+    if (maxDist >= currDist)
+		return maxStrength;
 
     const auto halfMaxDist = maxDist / 2.f;
     if (currDist >= halfMaxDist) { // Anything further than half the distance is faded out
