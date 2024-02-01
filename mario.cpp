@@ -1116,6 +1116,9 @@ void marioProcessWeapon(CPlayerPed* player)
 
     CWeaponInfo* weaponInfo = CWeaponInfo::GetWeaponInfo(player->m_aWeapons[player->m_nActiveWeaponSlot].m_eWeaponType, player->GetWeaponSkill());
 
+    if (taskManager->FindActiveTaskByType(TASK_SIMPLE_USE_GUN))
+        return;
+
     CPed* targetEntity = nullptr;
     if (!player->m_pTargetedObject) {
         if (TheCamera.m_bUseMouse3rdPerson && player->m_pPlayerTargettedPed) {
