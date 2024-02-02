@@ -643,6 +643,8 @@ void marioSpawn()
         ped->m_nAllowedAttackMoves = 0;
     }
 
+    ped->m_pedAudio.field_7C = 0; // disable footstep sounds
+
 #ifdef PRE_RELEASE_BUILD
     static bool firstInit = false;
     if (!firstInit)
@@ -686,6 +688,8 @@ void marioDestroy()
             ped->m_pWeaponObject = weaponObj;
             weaponObj = nullptr;
         }
+
+        ped->m_pedAudio.field_7C = 1; // enable footstep sounds
     }
 }
 
