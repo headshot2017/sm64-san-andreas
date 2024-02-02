@@ -567,7 +567,7 @@ void marioPedTasksMaxFPS(CPlayerPed* ped, const int& marioId)
         if (task->m_pWeaponInfo->m_nFlags.bAimWithArm)
         {
             // used with normal pistol, sawed-off shotgun and uzi/tec9
-            bool reloading = !task->m_ArmIKInUse && !task->m_bSkipAim && !task->m_LookIKInUse;
+            bool reloading = (activeWeapon.m_nState == WEAPONSTATE_RELOADING);
             if (!reloading && gunAnimOverrideTable.count(marioState.animInfo.animOverride.current))
             {
                 sm64_set_mario_anim_override(marioId, gunAnimOverrideTable[marioState.animInfo.animOverride.current]);

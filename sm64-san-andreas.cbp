@@ -124,6 +124,7 @@
 		<Unit filename="CTaskComplexGoPickUpEntity.h" />
 		<Unit filename="CTaskComplexSequence2.h" />
 		<Unit filename="CTaskComplexUseSequence.h" />
+		<Unit filename="CTaskSimpleDuck2.h" />
 		<Unit filename="CTaskSimpleHoldEntity2.h" />
 		<Unit filename="TinySHA1.hpp" />
 		<Unit filename="audio.cpp" />

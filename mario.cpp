@@ -15,6 +15,7 @@
 #include "CTaskSimpleIKLookAt.h"
 #include "CTaskSimpleIKManager.h"
 #include "CTaskSimpleUseGun.h"
+#include "CTaskSimpleDuck2.h"
 #include "CTaskComplexLeaveCar.h"
 #include "CEntryExitManager.h"
 #include "CCutsceneMgr.h"
@@ -813,6 +814,16 @@ void marioTick(float dt)
             marioInput.camLookZ = TheCamera.m_fCamFrontYNorm * (pad->GetLookBehindForPed() ? -1 : 1);
 
             if (marioState.action == ACT_DRIVING_VEHICLE) sm64_set_mario_action(marioId, ACT_FREEFALL);
+
+            // control CJ crouch
+            if (marioState.action == ACT_CROUCHING || marioState.action == ACT_START_CROUCHING ||
+                marioState.action == ACT_CRAWLING || marioState.action == ACT_START_CRAWLING || marioState.action == ACT_STOP_CRAWLING)
+            {
+                if (CTaskSimpleDuck2::CanPedDuck(ped) && !ped->m_pIntelligence->m_TaskMgr.GetTaskSecondary(TASK_SECONDARY_DUCK))
+                    ped->m_pIntelligence->SetTaskDuckSecondary(0);
+            }
+            else if (ped->m_pIntelligence->m_TaskMgr.GetTaskSecondary(TASK_SECONDARY_DUCK))
+                ped->m_pIntelligence->ClearTaskDuckSecondary();
         }
         else
         {
