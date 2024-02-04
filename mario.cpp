@@ -699,17 +699,27 @@ void marioTick(float dt)
     if (!marioSpawned() || !FindPlayerPed()) return;
     CPlayerPed* ped = FindPlayerPed();
 
+    bool usingMobilePhone = ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_USE_MOBILE_PHONE);
     if (ped->m_pWeaponObject || ped->m_aWeapons[ped->m_nActiveWeaponSlot].m_eWeaponType == WEAPON_UNARMED)
     {
         weaponObj = ped->m_pWeaponObject;
+        if (usingMobilePhone && ped->m_pWeaponObject)
+            phoneObj = ped->m_pWeaponObject;
         ped->m_pWeaponObject = nullptr;
     }
+    if (!usingMobilePhone && phoneObj)
+        phoneObj = nullptr;
+
     ped->m_pShadowData = nullptr;
 
     bool carDoor = ped->m_pIntelligence->IsPedGoingForCarDoor();
     float hp = ped->m_fHealth / ped->m_fMaxHealth;
 
     CPad* pad = ped->GetPadFromPlayer();
+    if (ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_PHONE_IN) || ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_PHONE_OUT))
+        pad->DisablePlayerControls = 1;
+    else if (ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_PHONE_TALK))
+        pad->DisablePlayerControls = 0;
     pad->bDisablePlayerDuck = 0;
     pad->bDisablePlayerJump = 0;
     int jumpState = pad->GetJump();
@@ -739,7 +749,8 @@ void marioTick(float dt)
                              ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_ACHIEVE_HEADING) ||
                              ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_GO_TO_POINT_AND_STAND_STILL) ||
                              ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_USE_SEQUENCE) ||
-                             ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_STEALTH_KILL));
+                             ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_STEALTH_KILL) ||
+                             ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_USE_MOBILE_PHONE));
 
     if (cjHasControl)
     {

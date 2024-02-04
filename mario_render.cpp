@@ -36,6 +36,7 @@ RpAtomic* marioAtomic;
 //RwFrame* marioFrameClump;
 RwFrame* marioFrameAtomic;
 RwObject* weaponObj;
+RwObject* phoneObj;
 RpMaterial* marioMaterialTextured;
 RpMaterial* marioMaterial;
 
@@ -453,10 +454,11 @@ void marioRenderWeapon()
 
     float div = 45*3+1;
 
-    if (weaponObj)
+    bool usingPhone = phoneObj && ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_USE_MOBILE_PHONE);
+    if (weaponObj || usingPhone)
     {
         ped->SetupLighting();
-        RpClump* weaponClump = (RpClump*)weaponObj;
+        RpClump* weaponClump = usingPhone ? (RpClump*)phoneObj : (RpClump*)weaponObj;
         RwFrame* weaponFrame = (RwFrame*)weaponClump->object.parent;
         const CWeapon& activeWeapon = ped->m_aWeapons[ped->m_nActiveWeaponSlot];
         CWeaponInfo* info = CWeaponInfo::GetWeaponInfo(activeWeapon.m_eWeaponType, ped->GetWeaponSkill());

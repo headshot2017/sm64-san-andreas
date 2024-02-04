@@ -18,6 +18,15 @@
 #include "raw/anim_climb_cj.raw.h"
 #include "raw/anim_stomp_belly.raw.h"
 #include "raw/anim_stealth_kill.raw.h"
+#include "raw/anim_phone_in.raw.h"
+#include "raw/anim_phone_out.raw.h"
+#include "raw/anim_phone_idle.raw.h"
+#include "raw/anim_phone_walk_start.raw.h"
+#include "raw/anim_phone_tiptoe.raw.h"
+#include "raw/anim_phone_walk.raw.h"
+#include "raw/anim_phone_run.raw.h"
+#include "raw/anim_phone_skid.raw.h"
+#include "raw/anim_phone_skid_stop.raw.h"
 #include "raw/anim_gunpoint.raw.h"
 #include "raw/anim_gunpoint_walk_start.raw.h"
 #include "raw/anim_gunpoint_tiptoe.raw.h"
@@ -83,6 +92,15 @@ int MARIO_ANIM_CUSTOM_VENDING_MACHINE;
 int MARIO_ANIM_CUSTOM_CLIMB_CJ;
 int MARIO_ANIM_CUSTOM_STOMP_BELLY;
 int MARIO_ANIM_CUSTOM_STEALTH_KILL;
+int MARIO_ANIM_CUSTOM_PHONE_IN;
+int MARIO_ANIM_CUSTOM_PHONE_OUT;
+int MARIO_ANIM_CUSTOM_PHONE_IDLE;
+int MARIO_ANIM_CUSTOM_PHONE_WALK_START;
+int MARIO_ANIM_CUSTOM_PHONE_TIPTOE;
+int MARIO_ANIM_CUSTOM_PHONE_WALK;
+int MARIO_ANIM_CUSTOM_PHONE_RUN;
+int MARIO_ANIM_CUSTOM_PHONE_SKID;
+int MARIO_ANIM_CUSTOM_PHONE_SKID_STOP;
 int MARIO_ANIM_CUSTOM_GUNPOINT;
 int MARIO_ANIM_CUSTOM_GUNPOINT_WALK_START;
 int MARIO_ANIM_CUSTOM_GUNPOINT_TIPTOE;
@@ -125,6 +143,7 @@ int MARIO_ANIM_CUSTOM_GUNHEAVY_AIM_WALK;
 int MARIO_ANIM_CUSTOM_GUNLIGHT_AIM;
 int MARIO_ANIM_CUSTOM_GUNLIGHT_AIM_WALK;
 
+std::unordered_map<int, int> phoneAnimOverrideTable;
 std::unordered_map<int, int> gunAnimOverrideTable;
 std::unordered_map<int, int> gunSideAnimOverrideTable;
 std::unordered_map<int, int> gunShoulderAnimOverrideTable;
@@ -150,6 +169,16 @@ void marioInitCustomAnims()
     MARIO_ANIM_CUSTOM_CLIMB_CJ = sm64_custom_animation_init(marioAnimClimbCjRaw, marioAnimClimbCjRaw_length);
     MARIO_ANIM_CUSTOM_STOMP_BELLY = sm64_custom_animation_init(marioAnimStompBellyRaw, marioAnimStompBellyRaw_length);
     MARIO_ANIM_CUSTOM_STEALTH_KILL = sm64_custom_animation_init(marioAnimStealthKillRaw, marioAnimStealthKillRaw_length);
+
+    MARIO_ANIM_CUSTOM_PHONE_IN = sm64_custom_animation_init(marioAnimPhoneInRaw, marioAnimPhoneInRaw_length);
+    MARIO_ANIM_CUSTOM_PHONE_OUT = sm64_custom_animation_init(marioAnimPhoneOutRaw, marioAnimPhoneOutRaw_length);
+    MARIO_ANIM_CUSTOM_PHONE_IDLE = sm64_custom_animation_init(marioAnimPhoneIdleRaw, marioAnimPhoneIdleRaw_length);
+    MARIO_ANIM_CUSTOM_PHONE_WALK_START = sm64_custom_animation_init(marioAnimPhoneWalkStartRaw, marioAnimPhoneWalkStartRaw_length);
+    MARIO_ANIM_CUSTOM_PHONE_TIPTOE = sm64_custom_animation_init(marioAnimPhoneTiptoeRaw, marioAnimPhoneTiptoeRaw_length);
+    MARIO_ANIM_CUSTOM_PHONE_WALK = sm64_custom_animation_init(marioAnimPhoneWalkRaw, marioAnimPhoneWalkRaw_length);
+    MARIO_ANIM_CUSTOM_PHONE_RUN = sm64_custom_animation_init(marioAnimPhoneRunRaw, marioAnimPhoneRunRaw_length);
+    MARIO_ANIM_CUSTOM_PHONE_SKID = sm64_custom_animation_init(marioAnimPhoneSkidRaw, marioAnimPhoneSkidRaw_length);
+    MARIO_ANIM_CUSTOM_PHONE_SKID_STOP = sm64_custom_animation_init(marioAnimPhoneSkidStopRaw, marioAnimPhoneSkidStopRaw_length);
 
     MARIO_ANIM_CUSTOM_GUNPOINT = sm64_custom_animation_init(marioAnimGunpointRaw, marioAnimGunpointRaw_length);
     MARIO_ANIM_CUSTOM_GUNPOINT_WALK_START = sm64_custom_animation_init(marioAnimGunpointWalkStartRaw, marioAnimGunpointWalkStartRaw_length);
@@ -199,6 +228,21 @@ void marioInitCustomAnims()
     MARIO_ANIM_CUSTOM_GUNLIGHT_AIM = sm64_custom_animation_init(marioAnimGunlightAimRaw, marioAnimGunlightAimRaw_length);
     MARIO_ANIM_CUSTOM_GUNLIGHT_AIM_WALK = sm64_custom_animation_init(marioAnimGunlightAimWalkRaw, marioAnimGunlightAimWalkRaw_length);
 
+
+    phoneAnimOverrideTable = {
+        {MARIO_ANIM_IDLE_HEAD_CENTER,   MARIO_ANIM_CUSTOM_PHONE_IDLE},
+        {MARIO_ANIM_IDLE_HEAD_LEFT,     MARIO_ANIM_CUSTOM_PHONE_IDLE},
+        {MARIO_ANIM_IDLE_HEAD_RIGHT,    MARIO_ANIM_CUSTOM_PHONE_IDLE},
+        {MARIO_ANIM_FIRST_PERSON,       MARIO_ANIM_CUSTOM_PHONE_IDLE},
+        {MARIO_ANIM_WALK_PANTING,       MARIO_ANIM_CUSTOM_PHONE_IDLE},
+        {MARIO_ANIM_START_TIPTOE,       MARIO_ANIM_CUSTOM_PHONE_WALK_START},
+        {MARIO_ANIM_TIPTOE,             MARIO_ANIM_CUSTOM_PHONE_TIPTOE},
+        {MARIO_ANIM_WALKING,            MARIO_ANIM_CUSTOM_PHONE_WALK},
+        {MARIO_ANIM_RUNNING,            MARIO_ANIM_CUSTOM_PHONE_RUN},
+        {MARIO_ANIM_SKID_ON_GROUND,     MARIO_ANIM_CUSTOM_PHONE_SKID},
+        {MARIO_ANIM_STOP_SKID,          MARIO_ANIM_CUSTOM_PHONE_SKID_STOP},
+        {MARIO_ANIM_TURNING_PART1,      MARIO_ANIM_CUSTOM_PHONE_SKID},
+    };
 
     gunAnimOverrideTable = {
         {MARIO_ANIM_IDLE_HEAD_CENTER,   MARIO_ANIM_CUSTOM_GUNPOINT},

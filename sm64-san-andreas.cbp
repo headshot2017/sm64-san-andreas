@@ -194,6 +194,16 @@
 		<Unit filename="raw/anim_heavygun_idle2.raw.h" />
 		<Unit filename="raw/anim_heavygun_idle3.raw.h" />
 		<Unit filename="raw/anim_laugh01.raw.h" />
+		<Unit filename="raw/anim_phone_idle.raw.h" />
+		<Unit filename="raw/anim_phone_in.raw.h" />
+		<Unit filename="raw/anim_phone_out.raw.h" />
+		<Unit filename="raw/anim_phone_run.raw.h" />
+		<Unit filename="raw/anim_phone_skid.raw.h" />
+		<Unit filename="raw/anim_phone_skid_stop.raw.h" />
+		<Unit filename="raw/anim_phone_tiptoe.raw.h" />
+		<Unit filename="raw/anim_phone_walk.raw.h" />
+		<Unit filename="raw/anim_phone_walk_start.raw.h" />
+		<Unit filename="raw/anim_phone_walk_stop.raw.h" />
 		<Unit filename="raw/anim_pickup_slow.raw.h" />
 		<Unit filename="raw/anim_putdown_slow.raw.h" />
 		<Unit filename="raw/anim_rifle_aim.raw.h" />

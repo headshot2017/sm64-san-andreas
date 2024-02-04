@@ -5,6 +5,7 @@
 #include "CPed.h"
 
 extern RwObject* weaponObj;
+extern RwObject* phoneObj;
 extern int triangles;
 
 void marioRenderToggleDebug();
