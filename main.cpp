@@ -130,6 +130,8 @@ public:
     {
         if (!loaded) return;
         if (marioSpawned()) marioDestroy();
+
+        if (config["autospawn_mario_on_start"]) marioSpawn();
     }
 
     static void destroy()

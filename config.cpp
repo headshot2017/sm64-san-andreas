@@ -6,7 +6,8 @@
 
 std::unordered_map<std::string, int> config = {
     {"skip_sha1_checksum", 0},
-    {"use_wasapi_audio", 0}
+    {"use_wasapi_audio", 0},
+    {"autospawn_mario_on_start", 0},
 };
 
 void saveConfig()
