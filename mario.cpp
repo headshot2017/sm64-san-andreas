@@ -853,12 +853,14 @@ void marioTick(float dt)
 
                 float orX = asinf(ped->GetMatrix()->up.z);
                 float cosx = cosf(orX);
-                float cosy = ped->GetMatrix()->at.z / cosx;
+                float cosy = CLAMP(ped->GetMatrix()->at.z / cosx, 0, 1);
                 float orY = acosf(cosy);
+                if (ped->GetMatrix()->right.z < 0) orY = -orY;
                 /*
                 float orX = ped->GetMatrix()->up.z;
                 float orY = ped->GetMatrix()->right.z;
                 */
+
 
                 sm64_set_mario_angle(marioId, -orX, faceangle, -orY);
                 sm64_set_mario_torsoangle(marioId, (tiltForward ? 0.4f : 0), 0, 0);
