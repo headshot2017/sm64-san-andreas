@@ -5,6 +5,7 @@
 
 #include "../include/sm64.h"
 #include "mario_actions_object.h"
+#include "mario_actions_moving.h"
 #include "../include/types.h"
 #include "mario_step.h"
 #include "mario.h"
@@ -606,6 +607,35 @@ s32 act_vomit(struct MarioState *m) {
     return FALSE;
 }
 
+s32 act_vehicle_crawl_out(struct MarioState *m) {
+    m->actionTimer++;
+    s32 val04;
+
+    switch(m->actionState)
+    {
+        case 0:
+            val04 = (s32)((32*0.1f) * 2.0f * 0x10000);
+            set_mario_anim_with_accel(m, MARIO_ANIM_CRAWLING, val04);
+            play_step_sound(m, 26, 79);
+
+            if (m->actionTimer == 45)
+            {
+                set_mario_animation(m, MARIO_ANIM_STOP_CRAWLING);
+                m->actionState++;
+            }
+            break;
+
+        case 1:
+            if (is_anim_at_end(m))
+            {
+                set_mario_animation(m, MARIO_ANIM_STOP_CROUCHING);
+                m->actionState++;
+            }
+            break;
+    }
+    return FALSE;
+}
+
 s32 check_common_object_cancels(struct MarioState *m) {
     f32 waterSurface = m->waterLevel - 100;
     if (m->pos[1] < waterSurface) {
@@ -655,6 +685,7 @@ s32 mario_execute_object_action(struct MarioState *m) {
         case ACT_LEAVE_VEHICLE_CLOSEDOOR:  cancel = act_leave_vehicle_closedoor(m);  break;
         case ACT_VEHICLE_JACKED:           cancel = act_vehicle_jacked(m);           break;
         case ACT_VOMIT:                    cancel = act_vomit(m);                    break;
+        case ACT_VEHICLE_CRAWL_OUT:        cancel = act_vehicle_crawl_out(m);        break;
     }
     /* clang-format on */
 

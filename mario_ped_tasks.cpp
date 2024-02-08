@@ -15,6 +15,7 @@
 #include "CTaskSimpleUseGun.h"
 #include "CTaskSimpleClimb.h"
 #include "CTaskSimpleStealthKill.h"
+#include "CTaskSimpleCarGetOut.h"
 #include "CModelInfo.h"
 extern "C" {
     #include <decomp/include/sm64shared.h>
@@ -273,26 +274,54 @@ void marioPedTasks(CPlayerPed* ped, const int& marioId)
             switch(taskID)
             {
                 case TASK_SIMPLE_CAR_GET_OUT:
-                    if (marioState.action != ACT_LEAVE_VEHICLE_JUMPOUT)
-                        sm64_set_mario_action_arg(marioId, ACT_LEAVE_VEHICLE_JUMPOUT, arg);
-
-                    if (marioState.actionTimer < 7)
                     {
-                        // jumping outside
-                        CVector newPos(
-                            lerp(startPos.x, targetPos.x, marioState.actionTimer/7.f),
-                            lerp(startPos.y, targetPos.y, marioState.actionTimer/7.f),
-                            lerp(startPos.z, targetPos.z, marioState.actionTimer/7.f)
-                        );
+                        CTaskSimpleCarGetOut* subTask = (CTaskSimpleCarGetOut*)sub;
+                        if (!subTask->m_isUpsideDown)
+                        {
+                            if (marioState.action != ACT_LEAVE_VEHICLE_JUMPOUT)
+                                sm64_set_mario_action_arg(marioId, ACT_LEAVE_VEHICLE_JUMPOUT, arg);
 
-                        marioSetPos(newPos, false);
+                            if (marioState.actionTimer < 7)
+                            {
+                                // jumping outside
+                                CVector newPos(
+                                    lerp(startPos.x, targetPos.x, marioState.actionTimer/7.f),
+                                    lerp(startPos.y, targetPos.y, marioState.actionTimer/7.f),
+                                    lerp(startPos.z, targetPos.z, marioState.actionTimer/7.f)
+                                );
+
+                                marioSetPos(newPos, false);
+                            }
+                            else
+                            {
+                                // now outside
+                                marioSetPos(targetPos, false);
+                            }
+                            sm64_set_mario_faceangle(marioId, targetAngle);
+                        }
+                        else
+                        {
+                            // crawling out
+                            float faceangle = -atan2f(-targetPos.y + startPos.y, targetPos.x - startPos.x) + M_PI_2;
+
+                            if (marioState.action != ACT_VEHICLE_CRAWL_OUT)
+                                sm64_set_mario_action(marioId, ACT_VEHICLE_CRAWL_OUT);
+
+                            if (marioState.actionTimer < 45)
+                            {
+                                CVector newPos(
+                                    lerp(startPos.x, targetPos.x, marioState.actionTimer/45.f),
+                                    lerp(startPos.y, targetPos.y, marioState.actionTimer/45.f),
+                                    targetPos.z
+                                );
+
+                                marioSetPos(newPos, false);
+                            }
+                            else
+                                marioSetPos(targetPos, false);
+                            sm64_set_mario_faceangle(marioId, faceangle);
+                        }
                     }
-                    else
-                    {
-                        // now outside
-                        marioSetPos(targetPos, false);
-                    }
-                    sm64_set_mario_faceangle(marioId, targetAngle);
                     break;
 
                 case TASK_SIMPLE_CAR_CLOSE_DOOR_FROM_OUTSIDE:
@@ -331,7 +360,7 @@ void marioPedTasks(CPlayerPed* ped, const int& marioId)
     else
     {
         jumpedOut = 0;
-        if (marioState.action >= ACT_LEAVE_VEHICLE_JUMPOUT && marioState.action <= ACT_LEAVE_VEHICLE_CLOSEDOOR)
+        if (marioState.action == ACT_LEAVE_VEHICLE_JUMPOUT || marioState.action == ACT_LEAVE_VEHICLE_CLOSEDOOR || marioState.action == ACT_VEHICLE_CRAWL_OUT)
             sm64_set_mario_action(marioId, ACT_IDLE);
     }
 
