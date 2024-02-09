@@ -928,7 +928,7 @@ void marioTick(float dt)
                     {
                         const auto hier = GetAnimHierarchyFromSkinClump(lookAt->m_pEntity->m_pRwClump);
                         if (hier)
-                            headPosRw = *RwMatrixGetPos(&RpHAnimHierarchyGetMatrixArray(hier)[RpHAnimIDGetIndex(hier, BONE_HEAD)]);
+                            headPosRw = *RwMatrixGetPos(&RpHAnimHierarchyGetMatrixArray(hier)[RpHAnimIDGetIndex(hier, BONE_NECK)]);
                         else
                             ((CPed*)lookAt->m_pEntity)->GetBonePosition(headPosRw, BONE_NECK, false);
                     }
