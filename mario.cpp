@@ -923,8 +923,17 @@ void marioTick(float dt)
                 // part 2: pitch
                 if (!ped->m_nPedFlags.bInVehicle)
                 {
-                    float dist = DistanceBetweenPoints(CVector2D(marioCurrPos), CVector2D(targetPos)) * 2.f;
-                    int Zsign = -sign(targetPos.z - marioCurrPos.z);
+                    RwV3d headPosRw = targetPos.ToRwV3d();
+                    if (lookAt->m_bEntityExist && lookAt->m_pEntity->m_nType == ENTITY_TYPE_PED)
+                    {
+                        const auto hier = GetAnimHierarchyFromSkinClump(lookAt->m_pEntity->m_pRwClump);
+                        if (hier)
+                            headPosRw = *RwMatrixGetPos(&RpHAnimHierarchyGetMatrixArray(hier)[RpHAnimIDGetIndex(hier, BONE_HEAD)]);
+                        else
+                            ((CPed*)lookAt->m_pEntity)->GetBonePosition(headPosRw, BONE_NECK, false);
+                    }
+                    float dist = DistanceBetweenPoints(CVector2D(marioCurrPos), CVector2D(headPosRw)) * 2.f;
+                    int Zsign = -sign(headPosRw.z - marioCurrPos.z);
                     headAngleTarget[0] = (dist) ? (M_PI_2 * Zsign) / dist : 0;
                     if (headAngleTarget[0] < -M_PI || headAngleTarget[0] > M_PI) headAngleTarget[0] = 0;
                 }
