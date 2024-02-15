@@ -12,6 +12,7 @@
 #include "CPlayerPed.h"
 #include "CWorld.h"
 #include "CGame.h"
+#include "CMessages.h"
 #include "CTaskSimpleIKLookAt.h"
 #include "CTaskSimpleIKManager.h"
 #include "CTaskSimpleUseGun.h"
@@ -26,6 +27,7 @@ extern "C" {
     #include <decomp/include/audio_defines.h>
     #include <decomp/include/surface_terrains.h>
     #include <decomp/include/sm64shared.h>
+    #include <decomp/include/mario_animation_ids.h>
 }
 
 #include "d3d9_funcs.h"
@@ -108,6 +110,81 @@ int marioId = -1;
 float ticks = 0;
 static float headAngle[2] = {0};
 
+
+uint8_t* EulerIndices1 = (uint8_t*)0x866D9C;
+uint8_t* EulerIndices2 = (uint8_t*)0x866D94;
+enum eMatrixEulerFlags : uint32_t {
+    TAIT_BRYAN_ANGLES = 0x0,
+    SWAP_XZ = 0x01,
+    EULER_ANGLES = 0x2,
+    _ORDER_NEEDS_SWAP = 0x4,
+};
+void ConvertToEulerAngles(RwMatrix* m, float* pX, float* pY, float* pZ, uint32_t uiFlags)
+{
+    /*
+        CVector m_right;        // 0x0  // RW: Right
+        CVector m_forward;      // 0x10 // RW: Up
+        CVector m_up;           // 0x20 // RW: At
+    */
+
+    float fArr[3][3];
+
+    fArr[0][0] = m->right.x;
+    fArr[0][1] = m->right.y;
+    fArr[0][2] = m->right.z;
+
+    fArr[1][0] = m->up.x;
+    fArr[1][1] = m->up.y;
+    fArr[1][2] = m->up.z;
+
+    fArr[2][0] = m->at.x;
+    fArr[2][1] = m->at.y;
+    fArr[2][2] = m->at.z;
+
+    int8_t iInd1 = EulerIndices1[(uiFlags >> 3) & 0x3];
+    int8_t iInd2 = EulerIndices2[iInd1 + ((uiFlags & 0x4) != 0)];
+    int8_t iInd3 = EulerIndices2[iInd1 - ((uiFlags & 0x4) != 0) + 1];
+
+    if (uiFlags & EULER_ANGLES) {
+        auto r13 = fArr[iInd1][iInd3];
+        auto r12 = fArr[iInd1][iInd2];
+        auto cy = sqrt(r12 * r12 + r13 * r13);
+        if (cy > 0.0000019073486) { // Some epsilon?
+            *pX = atan2(r12, r13);
+            *pY = atan2(cy, fArr[iInd1][iInd1]);
+            *pZ = atan2(fArr[iInd2][iInd3], -fArr[iInd3][iInd1]);
+        }
+        else {
+            *pX = atan2(-fArr[iInd2][iInd3], fArr[iInd2][iInd2]);
+            *pY = atan2(cy, fArr[iInd1][iInd1]);
+            *pZ = 0.0F;
+        }
+    }
+    else {
+        auto r21 = fArr[iInd2][iInd1];
+        auto r11 = fArr[iInd1][iInd1];
+        auto cy = sqrt(r11 * r11 + r21 * r21);
+        if (cy > 0.0000019073486) { // Some epsilon?
+            *pX = atan2(fArr[iInd3][iInd2], fArr[iInd3][iInd3]);
+            *pY = atan2(-fArr[iInd3][iInd1], cy);
+            *pZ = atan2(r21, r11);
+        }
+        else {
+            *pX = atan2(-fArr[iInd2][iInd3], fArr[iInd2][iInd2]);
+            *pY = atan2(-fArr[iInd3][iInd1], cy);
+            *pZ = 0.0F;
+        }
+    }
+
+    if (uiFlags & SWAP_XZ)
+        std::swap(*pX, *pZ);
+
+    if (uiFlags & _ORDER_NEEDS_SWAP) {
+        *pX = -*pX;
+        *pY = -*pY;
+        *pZ = -*pZ;
+    }
+}
 
 bool removeObject(CEntity* ent)
 {
@@ -778,13 +855,223 @@ void marioTick(float dt)
     }
 
     static bool lastCutsceneRunning = false;
-    if (CCutsceneMgr::ms_running && !lastCutsceneRunning)
+    if (CCutsceneMgr::ms_running)
     {
-        lastCutsceneRunning = true;
-        marioSetPos(ped->GetPosition());
+        if (!lastCutsceneRunning)
+        {
+            lastCutsceneRunning = true;
+            marioSetPos(ped->GetPosition());
+        }
+        /*
+        if (marioState.action != ACT_CUTSCENE)
+        {
+            sm64_set_mario_action(marioId, ACT_CUTSCENE);
+            sm64_set_mario_animation(marioId, MARIO_ANIM_CUSTOM_CUTSCENE);
+        }
+
+        ped->m_nPedFlags.bDontRender = 0;
+        ped->m_bIsVisible = 1;
+
+        for (uint32_t i=0; i<CCutsceneMgr::ms_numCutsceneObjs; i++)
+        {
+            if (CCutsceneMgr::ms_pCutsceneObjects[i]->m_nModelIndex == 1) // CJ
+            {
+                float orX, orY, orZ;
+                auto getAngle = [](RwMatrix* m, float& orX, float& orY, float& orZ){
+                    orX = asinf(m->up.z);
+                    float cosx = cosf(orX);
+                    float cosy = CLAMP(m->at.z / cosx, 0, 1);
+                    orY = acosf(cosy);
+                    float cosz = CLAMP(m->up.y / cosx, 0, 1);
+                    orZ = acosf(cosz);
+                    //if (m->right.z < 0) orZ = -orZ;
+                };
+
+                RpHAnimHierarchy* hier = GetAnimHierarchyFromSkinClump(CCutsceneMgr::ms_pCutsceneObjects[i]->m_pRwClump);
+                RwMatrix* root = &RpHAnimHierarchyGetMatrixArray(hier)[RpHAnimIDGetIndex(hier, 0)];
+                ConvertToEulerAngles(root, &orX, &orY, &orZ, 0);
+                float heading = -orZ - M_PI_2;
+                while (heading < -M_PI) heading += M_PI*2;
+
+                CVector cutscenePos;
+                cutscenePos.FromRwV3d(*RwMatrixGetPos(root));
+                ped->SetPosn(cutscenePos);
+                ped->SetHeading(heading);
+
+                RwMatrix* neck = &RpHAnimHierarchyGetMatrixArray(hier)[RpHAnimIDGetIndex(hier, BONE_NECK)];
+                getAngle(neck, orX, orY, orZ);
+                sm64_set_mario_headangle(marioId, -neck->up.z, neck->at.z, -orY + M_PI_2);
+
+
+
+                RwMatrix* lshoulder = &RpHAnimHierarchyGetMatrixArray(hier)[RpHAnimIDGetIndex(hier, BONE_LEFTSHOULDER)];
+                ConvertToEulerAngles(lshoulder, &orX, &orY, &orZ, EULER_ANGLES);
+                float lshoulderX = orX - M_PI;
+                float lshoulderY = -orY + M_PI_2;
+                while (lshoulderX < -M_PI) lshoulderX += M_PI*2;
+                while (lshoulderX > M_PI) lshoulderX -= M_PI*2;
+                while (lshoulderY < -M_PI) lshoulderY += M_PI*2;
+                while (lshoulderY > M_PI) lshoulderY -= M_PI*2;
+                //sm64_set_mario_leftarm_angle(marioId, lshoulderX, lshoulderY, 0);
+
+                RwMatrix* lelbow = &RpHAnimHierarchyGetMatrixArray(hier)[RpHAnimIDGetIndex(hier, BONE_LEFTELBOW)];
+                ConvertToEulerAngles(lelbow, &orX, &orY, &orZ, EULER_ANGLES);
+
+                static int keyPressTime = 0;
+                static int lelbowModify = 0;
+                static int lelbowSigns[3] = {1,1,1};
+                static float lelbowOffsets[3] = {0,0,0};
+                static char lelbowNames[3] = {'X', 'Y', 'Z'};
+                static char lelbowBuf[256];
+                static int lelbowArgs[3] = {0,1,2};
+                static bool lelbowOn[3] = {true,true,true};
+                if (plugin::KeyPressed(VK_NUMPAD1))
+                {
+                    lelbowModify = 0;
+                    CHud::SetMessage("modifying lelbowX");
+                }
+                if (plugin::KeyPressed(VK_NUMPAD2))
+                {
+                    lelbowModify = 1;
+                    CHud::SetMessage("modifying lelbowY");
+                }
+                if (plugin::KeyPressed(VK_NUMPAD3))
+                {
+                    lelbowModify = 2;
+                    CHud::SetMessage("modifying lelbowZ");
+                }
+                if (plugin::KeyPressed(VK_NUMPAD0) && CTimer::m_snTimeInMilliseconds - keyPressTime > 250)
+                {
+                    keyPressTime = CTimer::m_snTimeInMilliseconds;
+                    lelbowSigns[lelbowModify] = -lelbowSigns[lelbowModify];
+                    sprintf(lelbowBuf, "changed sign for lelbow%c: %sor%c", lelbowNames[lelbowModify], (lelbowSigns[lelbowModify] < 0) ? "-" : "", lelbowNames[lelbowModify]);
+                    CMessages::AddMessageJumpQ(lelbowBuf, 2000, 0, false);
+                }
+                if (plugin::KeyPressed(VK_ADD) && CTimer::m_snTimeInMilliseconds - keyPressTime > 250)
+                {
+                    keyPressTime = CTimer::m_snTimeInMilliseconds;
+                    lelbowOffsets[lelbowModify] += M_PI_4;
+                    sprintf(lelbowBuf, "add offset for lelbow%c: %.3f", lelbowNames[lelbowModify], lelbowOffsets[lelbowModify]);
+                    CMessages::AddMessageJumpQ(lelbowBuf, 2000, 0, false);
+                }
+                if (plugin::KeyPressed(VK_SUBTRACT) && CTimer::m_snTimeInMilliseconds - keyPressTime > 250)
+                {
+                    keyPressTime = CTimer::m_snTimeInMilliseconds;
+                    lelbowOffsets[lelbowModify] -= M_PI_4;
+                    sprintf(lelbowBuf, "subtract offset for lelbow%c: %.3f", lelbowNames[lelbowModify], lelbowOffsets[lelbowModify]);
+                    CMessages::AddMessageJumpQ(lelbowBuf, 2000, 0, false);
+                }
+                if (plugin::KeyPressed(VK_PRINT) && CTimer::m_snTimeInMilliseconds - keyPressTime > 250)
+                {
+                    keyPressTime = CTimer::m_snTimeInMilliseconds;
+                }
+                if (plugin::KeyPressed(VK_MULTIPLY))
+                {
+                    sprintf(lelbowBuf, "%sorX + %.3f, %sorY + %.3f, %sorZ + %.3f, lelbow%c %s, lelbow%c %s, lelbow%c %s", lelbowSigns[0] < 0 ? "-" : "", lelbowOffsets[0], lelbowSigns[1] < 0 ? "-" : "", lelbowOffsets[1], lelbowSigns[2] < 0 ? "-" : "", lelbowOffsets[2], lelbowNames[lelbowArgs[0]], lelbowOn[0]?"true":"false", lelbowNames[lelbowArgs[1]], lelbowOn[1]?"true":"false", lelbowNames[lelbowArgs[2]], lelbowOn[2]?"true":"false");
+                    CHud::SetMessage(lelbowBuf);
+                }
+                if (plugin::KeyPressed(VK_NUMPAD7) && CTimer::m_snTimeInMilliseconds - keyPressTime > 250)
+                {
+                    keyPressTime = CTimer::m_snTimeInMilliseconds;
+                    lelbowArgs[0] = (lelbowArgs[0]+1) % 3;
+                    sprintf(lelbowBuf, "sm64_set_mario_leftarm_angle argument 1 is now lelbow%c", lelbowNames[lelbowArgs[0]]);
+                    CMessages::AddMessageJumpQ(lelbowBuf, 2000, 0, false);
+                }
+                if (plugin::KeyPressed(VK_NUMPAD8) && CTimer::m_snTimeInMilliseconds - keyPressTime > 250)
+                {
+                    keyPressTime = CTimer::m_snTimeInMilliseconds;
+                    lelbowArgs[1] = (lelbowArgs[1]+1) % 3;
+                    sprintf(lelbowBuf, "sm64_set_mario_leftarm_angle argument 2 is now lelbow%c", lelbowNames[lelbowArgs[1]]);
+                    CMessages::AddMessageJumpQ(lelbowBuf, 2000, 0, false);
+                }
+                if (plugin::KeyPressed(VK_NUMPAD9) && CTimer::m_snTimeInMilliseconds - keyPressTime > 250)
+                {
+                    keyPressTime = CTimer::m_snTimeInMilliseconds;
+                    lelbowArgs[2] = (lelbowArgs[2]+1) % 3;
+                    sprintf(lelbowBuf, "sm64_set_mario_leftarm_angle argument 3 is now lelbow%c", lelbowNames[lelbowArgs[2]]);
+                    CMessages::AddMessageJumpQ(lelbowBuf, 2000, 0, false);
+                }
+                if (plugin::KeyPressed(VK_NUMPAD4) && CTimer::m_snTimeInMilliseconds - keyPressTime > 250)
+                {
+                    keyPressTime = CTimer::m_snTimeInMilliseconds;
+                    lelbowOn[0] = !lelbowOn[0];
+                    sprintf(lelbowBuf, "sm64_set_mario_leftarm_angle argument 1 is now %s", lelbowOn[0]?"true":"false");
+                    CMessages::AddMessageJumpQ(lelbowBuf, 2000, 0, false);
+                }
+                if (plugin::KeyPressed(VK_NUMPAD5) && CTimer::m_snTimeInMilliseconds - keyPressTime > 250)
+                {
+                    keyPressTime = CTimer::m_snTimeInMilliseconds;
+                    lelbowOn[1] = !lelbowOn[1];
+                    sprintf(lelbowBuf, "sm64_set_mario_leftarm_angle argument 2 is now %s", lelbowOn[1]?"true":"false");
+                    CMessages::AddMessageJumpQ(lelbowBuf, 2000, 0, false);
+                }
+                if (plugin::KeyPressed(VK_NUMPAD6) && CTimer::m_snTimeInMilliseconds - keyPressTime > 250)
+                {
+                    keyPressTime = CTimer::m_snTimeInMilliseconds;
+                    lelbowOn[2] = !lelbowOn[2];
+                    sprintf(lelbowBuf, "sm64_set_mario_leftarm_angle argument 3 is now %s", lelbowOn[2]?"true":"false");
+                    CMessages::AddMessageJumpQ(lelbowBuf, 2000, 0, false);
+                }
+
+                float lelbowX = (orX * lelbowSigns[0]) + lelbowOffsets[0];
+                float lelbowY = (orY * lelbowSigns[1]) + lelbowOffsets[1];
+                float lelbowZ = (orZ * lelbowSigns[2]) + lelbowOffsets[2];
+                while (lelbowX < -M_PI) lelbowX += M_PI*2;
+                while (lelbowX > M_PI) lelbowX -= M_PI*2;
+                while (lelbowY < -M_PI) lelbowY += M_PI*2;
+                while (lelbowY > M_PI) lelbowY -= M_PI*2;
+                while (lelbowZ < -M_PI) lelbowZ += M_PI*2;
+                while (lelbowZ > M_PI) lelbowZ -= M_PI*2;
+                float args[3] = {
+                    (lelbowArgs[0] == 0) ? lelbowX : (lelbowArgs[0] == 1) ? lelbowY : lelbowZ,
+                    (lelbowArgs[1] == 0) ? lelbowX : (lelbowArgs[1] == 1) ? lelbowY : lelbowZ,
+                    (lelbowArgs[2] == 0) ? lelbowX : (lelbowArgs[2] == 1) ? lelbowY : lelbowZ,
+                };
+                sm64_set_mario_leftarm_angle(marioId, (lelbowOn[0] ? args[0] : 0), (lelbowOn[1] ? args[1] : 0), (lelbowOn[2] ? args[2] : 0));
+                //char buf[256];
+                //sprintf(buf, "%.3f %.3f %.3f - %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f %.3f", (orX - M_PI), lelbowY, orZ, lelbow->right.x, lelbow->right.y, lelbow->right.z, lelbow->up.x, lelbow->up.y, lelbow->up.z, lelbow->at.x, lelbow->at.y, lelbow->at.z);
+                //CHud::SetMessage(buf);
+
+                RwMatrix* rshoulder = &RpHAnimHierarchyGetMatrixArray(hier)[RpHAnimIDGetIndex(hier, BONE_RIGHTSHOULDER)];
+                getAngle(rshoulder, orX, orY, orZ);
+                //sm64_set_mario_rightarm_angle(marioId, -orX, -orZ + M_PI_2, -orY + M_PI_2);
+                //sm64_set_mario_rightarm_angle(marioId, rshoulder->up.z, 0, 0);
+
+                RwMatrix* relbow = &RpHAnimHierarchyGetMatrixArray(hier)[RpHAnimIDGetIndex(hier, BONE_RIGHTELBOW)];
+                ConvertToEulerAngles(relbow, &orX, &orY, &orZ, EULER_ANGLES);
+                float relbowX = orX - M_PI;
+                float relbowY = -orY + M_PI_2;
+                float relbowZ = orZ;
+                while (relbowX < -M_PI) relbowX += M_PI*2;
+                while (relbowX > M_PI) relbowX -= M_PI*2;
+                while (relbowY < -M_PI) relbowY += M_PI*2;
+                while (relbowY > M_PI) relbowY -= M_PI*2;
+                while (relbowZ < -M_PI) relbowZ += M_PI*2;
+                while (relbowZ > M_PI) relbowZ -= M_PI*2;
+                //sm64_set_mario_rightarm_angle(marioId, relbowX, relbowY, relbowZ);
+
+                break;
+            }
+        }
+        */
     }
     else if (!CCutsceneMgr::ms_running && lastCutsceneRunning)
+    {
         lastCutsceneRunning = false;
+        sm64_set_mario_action(marioId, ACT_IDLE);
+        sm64_set_mario_leftarm_angle(marioId, 0,0,0);
+        sm64_set_mario_leftforearm_angle(marioId, 0,0,0);
+        sm64_set_mario_lefthand_angle(marioId, 0,0,0);
+        sm64_set_mario_leftleg_angle(marioId, 0,0,0);
+        sm64_set_mario_leftankle_angle(marioId, 0,0,0);
+        sm64_set_mario_leftfoot_angle(marioId, 0,0,0);
+        sm64_set_mario_rightarm_angle(marioId, 0,0,0);
+        sm64_set_mario_rightforearm_angle(marioId, 0,0,0);
+        sm64_set_mario_righthand_angle(marioId, 0,0,0);
+        sm64_set_mario_rightleg_angle(marioId, 0,0,0);
+        sm64_set_mario_rightankle_angle(marioId, 0,0,0);
+        sm64_set_mario_rightfoot_angle(marioId, 0,0,0);
+    }
 
     static int lastFade = 0;
     if (lastFade != TheCamera.GetScreenFadeStatus())
@@ -940,8 +1227,12 @@ void marioTick(float dt)
             }
         }
 
-        for (int i=0; i<2; i++) headAngle[i] += (headAngleTarget[i] - headAngle[i])/5.f;
-        sm64_set_mario_headangle(marioId, headAngle[0], headAngle[1], 0);
+        if (!CCutsceneMgr::ms_running)
+        {
+            for (int i=0; i<2; i++) headAngle[i] += (headAngleTarget[i] - headAngle[i])/5.f;
+            sm64_set_mario_headangle(marioId, headAngle[0], headAngle[1], 0);
+        }
+
         if (!cjHasControl)
         {
             bool modifiedAngle = (headAngleTarget[0] || headAngleTarget[1]);

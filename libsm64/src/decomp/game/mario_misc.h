@@ -17,6 +17,16 @@ Gfx *geo_switch_mario_eyes(s32 callContext, struct GraphNode *node, UNUSED Mat4 
 Gfx *geo_mario_tilt_torso(s32 callContext, struct GraphNode *node, UNUSED Mat4 *c);
 Gfx *geo_mario_tilt_left_arm(s32 callContext, struct GraphNode *node, UNUSED Mat4 *c);
 Gfx *geo_mario_tilt_right_arm(s32 callContext, struct GraphNode *node, UNUSED Mat4 *c);
+Gfx *geo_mario_tilt_left_forearm(s32 callContext, struct GraphNode *node, UNUSED Mat4 *c);
+Gfx *geo_mario_tilt_right_forearm(s32 callContext, struct GraphNode *node, UNUSED Mat4 *c);
+Gfx *geo_mario_tilt_left_hand(s32 callContext, struct GraphNode *node, UNUSED Mat4 *c);
+Gfx *geo_mario_tilt_right_hand(s32 callContext, struct GraphNode *node, UNUSED Mat4 *c);
+Gfx *geo_mario_tilt_left_leg(s32 callContext, struct GraphNode *node, UNUSED Mat4 *c);
+Gfx *geo_mario_tilt_right_leg(s32 callContext, struct GraphNode *node, UNUSED Mat4 *c);
+Gfx *geo_mario_tilt_left_ankle(s32 callContext, struct GraphNode *node, UNUSED Mat4 *c);
+Gfx *geo_mario_tilt_right_ankle(s32 callContext, struct GraphNode *node, UNUSED Mat4 *c);
+Gfx *geo_mario_tilt_left_foot(s32 callContext, struct GraphNode *node, UNUSED Mat4 *c);
+Gfx *geo_mario_tilt_right_foot(s32 callContext, struct GraphNode *node, UNUSED Mat4 *c);
 Gfx *geo_mario_head_rotation(s32 callContext, struct GraphNode *node, UNUSED Mat4 *c);
 Gfx *geo_switch_mario_hand(s32 callContext, struct GraphNode *node, UNUSED Mat4 *c);
 Gfx *geo_mario_hand_foot_scaler(s32 callContext, struct GraphNode *node, UNUSED Mat4 *c);

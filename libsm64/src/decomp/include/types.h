@@ -249,6 +249,16 @@ struct MarioBodyState
 
     Vec3s leftArmAngle; // sm64-san-andreas: added field
     Vec3s rightArmAngle; // sm64-san-andreas: added field
+    Vec3s leftForeArmAngle; // sm64-san-andreas: added field
+    Vec3s rightForeArmAngle; // sm64-san-andreas: added field
+    Vec3s leftHandAngle; // sm64-san-andreas: added field
+    Vec3s rightHandAngle; // sm64-san-andreas: added field
+    Vec3s leftLegAngle; // sm64-san-andreas: added field
+    Vec3s rightLegAngle; // sm64-san-andreas: added field
+    Vec3s leftAnkleAngle; // sm64-san-andreas: added field
+    Vec3s rightAnkleAngle; // sm64-san-andreas: added field
+    Vec3s leftFootAngle; // sm64-san-andreas: added field
+    Vec3s rightFootAngle; // sm64-san-andreas: added field
     s16 animOverrideWanted; // sm64-san-andreas: added field
 };
 

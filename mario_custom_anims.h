@@ -71,6 +71,7 @@ extern int MARIO_ANIM_CUSTOM_GUNHEAVY_AIM;
 extern int MARIO_ANIM_CUSTOM_GUNHEAVY_AIM_WALK;
 extern int MARIO_ANIM_CUSTOM_GUNLIGHT_AIM;
 extern int MARIO_ANIM_CUSTOM_GUNLIGHT_AIM_WALK;
+extern int MARIO_ANIM_CUSTOM_CUTSCENE;
 
 extern std::unordered_map<int, int> phoneAnimOverrideTable;
 extern std::unordered_map<int, int> gunAnimOverrideTable;

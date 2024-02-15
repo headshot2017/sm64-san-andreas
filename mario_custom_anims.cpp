@@ -68,6 +68,7 @@
 #include "raw/anim_gunheavy_aim_walk.raw.h"
 #include "raw/anim_gunlight_aim.raw.h"
 #include "raw/anim_gunlight_aim_walk.raw.h"
+#include "raw/anim_cutscene.raw.h"
 
 extern "C" {
     #include <libsm64.h>
@@ -142,6 +143,7 @@ int MARIO_ANIM_CUSTOM_GUNHEAVY_AIM;
 int MARIO_ANIM_CUSTOM_GUNHEAVY_AIM_WALK;
 int MARIO_ANIM_CUSTOM_GUNLIGHT_AIM;
 int MARIO_ANIM_CUSTOM_GUNLIGHT_AIM_WALK;
+int MARIO_ANIM_CUSTOM_CUTSCENE;
 
 std::unordered_map<int, int> phoneAnimOverrideTable;
 std::unordered_map<int, int> gunAnimOverrideTable;
@@ -227,6 +229,8 @@ void marioInitCustomAnims()
 
     MARIO_ANIM_CUSTOM_GUNLIGHT_AIM = sm64_custom_animation_init(marioAnimGunlightAimRaw, marioAnimGunlightAimRaw_length);
     MARIO_ANIM_CUSTOM_GUNLIGHT_AIM_WALK = sm64_custom_animation_init(marioAnimGunlightAimWalkRaw, marioAnimGunlightAimWalkRaw_length);
+
+    MARIO_ANIM_CUSTOM_CUTSCENE = sm64_custom_animation_init(marioAnimCutsceneRaw, marioAnimCutsceneRaw_length);
 
 
     phoneAnimOverrideTable = {

@@ -133,9 +133,17 @@ const GeoLayout mario_geo_body[] = {
                   GEO_OPEN_NODE(),
                      GEO_ANIMATED_PART(LAYER_OPAQUE, 0, 0, 0, mario_left_arm), // starts sharing solid color with mario_left_forearm (red)
                      GEO_OPEN_NODE(),
-                        GEO_ANIMATED_PART(LAYER_OPAQUE, 65, 0, 0, mario_left_forearm_shared_dl),
+                        GEO_ASM(0, geo_mario_tilt_left_forearm),
+                        GEO_ROTATION_NODE(0x00, 0, 0, 0),
                         GEO_OPEN_NODE(),
-                           GEO_BRANCH(1, mario_geo_left_hand), // stops sharing because hand has its solid color (white)
+                           GEO_ANIMATED_PART(LAYER_OPAQUE, 65, 0, 0, mario_left_forearm_shared_dl),
+                           GEO_OPEN_NODE(),
+                              GEO_ASM(0, geo_mario_tilt_left_hand),
+                              GEO_ROTATION_NODE(0x00, 0, 0, 0),
+                              GEO_OPEN_NODE(),
+                                 GEO_BRANCH(1, mario_geo_left_hand), // stops sharing because hand has its solid color (white)
+                              GEO_CLOSE_NODE(),
+                           GEO_CLOSE_NODE(),
                         GEO_CLOSE_NODE(),
                      GEO_CLOSE_NODE(),
                   GEO_CLOSE_NODE(),
@@ -147,9 +155,17 @@ const GeoLayout mario_geo_body[] = {
                   GEO_OPEN_NODE(),
                      GEO_ANIMATED_PART(LAYER_OPAQUE, 0, 0, 0, mario_right_arm), // starts sharing solid color of his dl with mario_right_forearm (red)
                      GEO_OPEN_NODE(),
-                        GEO_ANIMATED_PART(LAYER_OPAQUE, 65, 0, 0, mario_right_forearm_shared_dl),
+                        GEO_ASM(0, geo_mario_tilt_right_forearm),
+                        GEO_ROTATION_NODE(0x00, 0, 0, 0),
                         GEO_OPEN_NODE(),
-                           GEO_BRANCH(1, mario_geo_right_hand), // stops sharing because hand has its solid color (white)
+                           GEO_ANIMATED_PART(LAYER_OPAQUE, 65, 0, 0, mario_right_forearm_shared_dl),
+                           GEO_OPEN_NODE(),
+                              GEO_ASM(0, geo_mario_tilt_right_hand),
+                              GEO_ROTATION_NODE(0x00, 0, 0, 0),
+                              GEO_OPEN_NODE(),
+                                 GEO_BRANCH(1, mario_geo_right_hand), // stops sharing because hand has its solid color (white)
+                              GEO_CLOSE_NODE(),
+                           GEO_CLOSE_NODE(),
                         GEO_CLOSE_NODE(),
                      GEO_CLOSE_NODE(),
                   GEO_CLOSE_NODE(),

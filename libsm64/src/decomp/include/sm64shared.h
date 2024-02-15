@@ -415,6 +415,7 @@
 #define ACT_VEHICLE_JACKED             0x0000039A // (0x19A | ACT_FLAG_STATIONARY) (custom libsm64 GTA SA action)
 #define ACT_VOMIT                      0x0000039B // (0x19B | ACT_FLAG_STATIONARY) (custom libsm64 GTA SA action)
 #define ACT_VEHICLE_CRAWL_OUT          0x0000039C // (0x19C | ACT_FLAG_STATIONARY) (custom libsm64 GTA SA action)
+#define ACT_CUTSCENE                   0x0002039D // (0x19D | ACT_FLAG_STATIONARY | ACT_FLAG_INTANGIBLE | ACT_FLAG_INVULNERABLE) (custom libsm64 GTA SA action)
 
 /*
  this input mask is unused by the controller,

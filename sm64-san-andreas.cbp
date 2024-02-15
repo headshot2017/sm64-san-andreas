@@ -156,6 +156,7 @@
 		<Unit filename="raw/anim_close_car_door_left.raw.h" />
 		<Unit filename="raw/anim_close_car_door_right.raw.h" />
 		<Unit filename="raw/anim_crib_use_switch.raw.h" />
+		<Unit filename="raw/anim_cutscene.raw.h" />
 		<Unit filename="raw/anim_dance_bad.raw.h" />
 		<Unit filename="raw/anim_dance_good.raw.h" />
 		<Unit filename="raw/anim_dance_loop.raw.h" />

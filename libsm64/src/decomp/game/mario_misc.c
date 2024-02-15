@@ -392,7 +392,7 @@ Gfx *geo_mario_tilt_torso(s32 callContext, struct GraphNode *node, UNUSED Mat4 *
         struct GraphNodeRotation *rotNode = (struct GraphNodeRotation *) node->next;
 
         if (action != ACT_BUTT_SLIDE && action != ACT_HOLD_BUTT_SLIDE && action != ACT_WALKING
-            && action != ACT_RIDING_SHELL_GROUND && action != ACT_DRIVING_VEHICLE && action != ACT_IDLE) {
+            && action != ACT_RIDING_SHELL_GROUND && action != ACT_DRIVING_VEHICLE && action != ACT_IDLE && action != ACT_CUTSCENE) {
             vec3s_copy(bodyState->torsoAngle, gVec3sZero);
         }
         rotNode->rotation[0] = bodyState->torsoAngle[1];
@@ -419,7 +419,6 @@ Gfx *geo_mario_tilt_left_arm(s32 callContext, struct GraphNode *node, UNUSED Mat
 Gfx *geo_mario_tilt_right_arm(s32 callContext, struct GraphNode *node, UNUSED Mat4 *c) {
     struct GraphNodeGenerated *asGenerated = (struct GraphNodeGenerated *) node;
     struct MarioBodyState *bodyState = &gBodyStates[asGenerated->parameter];
-    s32 action = bodyState->action;
 
     if (callContext == GEO_CONTEXT_RENDER) {
         struct GraphNodeRotation *rotNode = (struct GraphNodeRotation *) node->next;
@@ -427,6 +426,146 @@ Gfx *geo_mario_tilt_right_arm(s32 callContext, struct GraphNode *node, UNUSED Ma
         rotNode->rotation[0] = bodyState->rightArmAngle[1];
         rotNode->rotation[1] = bodyState->rightArmAngle[2];
         rotNode->rotation[2] = bodyState->rightArmAngle[0];
+    }
+    return NULL;
+}
+
+Gfx *geo_mario_tilt_left_forearm(s32 callContext, struct GraphNode *node, UNUSED Mat4 *c) {
+    struct GraphNodeGenerated *asGenerated = (struct GraphNodeGenerated *) node;
+    struct MarioBodyState *bodyState = &gBodyStates[asGenerated->parameter];
+
+    if (callContext == GEO_CONTEXT_RENDER) {
+        struct GraphNodeRotation *rotNode = (struct GraphNodeRotation *) node->next;
+
+        rotNode->rotation[0] = bodyState->leftForeArmAngle[1];
+        rotNode->rotation[1] = bodyState->leftForeArmAngle[2];
+        rotNode->rotation[2] = bodyState->leftForeArmAngle[0];
+    }
+    return NULL;
+}
+
+Gfx *geo_mario_tilt_right_forearm(s32 callContext, struct GraphNode *node, UNUSED Mat4 *c) {
+    struct GraphNodeGenerated *asGenerated = (struct GraphNodeGenerated *) node;
+    struct MarioBodyState *bodyState = &gBodyStates[asGenerated->parameter];
+
+    if (callContext == GEO_CONTEXT_RENDER) {
+        struct GraphNodeRotation *rotNode = (struct GraphNodeRotation *) node->next;
+
+        rotNode->rotation[0] = bodyState->rightForeArmAngle[1];
+        rotNode->rotation[1] = bodyState->rightForeArmAngle[2];
+        rotNode->rotation[2] = bodyState->rightForeArmAngle[0];
+    }
+    return NULL;
+}
+
+Gfx *geo_mario_tilt_left_hand(s32 callContext, struct GraphNode *node, UNUSED Mat4 *c) {
+    struct GraphNodeGenerated *asGenerated = (struct GraphNodeGenerated *) node;
+    struct MarioBodyState *bodyState = &gBodyStates[asGenerated->parameter];
+
+    if (callContext == GEO_CONTEXT_RENDER) {
+        struct GraphNodeRotation *rotNode = (struct GraphNodeRotation *) node->next;
+
+        rotNode->rotation[0] = bodyState->leftHandAngle[1];
+        rotNode->rotation[1] = bodyState->leftHandAngle[2];
+        rotNode->rotation[2] = bodyState->leftHandAngle[0];
+    }
+    return NULL;
+}
+
+Gfx *geo_mario_tilt_right_hand(s32 callContext, struct GraphNode *node, UNUSED Mat4 *c) {
+    struct GraphNodeGenerated *asGenerated = (struct GraphNodeGenerated *) node;
+    struct MarioBodyState *bodyState = &gBodyStates[asGenerated->parameter];
+
+    if (callContext == GEO_CONTEXT_RENDER) {
+        struct GraphNodeRotation *rotNode = (struct GraphNodeRotation *) node->next;
+
+        rotNode->rotation[0] = bodyState->rightHandAngle[1];
+        rotNode->rotation[1] = bodyState->rightHandAngle[2];
+        rotNode->rotation[2] = bodyState->rightHandAngle[0];
+    }
+    return NULL;
+}
+
+Gfx *geo_mario_tilt_left_leg(s32 callContext, struct GraphNode *node, UNUSED Mat4 *c) {
+    struct GraphNodeGenerated *asGenerated = (struct GraphNodeGenerated *) node;
+    struct MarioBodyState *bodyState = &gBodyStates[asGenerated->parameter];
+
+    if (callContext == GEO_CONTEXT_RENDER) {
+        struct GraphNodeRotation *rotNode = (struct GraphNodeRotation *) node->next;
+
+        rotNode->rotation[0] = bodyState->leftLegAngle[1];
+        rotNode->rotation[1] = bodyState->leftLegAngle[2];
+        rotNode->rotation[2] = bodyState->leftLegAngle[0];
+    }
+    return NULL;
+}
+
+Gfx *geo_mario_tilt_right_leg(s32 callContext, struct GraphNode *node, UNUSED Mat4 *c) {
+    struct GraphNodeGenerated *asGenerated = (struct GraphNodeGenerated *) node;
+    struct MarioBodyState *bodyState = &gBodyStates[asGenerated->parameter];
+
+    if (callContext == GEO_CONTEXT_RENDER) {
+        struct GraphNodeRotation *rotNode = (struct GraphNodeRotation *) node->next;
+
+        rotNode->rotation[0] = bodyState->rightLegAngle[1];
+        rotNode->rotation[1] = bodyState->rightLegAngle[2];
+        rotNode->rotation[2] = bodyState->rightLegAngle[0];
+    }
+    return NULL;
+}
+
+Gfx *geo_mario_tilt_left_ankle(s32 callContext, struct GraphNode *node, UNUSED Mat4 *c) {
+    struct GraphNodeGenerated *asGenerated = (struct GraphNodeGenerated *) node;
+    struct MarioBodyState *bodyState = &gBodyStates[asGenerated->parameter];
+
+    if (callContext == GEO_CONTEXT_RENDER) {
+        struct GraphNodeRotation *rotNode = (struct GraphNodeRotation *) node->next;
+
+        rotNode->rotation[0] = bodyState->leftAnkleAngle[1];
+        rotNode->rotation[1] = bodyState->leftAnkleAngle[2];
+        rotNode->rotation[2] = bodyState->leftAnkleAngle[0];
+    }
+    return NULL;
+}
+
+Gfx *geo_mario_tilt_right_ankle(s32 callContext, struct GraphNode *node, UNUSED Mat4 *c) {
+    struct GraphNodeGenerated *asGenerated = (struct GraphNodeGenerated *) node;
+    struct MarioBodyState *bodyState = &gBodyStates[asGenerated->parameter];
+
+    if (callContext == GEO_CONTEXT_RENDER) {
+        struct GraphNodeRotation *rotNode = (struct GraphNodeRotation *) node->next;
+
+        rotNode->rotation[0] = bodyState->rightAnkleAngle[1];
+        rotNode->rotation[1] = bodyState->rightAnkleAngle[2];
+        rotNode->rotation[2] = bodyState->rightAnkleAngle[0];
+    }
+    return NULL;
+}
+
+Gfx *geo_mario_tilt_left_foot(s32 callContext, struct GraphNode *node, UNUSED Mat4 *c) {
+    struct GraphNodeGenerated *asGenerated = (struct GraphNodeGenerated *) node;
+    struct MarioBodyState *bodyState = &gBodyStates[asGenerated->parameter];
+
+    if (callContext == GEO_CONTEXT_RENDER) {
+        struct GraphNodeRotation *rotNode = (struct GraphNodeRotation *) node->next;
+
+        rotNode->rotation[0] = bodyState->leftFootAngle[1];
+        rotNode->rotation[1] = bodyState->leftFootAngle[2];
+        rotNode->rotation[2] = bodyState->leftFootAngle[0];
+    }
+    return NULL;
+}
+
+Gfx *geo_mario_tilt_right_foot(s32 callContext, struct GraphNode *node, UNUSED Mat4 *c) {
+    struct GraphNodeGenerated *asGenerated = (struct GraphNodeGenerated *) node;
+    struct MarioBodyState *bodyState = &gBodyStates[asGenerated->parameter];
+
+    if (callContext == GEO_CONTEXT_RENDER) {
+        struct GraphNodeRotation *rotNode = (struct GraphNodeRotation *) node->next;
+
+        rotNode->rotation[0] = bodyState->rightFootAngle[1];
+        rotNode->rotation[1] = bodyState->rightFootAngle[2];
+        rotNode->rotation[2] = bodyState->rightFootAngle[0];
     }
     return NULL;
 }

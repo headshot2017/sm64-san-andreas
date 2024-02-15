@@ -636,6 +636,10 @@ s32 act_vehicle_crawl_out(struct MarioState *m) {
     return FALSE;
 }
 
+s32 act_cutscene(struct MarioState *m) {
+    return FALSE;
+}
+
 s32 check_common_object_cancels(struct MarioState *m) {
     f32 waterSurface = m->waterLevel - 100;
     if (m->pos[1] < waterSurface) {
@@ -686,6 +690,7 @@ s32 mario_execute_object_action(struct MarioState *m) {
         case ACT_VEHICLE_JACKED:           cancel = act_vehicle_jacked(m);           break;
         case ACT_VOMIT:                    cancel = act_vomit(m);                    break;
         case ACT_VEHICLE_CRAWL_OUT:        cancel = act_vehicle_crawl_out(m);        break;
+        case ACT_CUTSCENE:                 cancel = act_cutscene(m);                 break;
     }
     /* clang-format on */
 
