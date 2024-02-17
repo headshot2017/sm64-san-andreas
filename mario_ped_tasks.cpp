@@ -432,9 +432,14 @@ void marioPedTasks(CPlayerPed* ped, const int& marioId)
     {
         CTaskSimpleRunNamedAnim* task = static_cast<CTaskSimpleRunNamedAnim*>(baseTask);
 
-        //char buf[256];
-        //sprintf(buf, "%d '%s' '%s'", task->m_nAnimId, task->m_animName, task->m_animGroupName);
-        //CHud::SetMessage(buf);
+#ifdef _DEBUG
+        if (plugin::KeyPressed(VK_MULTIPLY))
+        {
+            char buf[256];
+            sprintf(buf, "%d '%s' '%s'", task->m_nAnimId, task->m_animName, task->m_animGroupName);
+            CHud::SetMessage(buf);
+        }
+#endif
 
         runAnimKey(task, marioId);
     }
