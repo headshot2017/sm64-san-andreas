@@ -248,6 +248,13 @@ void animLaugh01(const int& marioId)
     sm64_set_mario_animation(marioId, MARIO_ANIM_CUSTOM_LAUGH01);
 }
 
+void animHandshake(const int& marioId)
+{
+    sm64_set_mario_action_arg(marioId, ACT_CUSTOM_ANIM_TO_ACTION, 1);
+    sm64_set_mario_action_arg2(marioId, ACT_IDLE);
+    sm64_set_mario_animation(marioId, MARIO_ANIM_CUSTOM_HANDSHAKE);
+}
+
 void animDanceLoop(const int& marioId)
 {
     sm64_set_mario_action_arg(marioId, ACT_CUSTOM_ANIM, 1);
@@ -341,6 +348,7 @@ std::unordered_map<std::string, ConvertedAnim> cjAnimKeys =
     {"CRIB_USE_SWITCH",     {animCribUseSwitch, false}},
     {"PLYR_SHKHEAD",        {animPlayerShakeHead, false}},
     {"LAUGH_01",            {animLaugh01, false}},
+    {"HNDSHKFA",            {animHandshake, false}},
     {"DANCE_LOOP",          {animDanceLoop, false}},
     {"DANCE_G1",            {animDanceGood, false}},
     {"DANCE_G2",            {animDanceGood, false}},

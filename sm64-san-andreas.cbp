@@ -192,6 +192,7 @@
 		<Unit filename="raw/anim_gunside_tiptoe.raw.h" />
 		<Unit filename="raw/anim_gunside_walk.raw.h" />
 		<Unit filename="raw/anim_gunside_walk_start.raw.h" />
+		<Unit filename="raw/anim_handshake.raw.h" />
 		<Unit filename="raw/anim_heavygun_idle.raw.h" />
 		<Unit filename="raw/anim_heavygun_idle2.raw.h" />
 		<Unit filename="raw/anim_heavygun_idle3.raw.h" />
