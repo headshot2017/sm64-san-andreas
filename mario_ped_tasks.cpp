@@ -39,14 +39,15 @@ void marioPedTasks(CPlayerPed* ped, const int& marioId)
     CTask* baseTask;
 
     // enter vehicle animation handling
-    if ((baseTask = ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_ENTER_CAR_AS_DRIVER)))
+    if ((baseTask = ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_ENTER_CAR_AS_DRIVER)) || (baseTask = ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_ENTER_CAR_AS_PASSENGER)))
     {
         CTaskComplexEnterCar* task = static_cast<CTaskComplexEnterCar*>(baseTask);
+        int rear = (task->m_nTargetDoor == TARGET_DOOR_REAR_LEFT || task->m_nTargetDoor == TARGET_DOOR_REAR_RIGHT);
 
         float targetAngle = 0;
-        if (task->m_nTargetDoor == 10) // front left door
+        if (task->m_nTargetDoor == 10 || task->m_nTargetDoor == TARGET_DOOR_REAR_LEFT) // 10 = front left door
             targetAngle = task->m_pTargetVehicle->GetHeading() + M_PI_2;
-        else if (task->m_nTargetDoor == TARGET_DOOR_FRONT_RIGHT)
+        else
             targetAngle = task->m_pTargetVehicle->GetHeading() - M_PI_2;
 
         if (targetAngle < -M_PI) targetAngle += M_PI*2;
@@ -60,7 +61,7 @@ void marioPedTasks(CPlayerPed* ped, const int& marioId)
 
         // calculate car seat target position
         CVehicleModelInfo* modelInfo = (CVehicleModelInfo*)CModelInfo::GetModelInfo(task->m_pTargetVehicle->m_nModelIndex);
-        CVector seatPos = modelInfo->m_pVehicleStruct->m_avDummyPos[4]; // DUMMY_SEAT_FRONT
+        CVector seatPos = modelInfo->m_pVehicleStruct->m_avDummyPos[4+rear]; // 4 = DUMMY_SEAT_FRONT, 5 = DUMMY_SEAT_REAR
         seatPos.z -= 0.375f;
         seatPos.y += 0.375f;
 
@@ -181,10 +182,11 @@ void marioPedTasks(CPlayerPed* ped, const int& marioId)
             else if (taskID == TASK_SIMPLE_CAR_SHUFFLE)
             {
                 // switch from passenger to driver seat
-                CVector driverSeatPos = modelInfo->m_pVehicleStruct->m_avDummyPos[4]; // DUMMY_SEAT_FRONT
+                CVector driverSeatPos = modelInfo->m_pVehicleStruct->m_avDummyPos[4+rear]; // DUMMY_SEAT_FRONT
                 driverSeatPos.z -= 0.375f;
                 driverSeatPos.y += 0.375f;
-                driverSeatPos.x *= -1;
+                if (arg & SM64_VEHICLE_DOOR_LEFT && !(arg & SM64_VEHICLE_BIKE))
+                    driverSeatPos.x *= -1;
 
                 CVector driverTargetPos = *(task->m_pTargetVehicle->m_matrix) * driverSeatPos;
 
@@ -228,11 +230,12 @@ void marioPedTasks(CPlayerPed* ped, const int& marioId)
     if ((baseTask = ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_LEAVE_CAR)))
     {
         CTaskComplexLeaveCar* task = static_cast<CTaskComplexLeaveCar*>(baseTask);
+        int rear = (task->m_nTargetDoor == TARGET_DOOR_REAR_LEFT || task->m_nTargetDoor == TARGET_DOOR_REAR_RIGHT);
 
         float targetAngle = 0;
-        if (task->m_nTargetDoor == 10) // front left door
+        if (task->m_nTargetDoor == 10 || task->m_nTargetDoor == TARGET_DOOR_REAR_LEFT) // 10 = front left door
             targetAngle = task->m_pTargetVehicle->GetHeading() - M_PI_2;
-        else if (task->m_nTargetDoor == TARGET_DOOR_FRONT_RIGHT)
+        else
             targetAngle = task->m_pTargetVehicle->GetHeading() + M_PI_2;
 
         if (targetAngle < -M_PI) targetAngle += M_PI*2;

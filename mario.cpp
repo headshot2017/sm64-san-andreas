@@ -819,6 +819,7 @@ void marioTick(float dt)
     bool cjHasControl = (pad->bPlayerSafe || ped->m_nPedFlags.bInVehicle || hp <= 0 || CEntryExitManager::mp_Active || fallingToVoid || CCutsceneMgr::ms_running || safeTicks > 0);
     bool overrideWithCJPos = ((ped->m_nPedFlags.bInVehicle || hp <= 0) &&
                               !ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_ENTER_CAR_AS_DRIVER) &&
+                              !ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_ENTER_CAR_AS_PASSENGER) &&
                               !leavingCar &&
                               !ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_CAR_SLOW_BE_DRAGGED_OUT));
     bool overrideWithCJAI = (cjHasControl || carDoor || aimingHeavyGun ||
