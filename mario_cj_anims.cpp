@@ -224,6 +224,16 @@ void animJustBusiness(const int& marioId)
     // Big Smoke talking to CJ before entering the building in Just Business
 }
 
+void animReunitingFamiliesEnd1(const int& marioId)
+{
+    // animation after finishing "Reuniting the Families"
+}
+
+void animReunitingFamiliesEnd2(const int& marioId)
+{
+    // animation after finishing "Reuniting the Families"
+}
+
 void animCribUseSwitch(const int& marioId)
 {
     // seen during the OG Loc mission, when ringing the bell at Freddy's house
@@ -343,6 +353,8 @@ std::unordered_map<std::string, ConvertedAnim> cjAnimKeys =
 
     // missions
     {"JST_BUISNESS",        {animJustBusiness, false}},
+    {"END_SC1_PLY",         {animReunitingFamiliesEnd1, false}},
+    {"END_SC2_PLY",         {animReunitingFamiliesEnd2, false}},
 
     // misc
     {"CRIB_USE_SWITCH",     {animCribUseSwitch, false}},
