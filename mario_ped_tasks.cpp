@@ -434,16 +434,6 @@ void marioPedTasks(CPlayerPed* ped, const int& marioId)
     else if ((baseTask = ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_NAMED_ANIM)))
     {
         CTaskSimpleRunNamedAnim* task = static_cast<CTaskSimpleRunNamedAnim*>(baseTask);
-
-#ifdef _DEBUG
-        if (plugin::KeyPressed(VK_MULTIPLY))
-        {
-            char buf[256];
-            sprintf(buf, "%d '%s' '%s'", task->m_nAnimId, task->m_animName, task->m_animGroupName);
-            CHud::SetMessage(buf);
-        }
-#endif
-
         runAnimKey(task, marioId);
     }
     else if ((baseTask = ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_USE_SEQUENCE)))
@@ -459,6 +449,7 @@ void marioPedTasks(CPlayerPed* ped, const int& marioId)
                 CTaskComplexSequence2* sub2 = static_cast<CTaskComplexSequence2*>(sub);
                 CTask* sub2_aTask = sub2->m_aTasks[sub2->m_nCurrentTaskIndex];
                 eTaskType aTaskID = ((eTaskType (__thiscall *)(CTask *))plugin::GetVMT(sub2_aTask, 4))(sub2_aTask);
+
                 if (aTaskID == TASK_SIMPLE_SLIDE_TO_COORD)
                 {
                     // class CTaskSimpleSlideToCoord : public CTaskSimpleRunNamedAnim
@@ -508,37 +499,6 @@ void marioPedTasks(CPlayerPed* ped, const int& marioId)
         _fallen = false;
         resetLastAnim();
     }
-
-    /*
-    char buf[256] = {0};
-	char a[32];
-	for (int i=0; i<TASK_PRIMARY_MAX; i++)
-	{
-		sprintf(a, (ped->m_pIntelligence->m_TaskMgr.m_aPrimaryTasks[i]) ? "%x" : "%x ", ped->m_pIntelligence->m_TaskMgr.m_aPrimaryTasks[i]);
-		strcat(buf, a);
-		if (ped->m_pIntelligence->m_TaskMgr.m_aPrimaryTasks[i])
-		{
-			CTask* task = ped->m_pIntelligence->m_TaskMgr.m_aPrimaryTasks[i];
-			eTaskType taskID = ((eTaskType (__thiscall *)(CTask *))plugin::GetVMT(task, 4))(task);
-			sprintf(a, "(%d) ", taskID);
-			strcat(buf, a);
-		}
-	}
-	strcat(buf, "- ");
-	for (int i=0; i<TASK_SECONDARY_MAX; i++)
-	{
-		sprintf(a, (i == TASK_SECONDARY_MAX-1 || ped->m_pIntelligence->m_TaskMgr.m_aSecondaryTasks[i]) ? "%x" : "%x ", ped->m_pIntelligence->m_TaskMgr.m_aSecondaryTasks[i]);
-		strcat(buf, a);
-		if (ped->m_pIntelligence->m_TaskMgr.m_aSecondaryTasks[i])
-		{
-			CTask* task = ped->m_pIntelligence->m_TaskMgr.m_aSecondaryTasks[i];
-			eTaskType taskID = ((eTaskType (__thiscall *)(CTask *))plugin::GetVMT(task, 4))(task);
-			sprintf(a, (i == TASK_SECONDARY_MAX-1) ? "(%d)" : "(%d) ", taskID);
-			strcat(buf, a);
-		}
-	}
-	CHud::SetMessage(buf);
-	*/
 }
 
 void marioPedTasksMaxFPS(CPlayerPed* ped, const int& marioId)
@@ -738,4 +698,35 @@ void marioPedTasksMaxFPS(CPlayerPed* ped, const int& marioId)
 	//char buf[32];
 	//sprintf(buf, "%d %d %d", marioState.animInfo.animOverride.current, marioState.actionState, marioState.animInfo.animFrame);
 	//CHud::SetMessage(buf);
+
+	/*
+	char buf[256] = {0};
+	char a[32];
+	for (int i=0; i<TASK_PRIMARY_MAX; i++)
+	{
+		sprintf(a, (ped->m_pIntelligence->m_TaskMgr.m_aPrimaryTasks[i]) ? "%x" : "%x ", ped->m_pIntelligence->m_TaskMgr.m_aPrimaryTasks[i]);
+		strcat(buf, a);
+		if (ped->m_pIntelligence->m_TaskMgr.m_aPrimaryTasks[i])
+		{
+			CTask* task = ped->m_pIntelligence->m_TaskMgr.m_aPrimaryTasks[i];
+			eTaskType taskID = ((eTaskType (__thiscall *)(CTask *))plugin::GetVMT(task, 4))(task);
+			sprintf(a, "(%d) ", taskID);
+			strcat(buf, a);
+		}
+	}
+	strcat(buf, "- ");
+	for (int i=0; i<TASK_SECONDARY_MAX; i++)
+	{
+		sprintf(a, (i == TASK_SECONDARY_MAX-1 || ped->m_pIntelligence->m_TaskMgr.m_aSecondaryTasks[i]) ? "%x" : "%x ", ped->m_pIntelligence->m_TaskMgr.m_aSecondaryTasks[i]);
+		strcat(buf, a);
+		if (ped->m_pIntelligence->m_TaskMgr.m_aSecondaryTasks[i])
+		{
+			CTask* task = ped->m_pIntelligence->m_TaskMgr.m_aSecondaryTasks[i];
+			eTaskType taskID = ((eTaskType (__thiscall *)(CTask *))plugin::GetVMT(task, 4))(task);
+			sprintf(a, (i == TASK_SECONDARY_MAX-1) ? "(%d)" : "(%d) ", taskID);
+			strcat(buf, a);
+		}
+	}
+	CHud::SetMessage(buf);
+	*/
 }

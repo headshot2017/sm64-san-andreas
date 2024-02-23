@@ -197,6 +197,7 @@
 		<Unit filename="raw/anim_heavygun_idle2.raw.h" />
 		<Unit filename="raw/anim_heavygun_idle3.raw.h" />
 		<Unit filename="raw/anim_laugh01.raw.h" />
+		<Unit filename="raw/anim_partial_handshake.raw.h" />
 		<Unit filename="raw/anim_phone_idle.raw.h" />
 		<Unit filename="raw/anim_phone_in.raw.h" />
 		<Unit filename="raw/anim_phone_out.raw.h" />

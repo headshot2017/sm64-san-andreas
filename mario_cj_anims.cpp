@@ -3,6 +3,8 @@
 #include <functional>
 #include <utility>
 
+#include "plugin.h"
+#include "CHud.h"
 extern "C" {
     #include <decomp/include/sm64shared.h>
 }
@@ -48,6 +50,15 @@ void runAnimKey(CTaskSimpleRunNamedAnim* task, const int& marioId)
     std::string key = (cjAnimKeys.count(task->m_animName)) ? task->m_animName :
                       (cjAnimKeys.count(task->m_animGroupName)) ? task->m_animGroupName :
                       "";
+
+#ifdef _DEBUG
+    if (plugin::KeyPressed(VK_MULTIPLY))
+    {
+        char buf[256];
+        sprintf(buf, "%d '%s' '%s'", task->m_nAnimId, task->m_animName, task->m_animGroupName);
+        CHud::SetMessage(buf);
+    }
+#endif
 
     runAnimKey(key, marioId);
 }
@@ -265,6 +276,14 @@ void animHandshake(const int& marioId)
     sm64_set_mario_animation(marioId, MARIO_ANIM_CUSTOM_HANDSHAKE);
 }
 
+void animPartialHandshake1(const int& marioId)
+{
+    // seen at the end of the mission "Catalyst", when Ryder says "For life, CJ"
+    sm64_set_mario_action_arg(marioId, ACT_CUSTOM_ANIM_TO_ACTION, 1);
+    sm64_set_mario_action_arg2(marioId, ACT_IDLE);
+    sm64_set_mario_animation(marioId, MARIO_ANIM_CUSTOM_PARTIAL_HANDSHAKE);
+}
+
 void animDanceLoop(const int& marioId)
 {
     sm64_set_mario_action_arg(marioId, ACT_CUSTOM_ANIM, 1);
@@ -361,6 +380,7 @@ std::unordered_map<std::string, ConvertedAnim> cjAnimKeys =
     {"PLYR_SHKHEAD",        {animPlayerShakeHead, false}},
     {"LAUGH_01",            {animLaugh01, false}},
     {"HNDSHKFA",            {animHandshake, false}},
+    {"PRTIAL_HNDSHK_01",    {animPartialHandshake1, false}},
     {"DANCE_LOOP",          {animDanceLoop, false}},
     {"DANCE_G1",            {animDanceGood, false}},
     {"DANCE_G2",            {animDanceGood, false}},
