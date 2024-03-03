@@ -108,7 +108,9 @@ uint32_t elapsedTicks = 0;
 uint32_t safeTicks = 0;
 int marioId = -1;
 float ticks = 0;
-static float headAngle[2] = {0};
+float headAngle[2] = {0};
+float headAngleTarget[2] = {0};
+bool overrideHeadAngle = false;
 
 
 uint8_t* EulerIndices1 = (uint8_t*)0x866D9C;
@@ -1187,9 +1189,9 @@ void marioTick(float dt)
         }
 
         // Mario head rotation
-        float headAngleTarget[2] = {0};
         if (ped->m_pIntelligence->m_TaskMgr.m_aSecondaryTasks[TASK_SECONDARY_IK])
         {
+            overrideHeadAngle = true;
             CTaskSimpleIKManager* task = static_cast<CTaskSimpleIKManager*>(ped->m_pIntelligence->m_TaskMgr.m_aSecondaryTasks[TASK_SECONDARY_IK]);
             CTaskSimpleIKLookAt* lookAt = static_cast<CTaskSimpleIKLookAt*>(task->m_pIKChainTasks[0]);
 
@@ -1227,6 +1229,11 @@ void marioTick(float dt)
                 }
             }
         }
+        else if (!ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_NAMED_ANIM) && !ped->m_pIntelligence->m_TaskMgr.m_aSecondaryTasks[TASK_SECONDARY_IK])
+            overrideHeadAngle = false;
+
+        if (!overrideHeadAngle)
+            for (int i=0; i<2; i++) headAngleTarget[i] = 0;
 
         if (!CCutsceneMgr::ms_running)
         {

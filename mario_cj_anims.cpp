@@ -237,12 +237,29 @@ void animJustBusiness(const int& marioId)
 
 void animReunitingFamiliesEnd1(const int& marioId)
 {
-    // animation after finishing "Reuniting the Families"
+    // animation after finishing "Reuniting the Families" (part 1)
+    sm64_set_mario_action_arg(marioId, ACT_CUSTOM_ANIM, 1);
+    sm64_set_mario_animation(marioId, MARIO_ANIM_CUSTOM_REUNITING_FAM_END1);
 }
 
 void animReunitingFamiliesEnd2(const int& marioId)
 {
-    // animation after finishing "Reuniting the Families"
+    // animation after finishing "Reuniting the Families" (part 2)
+    sm64_set_mario_action_arg(marioId, ACT_CUSTOM_ANIM_TO_ACTION, 1);
+    sm64_set_mario_action_arg2(marioId, ACT_IDLE);
+    sm64_set_mario_animation(marioId, MARIO_ANIM_CUSTOM_REUNITING_FAM_END2);
+}
+
+void animResetHeadRotation(const int& marioId)
+{
+    overrideHeadAngle = false;
+}
+
+void animRotateHeadRight(const int& marioId)
+{
+    overrideHeadAngle = true;
+    headAngleTarget[0] = 0;
+    headAngleTarget[1] = -M_PI_2;
 }
 
 void animCribUseSwitch(const int& marioId)
@@ -372,8 +389,13 @@ std::unordered_map<std::string, ConvertedAnim> cjAnimKeys =
 
     // missions
     {"JST_BUISNESS",        {animJustBusiness, false}},
+    {"CAR_SC1_FL",          {animRotateHeadRight, false}},
+    {"CAR_SC2_FL",          {animResetHeadRotation, false}},
+    {"CAR_SC3_FL",          {animRotateHeadRight, false}},
     {"END_SC1_PLY",         {animReunitingFamiliesEnd1, false}},
     {"END_SC2_PLY",         {animReunitingFamiliesEnd2, false}},
+    {"GDB_CAR_PLY",         {animRotateHeadRight, false}},
+    {"GDB_CAR2_PLY",        {animRotateHeadRight, false}},
 
     // misc
     {"CRIB_USE_SWITCH",     {animCribUseSwitch, false}},

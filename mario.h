@@ -29,6 +29,9 @@ extern SM64MarioState marioState;
 extern SM64MarioGeometryBuffers marioGeometry;
 extern CVector marioInterpPos;
 
+extern float headAngleTarget[2];
+extern bool overrideHeadAngle;
+
 bool removeObject(CEntity* ent);
 
 bool marioSpawned();

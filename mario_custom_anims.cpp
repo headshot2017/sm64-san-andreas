@@ -13,6 +13,8 @@
 #include "raw/anim_laugh01.raw.h"
 #include "raw/anim_handshake.raw.h"
 #include "raw/anim_partial_handshake.raw.h"
+#include "raw/anim_reuniting_families_end1.raw.h"
+#include "raw/anim_reuniting_families_end2.raw.h"
 #include "raw/anim_dance_loop.raw.h"
 #include "raw/anim_dance_bad.raw.h"
 #include "raw/anim_dance_good.raw.h"
@@ -90,6 +92,8 @@ int MARIO_ANIM_CUSTOM_FACEPALM;
 int MARIO_ANIM_CUSTOM_LAUGH01;
 int MARIO_ANIM_CUSTOM_HANDSHAKE;
 int MARIO_ANIM_CUSTOM_PARTIAL_HANDSHAKE;
+int MARIO_ANIM_CUSTOM_REUNITING_FAM_END1;
+int MARIO_ANIM_CUSTOM_REUNITING_FAM_END2;
 int MARIO_ANIM_CUSTOM_DANCE_LOOP;
 int MARIO_ANIM_CUSTOM_DANCE_BAD;
 int MARIO_ANIM_CUSTOM_DANCE_GOOD;
@@ -170,6 +174,8 @@ void marioInitCustomAnims()
     MARIO_ANIM_CUSTOM_LAUGH01 = sm64_custom_animation_init(marioAnimLaugh01Raw, marioAnimLaugh01Raw_length);
     MARIO_ANIM_CUSTOM_HANDSHAKE = sm64_custom_animation_init(marioAnimHandshakeRaw, marioAnimHandshakeRaw_length);
     MARIO_ANIM_CUSTOM_PARTIAL_HANDSHAKE = sm64_custom_animation_init(marioAnimPartialHandshakeRaw, marioAnimPartialHandshakeRaw_length);
+    MARIO_ANIM_CUSTOM_REUNITING_FAM_END1 = sm64_custom_animation_init(marioAnimReunitingFamiliesEnd1Raw, marioAnimReunitingFamiliesEnd1Raw_length);
+    MARIO_ANIM_CUSTOM_REUNITING_FAM_END2 = sm64_custom_animation_init(marioAnimReunitingFamiliesEnd2Raw, marioAnimReunitingFamiliesEnd2Raw_length);
     MARIO_ANIM_CUSTOM_DANCE_LOOP = sm64_custom_animation_init(marioAnimDanceLoopRaw, marioAnimDanceLoopRaw_length);
     MARIO_ANIM_CUSTOM_DANCE_BAD = sm64_custom_animation_init(marioAnimDanceBadRaw, marioAnimDanceBadRaw_length);
     MARIO_ANIM_CUSTOM_DANCE_GOOD = sm64_custom_animation_init(marioAnimDanceGoodRaw, marioAnimDanceGoodRaw_length);

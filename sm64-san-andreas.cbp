@@ -210,6 +210,8 @@
 		<Unit filename="raw/anim_phone_walk_stop.raw.h" />
 		<Unit filename="raw/anim_pickup_slow.raw.h" />
 		<Unit filename="raw/anim_putdown_slow.raw.h" />
+		<Unit filename="raw/anim_reuniting_families_end1.raw.h" />
+		<Unit filename="raw/anim_reuniting_families_end2.raw.h" />
 		<Unit filename="raw/anim_rifle_aim.raw.h" />
 		<Unit filename="raw/anim_rifle_aim_walk.raw.h" />
 		<Unit filename="raw/anim_rpg_idle.raw.h" />
