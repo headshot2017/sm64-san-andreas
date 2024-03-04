@@ -34,6 +34,30 @@ void moveEntityToMarioHands(CTaskSimpleHoldEntity2* task, float pickupLerp=1.f)
         task->m_pEntityToHold->m_bIsVisible = 0;
 }
 
+void handlePhoneTask(CTaskComplex* task, const int& marioId)
+{
+    CTask* sub = task->m_pSubTask;
+    eTaskType taskID = ((eTaskType (__thiscall *)(CTask *))plugin::GetVMT(sub, 4))(sub);
+
+    if (taskID == TASK_SIMPLE_PHONE_IN)
+    {
+        sm64_set_mario_action_arg(marioId, ACT_CUSTOM_ANIM_TO_ACTION, 1);
+        sm64_set_mario_action_arg2(marioId, ACT_IDLE);
+        sm64_set_mario_animation(marioId, MARIO_ANIM_CUSTOM_PHONE_IN);
+    }
+    else if (taskID == TASK_SIMPLE_PHONE_TALK)
+    {
+        if (marioState.action != ACT_CUSTOM_ANIM_TO_ACTION)
+            sm64_set_mario_anim_override(marioId, phoneAnimOverrideTable.count(marioState.animInfo.animOverride.current) ? phoneAnimOverrideTable[marioState.animInfo.animOverride.current] : 0);
+    }
+    else if (taskID == TASK_SIMPLE_PHONE_OUT)
+    {
+        sm64_set_mario_action_arg(marioId, ACT_CUSTOM_ANIM_TO_ACTION, 1);
+        sm64_set_mario_action_arg2(marioId, ACT_IDLE);
+        sm64_set_mario_animation(marioId, MARIO_ANIM_CUSTOM_PHONE_OUT);
+    }
+}
+
 void marioPedTasks(CPlayerPed* ped, const int& marioId)
 {
     CTask* baseTask;
@@ -438,12 +462,12 @@ void marioPedTasks(CPlayerPed* ped, const int& marioId)
     }
     else if ((baseTask = ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_USE_SEQUENCE)))
     {
-        // primarily used for the vending machine animation
         CTaskComplexUseSequence* task = static_cast<CTaskComplexUseSequence*>(baseTask);
         if (task->m_pSubTask)
         {
             CTaskComplex* sub = static_cast<CTaskComplex*>(task->m_pSubTask);
             eTaskType sub_taskID = ((eTaskType (__thiscall *)(CTask *))plugin::GetVMT(sub, 4))(sub);
+
             if (sub_taskID == TASK_COMPLEX_SEQUENCE)
             {
                 CTaskComplexSequence2* sub2 = static_cast<CTaskComplexSequence2*>(sub);
@@ -457,24 +481,13 @@ void marioPedTasks(CPlayerPed* ped, const int& marioId)
                     runAnimKey(animTask, marioId);
                 }
             }
+            else if (sub_taskID == TASK_COMPLEX_USE_MOBILE_PHONE)
+                handlePhoneTask(sub, marioId);
         }
     }
-    else if ((baseTask = ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_PHONE_IN)))
+    else if ((baseTask = ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_COMPLEX_USE_MOBILE_PHONE)))
     {
-        sm64_set_mario_action_arg(marioId, ACT_CUSTOM_ANIM_TO_ACTION, 1);
-        sm64_set_mario_action_arg2(marioId, ACT_IDLE);
-        sm64_set_mario_animation(marioId, MARIO_ANIM_CUSTOM_PHONE_IN);
-    }
-    else if ((baseTask = ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_PHONE_TALK)))
-    {
-        if (marioState.action != ACT_CUSTOM_ANIM_TO_ACTION)
-            sm64_set_mario_anim_override(marioId, phoneAnimOverrideTable.count(marioState.animInfo.animOverride.current) ? phoneAnimOverrideTable[marioState.animInfo.animOverride.current] : 0);
-    }
-    else if ((baseTask = ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_PHONE_OUT)))
-    {
-        sm64_set_mario_action_arg(marioId, ACT_CUSTOM_ANIM_TO_ACTION, 1);
-        sm64_set_mario_action_arg2(marioId, ACT_IDLE);
-        sm64_set_mario_animation(marioId, MARIO_ANIM_CUSTOM_PHONE_OUT);
+        handlePhoneTask((CTaskComplex*)baseTask, marioId);
     }
     else if ((baseTask = ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_CLIMB)))
     {
