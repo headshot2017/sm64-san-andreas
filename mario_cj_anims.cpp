@@ -262,6 +262,11 @@ void animRotateHeadRight(const int& marioId)
     headAngleTarget[1] = -M_PI_2;
 }
 
+void animGreenSabre(const int& marioId)
+{
+    // when CJ meets up with injured Sweet in the mission "The Green Sabre"
+}
+
 void animCribUseSwitch(const int& marioId)
 {
     // seen during the OG Loc mission, when ringing the bell at Freddy's house
@@ -389,13 +394,14 @@ std::unordered_map<std::string, ConvertedAnim> cjAnimKeys =
 
     // missions
     {"JST_BUISNESS",        {animJustBusiness, false}},
-    {"CAR_SC1_FL",          {animRotateHeadRight, false}},
-    {"CAR_SC2_FL",          {animResetHeadRotation, false}},
-    {"CAR_SC3_FL",          {animRotateHeadRight, false}},
+    {"CAR_SC1_FL",          {animRotateHeadRight, false}},          // Reuniting The Families, arrived at motel, part 1 (Sweet talks)
+    {"CAR_SC2_FL",          {animResetHeadRotation, false}},        // Reuniting The Families, arrived at motel, part 2 (Sweet gets off the car)
+    {"CAR_SC3_FL",          {animRotateHeadRight, false}},          // Reuniting The Families, arrived at motel, part 3 (Ryder starts talking)
     {"END_SC1_PLY",         {animReunitingFamiliesEnd1, false}},
     {"END_SC2_PLY",         {animReunitingFamiliesEnd2, false}},
     {"GDB_CAR_PLY",         {animRotateHeadRight, false}},
     {"GDB_CAR2_PLY",        {animRotateHeadRight, false}},
+    {"LAFIN_PLAYER",        {animGreenSabre, false}},
 
     // misc
     {"CRIB_USE_SWITCH",     {animCribUseSwitch, false}},
