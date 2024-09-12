@@ -814,7 +814,7 @@ void marioTick(float dt)
     bool leavingCar = (leaveCarTask && leaveCarTask->m_nNumGettingInSet);
 
     CTaskSimpleUseGun* useGunTask = (CTaskSimpleUseGun*)ped->m_pIntelligence->m_TaskMgr.FindActiveTaskByType(TASK_SIMPLE_USE_GUN);
-	bool aimingHeavyGun = (useGunTask && !useGunTask->m_pWeaponInfo->m_nFlags.bAimWithArm);
+	bool aimingHeavyGun = (useGunTask && useGunTask->m_pWeaponInfo && !useGunTask->m_pWeaponInfo->m_nFlags.bAimWithArm);
 
     bool fallingToVoid = (ped->GetPosition().z <= -100);
 

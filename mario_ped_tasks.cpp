@@ -591,7 +591,7 @@ void marioPedTasksMaxFPS(CPlayerPed* ped, const int& marioId)
         static float armsShoot = 0;
 		static float torsoShoot = 0;
 
-        if (task->m_pWeaponInfo->m_nFlags.bAimWithArm)
+        if (task->m_pWeaponInfo && task->m_pWeaponInfo->m_nFlags.bAimWithArm)
         {
             // used with normal pistol, sawed-off shotgun and uzi/tec9
             bool reloading = (activeWeapon.m_nState == WEAPONSTATE_RELOADING);
