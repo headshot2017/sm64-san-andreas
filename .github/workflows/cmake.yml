@@ -14,10 +14,10 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Clone headshot2017/plugin-sdk
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: headshot2017/plugin-sdk
         path: '${{github.workspace}}/plugin-sdk'
@@ -38,7 +38,7 @@ jobs:
       run: cmake --build ${{github.workspace}}/build --config Release
 
     - name: Use the Upload Artifact GitHub Action
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: sm64-san-andreas-release
         path: build/scripts
@@ -47,10 +47,10 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@v4
 
     - name: Clone headshot2017/plugin-sdk
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         repository: headshot2017/plugin-sdk
         path: '${{github.workspace}}/plugin-sdk'
@@ -71,7 +71,7 @@ jobs:
       run: cmake --build ${{github.workspace}}/build --config Debug
 
     - name: Use the Upload Artifact GitHub Action
-      uses: actions/upload-artifact@v2
+      uses: actions/upload-artifact@v4
       with:
         name: sm64-san-andreas-debug
         path: build/scripts
