@@ -23,7 +23,8 @@ H_IMPORTED := $(C_IMPORTED:.c=.h)
 IMPORTED   := $(C_IMPORTED) $(H_IMPORTED)
 
 C_FILES   := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.c)) $(C_IMPORTED)
-O_FILES   := $(foreach file,$(C_FILES),$(BUILD_DIR)/$(file:.c=.o))
+CPP_FILES := $(foreach dir,$(SRC_DIRS),$(wildcard $(dir)/*.cpp))
+O_FILES   := $(foreach file,$(C_FILES),$(BUILD_DIR)/$(file:.c=.o)) $(foreach file,$(CPP_FILES),$(BUILD_DIR)/$(file:.cpp=.o))
 DEP_FILES := $(O_FILES:.o=.d)
 
 TEST_SRCS := test/main.c test/context.c test/level.c test/audio.c test/gl33core/gl33core_renderer.c test/gl20/gl20_renderer.c
@@ -45,8 +46,12 @@ $(BUILD_DIR)/%.o: %.c $(IMPORTED)
 	@$(CC) $(CFLAGS) -MM -MP -MT $@ -MF $(BUILD_DIR)/$*.d $<
 	$(CC) -c $(CFLAGS) -I src/decomp/include -o $@ $<
 
+$(BUILD_DIR)/%.o: %.cpp $(IMPORTED)
+	@$(CXX) $(CFLAGS) -MM -MP -MT $@ -MF $(BUILD_DIR)/$*.d $<
+	$(CXX) -c $(CFLAGS) -I src/decomp/include -o $@ $<
+
 $(LIB_FILE): $(O_FILES)
-	$(CC) $(LDFLAGS) -o $@ $^
+	$(CXX) $(LDFLAGS) -o $@ $^
 
 $(LIB_H_FILE): src/libsm64.h
 	cp -f $< $@

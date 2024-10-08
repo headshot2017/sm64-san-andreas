@@ -4,15 +4,14 @@
 	<Project>
 		<Option title="sm64-san-andreas" />
 		<Option pch_mode="2" />
-		<Option compiler="gcc" />
+		<Option compiler="gnu_gcc_compiler_msys2" />
 		<Build>
 			<Target title="GTASA Debug">
 				<Option output='&quot;$(GTA_SA_DIR)&quot;/scripts/sm64_san_andreas.SA_d.asi' prefix_auto="0" extension_auto="0" />
 				<Option object_output=".obj/Debug" />
 				<Option type="3" />
-				<Option compiler="gcc" />
+				<Option compiler="gnu_gcc_compiler_msys2" />
 				<Compiler>
-					<Add option="-std=gnu++17" />
 					<Add option="-m32" />
 					<Add option="-fpermissive" />
 					<Add option="-g3" />
@@ -41,9 +40,8 @@
 				<Option output='&quot;$(GTA_SA_DIR)&quot;/scripts/sm64_san_andreas.SA.asi' prefix_auto="0" extension_auto="0" />
 				<Option object_output=".obj/Release" />
 				<Option type="3" />
-				<Option compiler="gcc" />
+				<Option compiler="gnu_gcc_compiler_msys2" />
 				<Compiler>
-					<Add option="-std=gnu++17" />
 					<Add option="-m32" />
 					<Add option="-fpermissive" />
 					<Add option="-DNDEBUG" />
@@ -72,9 +70,8 @@
 				<Option output='&quot;$(GTA_SA_DIR)&quot;/scripts/sm64_san_andreas.SA.asi' prefix_auto="0" extension_auto="0" />
 				<Option object_output=".obj/Release" />
 				<Option type="3" />
-				<Option compiler="gcc" />
+				<Option compiler="gnu_gcc_compiler_msys2" />
 				<Compiler>
-					<Add option="-std=gnu++17" />
 					<Add option="-m32" />
 					<Add option="-fpermissive" />
 					<Add option="-DNDEBUG" />
@@ -100,7 +97,8 @@
 			</Target>
 		</Build>
 		<Compiler>
-			<Add option="-fPIC" />
+			<Add option="-std=gnu++23" />
+			<Add option="-fno-rtti" />
 			<Add directory="$(PLUGIN_SDK_DIR)/plugin_sa/" />
 			<Add directory="$(PLUGIN_SDK_DIR)/plugin_sa/game_sa/" />
 			<Add directory="$(PLUGIN_SDK_DIR)/shared/" />

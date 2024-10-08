@@ -5,7 +5,7 @@
 
 // TODO don't handle every individual allocation with malloc, it sucks on windows
 
-struct AllocOnlyPool 
+struct AllocOnlyPool
 {
     size_t allocatedCount;
     void **allocatedBlocks;

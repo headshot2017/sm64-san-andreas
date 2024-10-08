@@ -125,7 +125,7 @@ void marioRenderInit()
     RpGeometryDestroy(marioRpGeometry);
 
     // finally, add clump to world
-    RpWorldAddClump(Scene.m_pRpWorld, marioClump);
+    RpWorldAddClump(Scene.m_pWorld, marioClump);
 }
 
 void marioRenderDestroy()
@@ -135,7 +135,7 @@ void marioRenderDestroy()
 
     // Retained Mode API only
 
-    RpWorldRemoveClump(Scene.m_pRpWorld, marioClump);
+    RpWorldRemoveClump(Scene.m_pWorld, marioClump);
     RpClumpRemoveAtomic(marioClump, marioAtomic);
     RpAtomicDestroy(marioAtomic);
     RpClumpDestroy(marioClump);

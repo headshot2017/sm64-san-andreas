@@ -74,8 +74,8 @@
 #include "raw/anim_gunlight_aim_walk.raw.h"
 #include "raw/anim_cutscene.raw.h"
 
+#include <libsm64.h>
 extern "C" {
-    #include <libsm64.h>
     #include <decomp/include/mario_animation_ids.h>
 }
 

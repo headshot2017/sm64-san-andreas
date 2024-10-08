@@ -1,5 +1,6 @@
 #include "math_util.h"
 
+#define M_PI 3.14159265358979323846
 #include <math.h>
 #include "../shim.h"
 
@@ -1994,7 +1995,7 @@ void mtxf_mul_vec3f(Mat4 mtx, Vec3f b) {
     b[0] = x * mtx[0][0] + y * mtx[1][0] + z * mtx[2][0] + mtx[3][0];
     b[1] = x * mtx[0][1] + y * mtx[1][1] + z * mtx[2][1] + mtx[3][1];
     b[2] = x * mtx[0][2] + y * mtx[1][2] + z * mtx[2][2] + mtx[3][2];
-} 
+}
 /**
  * Convert float matrix 'src' to fixed point matrix 'dest'.
  * The float matrix may not contain entries larger than 65536 or the console

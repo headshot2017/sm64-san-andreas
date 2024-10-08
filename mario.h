@@ -2,7 +2,7 @@
 #define MARIO_H_INCLUDED
 
 #define MARIO_SCALE 0.0085f
-#define lerp(a, b, amnt) a + (b - a) * amnt
+#define LERP(a, b, amnt) (a + (b - a) * amnt)
 #define sign(a) (a>0 ? 1 : a<0 ? -1 : 0)
 
 #include <stdint.h>

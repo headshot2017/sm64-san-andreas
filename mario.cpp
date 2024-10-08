@@ -683,6 +683,12 @@ void marioSpawn()
 
     loadCollisions(pos, ped->m_nPhysicalFlags.bTouchingWater);
 
+    marioGeometry.position = new float[9 * SM64_GEO_MAX_TRIANGLES];
+    marioGeometry.normal   = new float[9 * SM64_GEO_MAX_TRIANGLES];
+    marioGeometry.color    = new float[9 * SM64_GEO_MAX_TRIANGLES];
+    marioGeometry.uv       = new float[6 * SM64_GEO_MAX_TRIANGLES];
+    marioGeometry.numTrianglesUsed = 0;
+
     CVector sm64pos(pos.x / MARIO_SCALE, pos.z / MARIO_SCALE, -pos.y / MARIO_SCALE);
     marioId = sm64_mario_create(sm64pos.x, sm64pos.y, sm64pos.z);
     if (!marioSpawned())
@@ -698,11 +704,6 @@ void marioSpawn()
 
     ticks = 0;
     elapsedTicks = 0;
-    marioGeometry.position = new float[9 * SM64_GEO_MAX_TRIANGLES];
-    marioGeometry.normal   = new float[9 * SM64_GEO_MAX_TRIANGLES];
-    marioGeometry.color    = new float[9 * SM64_GEO_MAX_TRIANGLES];
-    marioGeometry.uv       = new float[6 * SM64_GEO_MAX_TRIANGLES];
-    marioGeometry.numTrianglesUsed = 0;
     memset(&marioInput, 0, sizeof(marioInput));
     memset(headAngle, 0, sizeof(headAngle));
 
