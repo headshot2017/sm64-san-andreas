@@ -51,6 +51,7 @@ target_link_options(sm64-san-andreas PRIVATE -static-libgcc -static-libstdc++ -s
 target_compile_options(sm64-san-andreas PRIVATE -static-libgcc -static-libstdc++)
 target_compile_definitions(sm64-san-andreas PRIVATE
 	GTASA
+	RW
 	PLUGIN_SGV_10US
 	GTAGAME_NAME="\"San Andreas"\"
 	GTAGAME_ABBR="\"SA"\"
