@@ -12,7 +12,7 @@ project(sm64-san-andreas)
 
 option(BUILD_AS_PRE_RELEASE "Compile as a pre-release build" ON)
 
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_FLAGS "-m32 -fpermissive -fPIC")
 set(CMAKE_CXX_FLAGS_DEBUG "-g3")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
@@ -57,6 +57,7 @@ target_compile_definitions(sm64-san-andreas PRIVATE
 	GTAGAME_ABBRLOW="\"sa"\"
 	GTAGAME_PROTAGONISTNAME="\"CJ"\"
 	GTAGAME_CITYNAME="\"San Andreas"\"
+	_HAS_CXX17
 )
 
 if (BUILD_AS_PRE_RELEASE)
