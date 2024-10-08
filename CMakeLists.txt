@@ -14,7 +14,7 @@ option(BUILD_AS_PRE_RELEASE "Compile as a pre-release build" ON)
 
 set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_FLAGS "-m32 -fpermissive -fPIC")
-set(CMAKE_CXX_FLAGS_DEBUG "-g3")
+set(CMAKE_CXX_FLAGS_DEBUG "-g3 -fno-rtti")
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 
 set(SDL2 ${PROJECT_SOURCE_DIR}/SDL2)
