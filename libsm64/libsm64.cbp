@@ -4,14 +4,14 @@
 	<Project>
 		<Option title="libsm64" />
 		<Option pch_mode="2" />
-		<Option compiler="gnu_gcc_compiler_msys2" />
+		<Option compiler="gcc" />
 		<Build>
 			<Target title="Debug">
 				<Option output="bin/Debug/libsm64" prefix_auto="1" extension_auto="1" />
 				<Option working_dir="bin/Debug" />
 				<Option object_output="obj/Debug/" />
 				<Option type="3" />
-				<Option compiler="gnu_gcc_compiler_msys2" />
+				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Compiler>
@@ -22,7 +22,7 @@
 				<Option output="bin/Release/libsm64" prefix_auto="1" extension_auto="1" />
 				<Option object_output="obj/Release/" />
 				<Option type="3" />
-				<Option compiler="gnu_gcc_compiler_msys2" />
+				<Option compiler="gcc" />
 				<Option createDefFile="1" />
 				<Option createStaticLib="1" />
 				<Compiler>

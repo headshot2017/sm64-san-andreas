@@ -4,13 +4,13 @@
 	<Project>
 		<Option title="sm64-san-andreas" />
 		<Option pch_mode="2" />
-		<Option compiler="gnu_gcc_compiler_msys2" />
+		<Option compiler="gcc" />
 		<Build>
 			<Target title="GTASA Debug">
 				<Option output='&quot;$(GTA_SA_DIR)&quot;/scripts/sm64_san_andreas.SA_d.asi' prefix_auto="0" extension_auto="0" />
 				<Option object_output=".obj/Debug" />
 				<Option type="3" />
-				<Option compiler="gnu_gcc_compiler_msys2" />
+				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-m32" />
 					<Add option="-fpermissive" />
@@ -40,7 +40,7 @@
 				<Option output='&quot;$(GTA_SA_DIR)&quot;/scripts/sm64_san_andreas.SA.asi' prefix_auto="0" extension_auto="0" />
 				<Option object_output=".obj/Release" />
 				<Option type="3" />
-				<Option compiler="gnu_gcc_compiler_msys2" />
+				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-m32" />
 					<Add option="-fpermissive" />
@@ -70,7 +70,7 @@
 				<Option output='&quot;$(GTA_SA_DIR)&quot;/scripts/sm64_san_andreas.SA.asi' prefix_auto="0" extension_auto="0" />
 				<Option object_output=".obj/Release" />
 				<Option type="3" />
-				<Option compiler="gnu_gcc_compiler_msys2" />
+				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-m32" />
 					<Add option="-fpermissive" />
