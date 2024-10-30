@@ -885,6 +885,8 @@ void marioTick(float dt)
                 if (CCutsceneMgr::ms_pCutsceneObjects[i]->m_nModelIndex != 1)
                     continue;
 
+                CCutsceneMgr::ms_pCutsceneObjects[i]->m_nObjectFlags.bDoNotRender = 1;
+
                 float orX, orY, orZ;
                 auto getAngle = [](RwMatrix* m, float& orX, float& orY, float& orZ){
                     orX = asinf(m->up.z);
