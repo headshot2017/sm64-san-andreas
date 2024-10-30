@@ -6,8 +6,15 @@
 #include <string>
 #include <unordered_map>
 
-extern std::unordered_map<std::string, int> config;
+struct ConfigElement
+{
+	const std::string desc;
+	int value;
+};
 
+extern std::unordered_map<std::string, ConfigElement> config;
+
+int getConfig(std::string value);
 void saveConfig();
 void loadConfig();
 

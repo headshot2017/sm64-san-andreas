@@ -72,7 +72,7 @@ public:
         file.read((char*)romBuffer, romFileLength);
         romBuffer[romFileLength] = 0;
 
-        if (!config["skip_sha1_checksum"])
+        if (!getConfig("skip_sha1_checksum"))
         {
             // check ROM SHA1 to avoid crash
             sha1::SHA1 s;
@@ -128,7 +128,7 @@ public:
         if (!loaded) return;
         if (marioSpawned()) marioDestroy();
 
-        if (config["autospawn_mario_on_start"]) marioSpawn();
+        if (getConfig("autospawn_mario_on_start")) marioSpawn();
     }
 
     static void destroy()

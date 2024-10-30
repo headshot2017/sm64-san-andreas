@@ -51,7 +51,7 @@ void audio_thread_init()
 {
     if (audio_started) return;
 
-    if (config["use_wasapi_audio"])
+    if (getConfig("use_wasapi_audio"))
         audio_api = new AudioAPI_WASAPI();
     else
         audio_api = new AudioAPI_SDL2();

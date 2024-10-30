@@ -32,6 +32,7 @@ extern "C" {
 
 #include "d3d9_funcs.h"
 #include "main.h"
+#include "config.h"
 #include "mario_render.h"
 #include "mario_custom_anims.h"
 #include "mario_ped_tasks.h"
@@ -866,20 +867,24 @@ void marioTick(float dt)
             lastCutsceneRunning = true;
             marioSetPos(ped->GetPosition());
         }
-        /*
-        if (marioState.action != ACT_CUTSCENE)
-        {
-            sm64_set_mario_action(marioId, ACT_CUTSCENE);
-            sm64_set_mario_animation(marioId, MARIO_ANIM_CUSTOM_CUTSCENE);
-        }
 
-        ped->m_nPedFlags.bDontRender = 0;
-        ped->m_bIsVisible = 1;
-
-        for (uint32_t i=0; i<CCutsceneMgr::ms_numCutsceneObjs; i++)
+        if (getConfig("mario_in_mocap_cutscenes"))
         {
-            if (CCutsceneMgr::ms_pCutsceneObjects[i]->m_nModelIndex == 1) // CJ
+            // Implementation of Mario in motion-capture cutscenes
+            if (marioState.action != ACT_CUTSCENE)
             {
+                sm64_set_mario_action(marioId, ACT_CUTSCENE);
+                sm64_set_mario_animation(marioId, MARIO_ANIM_CUSTOM_CUTSCENE);
+            }
+
+            ped->m_nPedFlags.bDontRender = 0;
+            ped->m_bIsVisible = 1;
+
+            for (uint32_t i=0; i<CCutsceneMgr::ms_numCutsceneObjs; i++)
+            {
+                if (CCutsceneMgr::ms_pCutsceneObjects[i]->m_nModelIndex != 1)
+                    continue;
+
                 float orX, orY, orZ;
                 auto getAngle = [](RwMatrix* m, float& orX, float& orY, float& orZ){
                     orX = asinf(m->up.z);
@@ -907,7 +912,7 @@ void marioTick(float dt)
                 sm64_set_mario_headangle(marioId, -neck->up.z, neck->at.z, -orY + M_PI_2);
 
 
-
+                /*
                 RwMatrix* lshoulder = &RpHAnimHierarchyGetMatrixArray(hier)[RpHAnimIDGetIndex(hier, BONE_LEFTSHOULDER)];
                 ConvertToEulerAngles(lshoulder, &orX, &orY, &orZ, EULER_ANGLES);
                 float lshoulderX = orX - M_PI;
@@ -1053,11 +1058,11 @@ void marioTick(float dt)
                 while (relbowZ < -M_PI) relbowZ += M_PI*2;
                 while (relbowZ > M_PI) relbowZ -= M_PI*2;
                 //sm64_set_mario_rightarm_angle(marioId, relbowX, relbowY, relbowZ);
+                */
 
                 break;
             }
         }
-        */
     }
     else if (!CCutsceneMgr::ms_running && lastCutsceneRunning)
     {

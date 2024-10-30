@@ -4,17 +4,27 @@
 #include <fstream>
 #include <algorithm>
 
-std::unordered_map<std::string, int> config = {
-    {"skip_sha1_checksum", 0},
-    {"use_wasapi_audio", 0},
-    {"autospawn_mario_on_start", 0},
+std::unordered_map<std::string, ConfigElement> config = {
+    {"skip_sha1_checksum", {"Skips the ROM SHA-1 checksum. This allows using certain ROM hacks such as sound ROM hacks", 0}},
+    {"use_wasapi_audio", {"Prefer WASAPI audio backend over SDL2. Only works on Windows Vista and later.", 0}},
+    {"autospawn_mario_on_start", {"When loading a game, automatically spawn Mario.", 0}},
+    {"mario_in_mocap_cutscenes", {"Replaces CJ with Mario in the 'motion-capture' cutscenes. NOTE: This feature is not finished!", 0}},
 };
+
+
+int getConfig(std::string value)
+{
+    return config.count(value) ? config[value].value : 0;
+}
 
 void saveConfig()
 {
     std::ofstream configfile(CONFIG_FILENAME);
-    for (const std::pair<std::string, int>& mapkey : config)
-        configfile << mapkey.first << ": " << mapkey.second << "\n";
+    for (auto& mapkey : config)
+    {
+        configfile << "# " << mapkey.second.desc << "\n";
+        configfile << mapkey.first << ": " << mapkey.second.value << "\n\n";
+    }
 
     std::cout << "sm64-san-andreas.cfg saved\n";
 }
@@ -51,7 +61,7 @@ void loadConfig()
 
         try
         {
-            config[key] = std::stoi(value);
+            config[key].value = std::stoi(value);
             totalCfg++;
         }
         catch(...)
