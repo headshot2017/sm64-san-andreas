@@ -17,6 +17,12 @@ Once you are ingame, press the M key to switch between Mario and CJ.
 This is still under development!
 
 ## How to download
+### From releases page
+* Go to the [Releases](https://github.com/headshot2017/sm64-san-andreas/releases) page
+* Go to "Assets" and download "sm64-san-andreas-release.zip"
+* Extract the zip's contents to your GTA SA "scripts" folder.
+
+### Nightly builds
 **This requires you to be logged in to your GitHub account.**
 * Go to the [Actions](https://github.com/headshot2017/sm64-san-andreas/actions) page
 * Click the first item that appears in the "workflow runs" list
