@@ -1,6 +1,6 @@
 # sm64-san-andreas
 
-![it's a me](screenshot.png)
+![image](screenshot.png)
 
 An ASI plugin for GTA San Andreas, which makes use of [libsm64](https://github.com/libsm64/libsm64) to allow you to play as Mario from Super Mario 64.
 
